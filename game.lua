@@ -1,10 +1,23 @@
-local MainMenu = require ("Scripts.UI.MainMenu")
-local Constants = require ("Scripts.Contants")
-local PlayingCard = require ("Scripts.PlayingCard")
-local Hand = require("Scripts.Hand")
+-- External Libraries
 local Flux = require("Scripts.libraries.flux")
+
+-- UI
+local MainMenu = require ("Scripts.UI.MainMenu")
+
+-- Helpers
+local Constants = require ("Scripts.Contants")
+
+-- Game objects
+local PlayingCard = require ("Scripts.PlayingCard")
+local RightHand = require("Scripts.RightHand")
+local LeftHand = require("Scripts.LeftHand")
 local Deck = require("Scripts.Deck")
-local CardSpread = require("Scripts.Techniques.CardSpread")
+
+-- Techniques
+--local CardSpread = require("Scripts.Techniques.CardSpread")
+
+-- Tricks
+local ErdnaseChange = require("Scripts.Tricks.ErdnaseChange")
 
 local game = {
 
@@ -15,36 +28,52 @@ local game = {
         print("Load: self.gameState=", self.gameState)
 
         self:LoadCardSprites()
-        self.hand = Hand.New() 
+		self.leftHand = LeftHand.New()
+        self.rightHand = RightHand.New()
+		self.erdnaseChange = ErdnaseChange:New(self.leftHand, self.rightHand, self.deck)
+
+		self.erdnaseChange:Start()
+		love.mouse.setVisible(false)
     end,
 
     LoadCardSprites = function(self)
+		--------------------------------------------------------------------------------------------------------------
+		-- Create all card objects
+		-- One card object for each suit/value (1-13, 1=Ace 11=Jack, 12=Queen, 13=King)
+		--------------------------------------------------------------------------------------------------------------
+		self.deck = Deck:New()
         self.cards = {}
         self.cards.clubs = {}
         self.cards.hearts = {}
         self.cards.diamonds = {}
         self.cards.spades = {}
 
-        self.clubsSpritesheet = love.graphics.newImage("Images/Cards/TopDown/Clubs.png")
-        self.diamondsSpritesheet = love.graphics.newImage("Images/Cards/TopDown/Diamonds.png")
-        self.heartsSpritesheet = love.graphics.newImage("Images/Cards/TopDown/Hearts.png")
-        self.spadesSpritesheet = love.graphics.newImage("Images/Cards/TopDown/Spades.png")
-        self.deckSpritesheet = love.graphics.newImage("Images/Cards/TopDown/DeckVertical.png")
-
-        local x = 0
-        local y = 0
+        local clubsSpritesheet = love.graphics.newImage("Images/Cards/TopDown/Clubs.png")
+        local diamondsSpritesheet = love.graphics.newImage("Images/Cards/TopDown/Diamonds.png")
+        local heartsSpritesheet = love.graphics.newImage("Images/Cards/TopDown/Hearts.png")
+        local spadesSpritesheet = love.graphics.newImage("Images/Cards/TopDown/Spades.png")
+        
         local cardWidth = 88
         local cardHeight = 124
-        local spritesheetWidth = self.clubsSpritesheet:getWidth()
-        local spritesheetHeight = self.clubsSpritesheet:getHeight()
+        local spritesheetWidth = clubsSpritesheet:getWidth()
+        local spritesheetHeight = clubsSpritesheet:getHeight()
+
+		local faceDownSpritesheet = love.graphics.newImage("Images/Cards/TopDown/Back.png")
+        local faceDownQuad = love.graphics.newQuad(cardWidth, 0, cardWidth, cardHeight, faceDownSpritesheet:getWidth(), faceDownSpritesheet:getHeight())
 
         local cardQuads = {}
+		local x = 0
+        local y = 0
         for cardValue = 1, 13 do
             cardQuads[cardValue] = love.graphics.newQuad(x, y, cardWidth, cardHeight, spritesheetWidth, spritesheetHeight)
-            self.cards.clubs[cardValue] = PlayingCard.New(self.clubsSpritesheet, cardQuads[cardValue])
-            self.cards.hearts[cardValue] = PlayingCard.New(self.heartsSpritesheet, cardQuads[cardValue])
-            self.cards.diamonds[cardValue] = PlayingCard.New(self.diamondsSpritesheet, cardQuads[cardValue])
-            self.cards.spades[cardValue] = PlayingCard.New(self.spadesSpritesheet, cardQuads[cardValue])
+			self.cards.spades[cardValue] = PlayingCard.New(cardValue, Constants.CardSuits.Spades, spadesSpritesheet, cardQuads[cardValue], nil, faceDownSpritesheet, faceDownQuad)
+			self.deck.cards[cardValue] = self.cards.spades[cardValue]
+			self.cards.hearts[cardValue] = PlayingCard.New(cardValue, Constants.CardSuits.Hearts, heartsSpritesheet, cardQuads[cardValue], nil, faceDownSpritesheet, faceDownQuad)
+			self.deck.cards[cardValue + 13] = self.cards.hearts[cardValue]
+            self.cards.clubs[cardValue] = PlayingCard.New(cardValue, Constants.CardSuits.Clubs, clubsSpritesheet, cardQuads[cardValue], nil, faceDownSpritesheet, faceDownQuad)
+			self.deck.cards[cardValue + 26] = self.cards.clubs[cardValue]
+            self.cards.diamonds[cardValue] = PlayingCard.New(cardValue, Constants.CardSuits.Diamonds, diamondsSpritesheet, cardQuads[cardValue], nil, faceDownSpritesheet, faceDownQuad)
+            self.deck.cards[cardValue + 39] = self.cards.diamonds[cardValue]
             x = x + cardWidth
             if x >= spritesheetWidth then
                 x = 0
@@ -52,15 +81,8 @@ local game = {
             end
         end
 
-        self.faceDownPlayingCards = {}
-        local faceDownSpritesheet = love.graphics.newImage("Images/Cards/TopDown/Back.png")
-        local faceDownQuad = love.graphics.newQuad(88, 0, cardWidth, cardHeight, faceDownSpritesheet:getWidth(), faceDownSpritesheet:getHeight())
-        for cardValue = 1, 52 do
-            self.faceDownPlayingCards[cardValue] = PlayingCard.New(faceDownSpritesheet, faceDownQuad)
-        end
-
-        self.deck = Deck.New()
-        self.changed = false
+		--------------------------------------------------------------------------------------------------------------
+		--------------------------------------------------------------------------------------------------------------
     end,
 
     Update = function(self, dt)
@@ -69,32 +91,15 @@ local game = {
             self.mainMenu:Update(dt)
             return
         end
-        self.hand:FollowMouse(Flux)
-        local positionX = self.hand.position.x + self.hand.halfWidth / 2
-        local positionY = self.hand.position.y + self.hand.halfHeight / 2
-        local distanceSquared = self:DistanceSquared(positionX, positionY, self.deck.position.x, self.deck.position.y)
-        if self.hand and not self.changed and distanceSquared < 50 then
-            self.changed = true
-        end
-
-        self.deck:HandleMovement(Flux, dt)
-        Flux.update(dt)
-        for key, faceDownPlayingCard in pairs(self.faceDownPlayingCards) do
-            faceDownPlayingCard:SetPosition({x = self.deck.position.x, y = self.deck.position.y })
-        end
-        -- self.cards.clubs[4]:SetPosition({x = self.deck.position.x, y = self.deck.position.y })
-        -- self.cards.hearts[10]:SetPosition({x = self.deck.position.x, y = self.deck.position.y })
+        self.erdnaseChange:Update(Flux, dt)
+		Flux.update(dt)
     end,
 
     Draw = function(self)
         if self.gameState == Constants.GameStates.MainMenu then
             self.mainMenu:Draw()
         else
-            self.deck:Draw()
-            for key, faceDownPlayingCard in pairs(self.faceDownPlayingCards) do
-                faceDownPlayingCard:Draw()
-            end
-            self.hand:Draw()
+			self.erdnaseChange:Draw()
         end
     end,
 
@@ -107,19 +112,5 @@ local game = {
             love.window.close()
         end
     end,
-
-    DistanceSquared = function(self, x1, y1, x2, y2)
-        return (x2-x1)^2 + (y2-y1)^2
-    end,
-
-    -- GenerateRandomScreenPosition = function(self)
-    --     local cardWidth = 88
-    --     local cardHeight = 124
-    --     local windowX, windowY = love.graphics.getDimensions()
-    --     local randX = math.random(windowX - cardWidth)
-    --     local randY = math.random(windowY - cardHeight)
-    --     return { x = randX, y = randY }
-    -- end,
-
 }
 return game

@@ -1,43 +1,55 @@
-
-
 local Deck = {
-    HandleMovement = function(self, Flux, dt)
-        if love.keyboard.isDown("w") then
-            self.targetPosition.y = self.targetPosition.y - (self.moveSpeed * dt)
-        end
-        if love.keyboard.isDown("a") then
-            self.targetPosition.x = self.targetPosition.x - (self.moveSpeed * dt)
-        end
-        if love.keyboard.isDown("s") then
-            self.targetPosition.y = self.targetPosition.y + (self.moveSpeed * dt)
-        end
-        if love.keyboard.isDown("d") then
-            self.targetPosition.x = self.targetPosition.x + (self.moveSpeed * dt)
-        end
-        Flux.to(self.position, 0.4, { x = self.targetPosition.x, y = self.targetPosition.y })
-    end,
+	New = function(self)
+		local instance = setmetatable({}, self)
+		instance.cards = {}
+		return instance
+	end,
 
-    Draw = function(self)
-        love.graphics.draw(self.hand, self.position.x - 45, self.position.y - 60)
-        --love.graphics.draw(self.spritesheet, self.quad, self.position.x, self.position.y)
-    end,
+	DoubleLift = function(self)
+		-- We swap the cards here because the second top card goes to the top when they are both flipped over together
+		self:Swap(51, 52)
+		self.cards[51]:SetFacingUp(true)
+		self.cards[52]:SetFacingUp(true)
+	end,
+
+	Swap = function(self, a, b)
+		if a < 1 or a > 52 then
+			return
+		end
+		if b < 1 or b > 52 then
+			return
+		end
+		if a == b then
+			return
+		end
+		local temp = self.cards[a]
+		self.cards[a] = self.cards[b]
+		self.cards[b] = temp
+	end,
+
+	Fan = function(self)
+		local angleIncrement = 8
+		local angle = 0
+		for index, card in ipairs(self.cards) do
+			card.offset = { x = 0, y = card.halfHeight}
+			card.angle = angle
+			if angle < 180 then
+				angle = angle + angleIncrement
+			end
+		end
+	end,
+
+	Unfan = function(self)
+		for index, card in ipairs(self.cards) do
+			card.offset = { x = 0, y = 0}
+			card.angle = 0
+		end
+	end,
+
+	OffsetCard = function(self, cardIndex)
+		self.cards[cardIndex].offset = { x = 0, y = self.cards[cardIndex].halfHeight }
+	end,
 }
 
 Deck.__index = Deck
-Deck.New = function()
-    local instance = setmetatable({}, Deck)
-
-    local deckWidth = 88
-    local deckHeight = 140
-    local spritesheetWidth = 264
-    instance.spritesheet = love.graphics.newImage("Images/Cards/TopDown/DeckVertical.png")
-    instance.hand = love.graphics.newImage("Images/leftHandHoldingDeck.png")
-    instance.quad = love.graphics.newQuad(0, 0, deckWidth, deckHeight, spritesheetWidth, deckHeight)
-    instance.position = { x = 0, y = 0 }
-    instance.halfWidth = deckWidth / 2
-    instance.halfHeight = deckHeight / 2
-    instance.targetPosition = { x = 200, y = 200 }
-    instance.moveSpeed = 150
-    return instance
-end
 return Deck

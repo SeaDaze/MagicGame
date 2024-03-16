@@ -4,6 +4,20 @@ local Constants =
     {
         MainMenu = 0,
         Game = 1,
-    }
+    },
+
+	CardSuits = 
+	{
+		Spades = 1,
+		Hearts = 2,
+		Clubs = 3,
+		Diamonds = 4
+	},
+
+	CardDimensions = 
+	{
+		Width = 88,
+        Height = 124,
+	}
 }
 return Constants
