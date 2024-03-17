@@ -3,6 +3,7 @@ local Flux = require("Scripts.libraries.flux")
 
 -- UI
 local MainMenu = require ("Scripts.UI.MainMenu")
+local Button = require ("Scripts.Button")
 
 -- Helpers
 local Constants = require ("Scripts.Contants")
@@ -33,7 +34,7 @@ local game = {
 		self.erdnaseChange = ErdnaseChange:New(self.leftHand, self.rightHand, self.deck)
 
 		self.erdnaseChange:Start()
-		love.mouse.setVisible(false)
+        self.buttonTest = Button:New("Test", { x = 20, y = 20 }, 50, 20, 1)
     end,
 
     LoadCardSprites = function(self)
@@ -93,6 +94,7 @@ local game = {
         end
         self.erdnaseChange:Update(Flux, dt)
 		Flux.update(dt)
+        self.buttonTest:Update(dt)
     end,
 
     Draw = function(self)
@@ -101,6 +103,7 @@ local game = {
         else
 			self.erdnaseChange:Draw()
         end
+        self.buttonTest:Draw()
     end,
 
     OnGameStateChanged = function(self, newState)

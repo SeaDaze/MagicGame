@@ -10,6 +10,7 @@ local ErdnaseChange = {
 	end,
 
 	Start = function(self)
+		--self.deck:Fan()
 		--self.deck:DoubleLift()
 		--self.deck:OffsetCard(5)
 	end,
