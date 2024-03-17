@@ -49,10 +49,16 @@ PlayingCard.New = function(value, suit, spritesheet, quad, position, faceDownSpr
 	instance.faceDownSpritesheet = faceDownSpritesheet
 	instance.faceDownQuad = faceDownQuad
     instance.position = position or { x = 0, y = 0 }
+	instance.targetPosition = position or { x = 0, y = 0 }
 	instance.angle = 0
+	instance.targetAngle = 0
 	instance.offset = { x = 0, y = 0 }
+	instance.targetOffset =  { x = 0, y = 0 }
+	instance.previousOffset = { x = 0, y = 0 }
 	instance.halfWidth = Constants.CardDimensions.Width / 2
 	instance.halfHeight = Constants.CardDimensions.Height / 2
+	instance.given = false
+
     return instance
 end
 return PlayingCard

@@ -19,7 +19,9 @@ local ErdnaseChange = {
 		self.rightHand:FollowMouse(Flux)
 		self.leftHand:HandleMovement(Flux, dt)
 		for _, card in ipairs(self.deck.cards) do
-			card:SetPosition({x = self.leftHand.position.x, y = self.leftHand.position.y })
+			if not card.given then
+				card:SetPosition({x = self.leftHand.position.x, y = self.leftHand.position.y })
+			end
 		end
 		self:HandleChange()
     end,

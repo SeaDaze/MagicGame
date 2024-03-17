@@ -7,6 +7,7 @@ local Button = require ("Scripts.Button")
 
 -- Helpers
 local Constants = require ("Scripts.Contants")
+local Timer = require("Scripts.Timer")
 
 -- Game objects
 local PlayingCard = require ("Scripts.PlayingCard")
@@ -19,6 +20,7 @@ local Deck = require("Scripts.Deck")
 
 -- Tricks
 local ErdnaseChange = require("Scripts.Tricks.ErdnaseChange")
+
 
 local game = {
 
@@ -34,7 +36,19 @@ local game = {
 		self.erdnaseChange = ErdnaseChange:New(self.leftHand, self.rightHand, self.deck)
 
 		self.erdnaseChange:Start()
-        self.buttonTest = Button:New("Test", { x = 20, y = 20 }, 50, 20, 1)
+		self.buttons = {}
+		self.buttons.fanButton = Button:New("Fan Deck", { x = 10, y = 10 }, 80, 30, 1)
+		self.buttons.fanButton:AddListener(self, "OnFanButtonClicked")
+		self.buttons.unfanButton = Button:New("Unfan Deck", { x = 110, y = 10 }, 80, 30, 1)
+		self.buttons.unfanButton:AddListener(self, "OnUnfanButtonClicked")
+		self.buttons.offsetCardButton = Button:New("Offset card", { x = 210, y = 10 }, 80, 30, 1)
+		self.buttons.offsetCardButton:AddListener(self, "OffsetCardButtonClicked")
+		self.buttons.giveCardButton = Button:New("Give card", { x = 310, y = 10 }, 80, 30, 1)
+		self.buttons.giveCardButton:AddListener(self, "OnGiveCardButtonClicked")
+
+		self.timer = Timer.New()
+		self.timer:AddListener(self, "OnTimerFinished")
+		self.timer:Start("testTimerId", 5)
     end,
 
     LoadCardSprites = function(self)
@@ -87,14 +101,20 @@ local game = {
     end,
 
     Update = function(self, dt)
+		Flux.update(dt)
+		self.timer:Update(dt)
         self:HandleInput()
         if self.gameState == Constants.GameStates.MainMenu then
             self.mainMenu:Update(dt)
             return
         end
         self.erdnaseChange:Update(Flux, dt)
-		Flux.update(dt)
-        self.buttonTest:Update(dt)
+		
+		self.deck:Update(Flux, dt)
+
+		for buttonName, button in pairs(self.buttons) do
+			button:Update(dt)
+		end
     end,
 
     Draw = function(self)
@@ -103,8 +123,26 @@ local game = {
         else
 			self.erdnaseChange:Draw()
         end
-        self.buttonTest:Draw()
+		for buttonName, button in pairs(self.buttons) do
+			button:Draw()
+		end
     end,
+
+	OnFanButtonClicked = function(self)
+		self.deck:Fan()
+	end,
+
+	OnUnfanButtonClicked = function(self)
+		self.deck:Unfan()
+	end,
+
+	OffsetCardButtonClicked = function(self)
+		self.deck:OffsetRandomCard()
+	end,
+
+	OnGiveCardButtonClicked = function(self)
+		self.deck:GiveSelectedCard()
+	end,
 
     OnGameStateChanged = function(self, newState)
         self.gameState = newState
@@ -115,5 +153,9 @@ local game = {
             love.window.close()
         end
     end,
+
+	OnTimerFinished = function(self, timerId)
+		print("OnTimerFinished: timerId=", timerId)
+	end,
 }
 return game

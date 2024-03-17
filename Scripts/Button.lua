@@ -9,7 +9,14 @@ local Button = {
         instance.color = { 0, 0, 0, 1}
         instance.hovered = false
         instance.clicked = false
+		instance.callbackData = { }
 		return instance
+	end,
+
+	AddListener = function(self, listenTarget, functionName, params)
+		self.callbackData.listenTarget = listenTarget
+		self.callbackData.functionName = functionName
+		self.callbackData.params = params
 	end,
 
     Update = function(self, dt)
@@ -21,6 +28,9 @@ local Button = {
 
         if self.hovered and not self.clicked and love.mouse.isDown(1) then
             self.clicked = true
+			if self.callbackData.listenTarget then
+				self.callbackData.listenTarget[self.callbackData.functionName](self.callbackData.listenTarget, self.callbackData.params)
+			end
             -- for _, callbackData in pairs(self.callbackListeners) do
             --     callbackData.table[callbackData.func](callbackData.table)
             -- end
