@@ -85,7 +85,7 @@ local Deck = {
 	end,
 
 	OffsetRandomCard = function(self)
-		local randomCardIndex = math.random(1, self.fannedCards)
+		local randomCardIndex = love.math.random(1, self.fannedCards)
 		self:OffsetCard(randomCardIndex)
 	end,
 
@@ -100,7 +100,15 @@ local Deck = {
 	end,
 
 	RetrieveSelectedCard = function(self)
-
+		if self.offsetCardIndex then
+			
+			-- self.cards[self.offsetCardIndex].given = false
+			-- self.cards[self.offsetCardIndex].targetPosition = { x = 600, y = 100 }
+			-- self.cards[self.offsetCardIndex].targetOffset = { x = 0, y = 0 }
+			-- self.cards[self.offsetCardIndex].targetAngle = 0
+			-- self.cards[self.offsetCardIndex].given = true
+			-- self.cards[self.offsetCardIndex].facingUp = true
+		end
 	end,
 }
 

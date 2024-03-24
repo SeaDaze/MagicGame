@@ -10,6 +10,7 @@ local Button = {
         instance.hovered = false
         instance.clicked = false
 		instance.callbackData = { }
+        instance.active = false
 		return instance
 	end,
 
@@ -20,6 +21,9 @@ local Button = {
 	end,
 
     Update = function(self, dt)
+        if not self.active then
+            return
+        end
         if love.mouse.getX() >= self.position.x and love.mouse.getX() <= self.position.x + self.width and love.mouse.getY() >= self.position.y and love.mouse.getY() <= self.position.y + self.height then
             self.hovered = true
         else
@@ -40,10 +44,12 @@ local Button = {
     end,
 
     Draw = function(self)
-        if self.hovered and not self.clicked then
-            love.graphics.setColor(0.8, 0.8, 0.8)
-        elseif self.clicked then
+        if not self.active then
             love.graphics.setColor(0.5, 0.5, 0.5)
+        elseif self.hovered and not self.clicked then
+            love.graphics.setColor(0.7, 0.7, 0.8)
+        elseif self.clicked then
+            love.graphics.setColor(0.5, 0.5, 0.8)
         else
             love.graphics.setColor(1, 1, 1)
         end
@@ -52,6 +58,10 @@ local Button = {
         love.graphics.print({ self.color, self.text }, self.position.x, self.position.y, 0, self.textScale)
         love.graphics.setColor(1, 1, 1)
     end,
+
+    SetActive = function(self, active)
+        self.active = active
+    end
 }
 
 Button.__index = Button

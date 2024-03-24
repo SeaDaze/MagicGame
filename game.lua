@@ -6,7 +6,7 @@ local MainMenu = require ("Scripts.UI.MainMenu")
 local Button = require ("Scripts.Button")
 
 -- Helpers
-local Constants = require ("Scripts.Contants")
+local Constants = require ("Scripts.Constants")
 local Timer = require("Scripts.Timer")
 
 -- Game objects
@@ -21,11 +21,14 @@ local Deck = require("Scripts.Deck")
 -- Tricks
 local ErdnaseChange = require("Scripts.Tricks.ErdnaseChange")
 
+local Background = require("Scripts.Background")
+local Character = require("Scripts.Character")
 
 local game = {
 
     Load = function(self)
-        self.gameState = Constants.GameStates.Game
+        love.graphics.setDefaultFilter("nearest", "nearest")
+        self.gameState = Constants.GameStates.Streets
         self.mainMenu = MainMenu
         self.mainMenu:Load(self)
         print("Load: self.gameState=", self.gameState)
@@ -45,10 +48,15 @@ local game = {
 		self.buttons.offsetCardButton:AddListener(self, "OffsetCardButtonClicked")
 		self.buttons.giveCardButton = Button:New("Give card", { x = 310, y = 10 }, 80, 30, 1)
 		self.buttons.giveCardButton:AddListener(self, "OnGiveCardButtonClicked")
+        self.buttons.RetrieveCardButton = Button:New("Retrieve card", { x = 410, y = 10 }, 80, 30, 1)
+		self.buttons.RetrieveCardButton:AddListener(self, "OnRetrieveCardButtonClicked")
 
 		self.timer = Timer.New()
 		self.timer:AddListener(self, "OnTimerFinished")
-		self.timer:Start("testTimerId", 5)
+		self.timer:Start("testTimerId", 2)
+        
+        self.background = Background:New()
+        self.character = Character:New()
     end,
 
     LoadCardSprites = function(self)
@@ -107,28 +115,34 @@ local game = {
         if self.gameState == Constants.GameStates.MainMenu then
             self.mainMenu:Update(dt)
             return
+        elseif self.gameState == Constants.GameStates.Game then
+            self.erdnaseChange:Update(Flux, dt)
+            self.deck:Update(Flux, dt)
+            for buttonName, button in pairs(self.buttons) do
+                button:Update(dt)
+            end
+        elseif self.gameState == Constants.GameStates.Streets then
+            self.background:Update(Flux, dt)
+            self.character:Update(Flux, dt)
         end
-        self.erdnaseChange:Update(Flux, dt)
-		
-		self.deck:Update(Flux, dt)
-
-		for buttonName, button in pairs(self.buttons) do
-			button:Update(dt)
-		end
     end,
 
     Draw = function(self)
         if self.gameState == Constants.GameStates.MainMenu then
             self.mainMenu:Draw()
-        else
-			self.erdnaseChange:Draw()
+        elseif self.gameState == Constants.GameStates.Game then
+            self.erdnaseChange:Draw()
+            for buttonName, button in pairs(self.buttons) do
+                button:Draw()
+            end
+        elseif self.gameState == Constants.GameStates.Streets then
+			self.background:Draw()
+            self.character:Draw()
         end
-		for buttonName, button in pairs(self.buttons) do
-			button:Draw()
-		end
     end,
 
 	OnFanButtonClicked = function(self)
+        love.math.setRandomSeed(love.timer.getTime())
 		self.deck:Fan()
 	end,
 
@@ -144,6 +158,10 @@ local game = {
 		self.deck:GiveSelectedCard()
 	end,
 
+    OnRetrieveCardButtonClicked = function(self)
+		self.deck:RetrieveSelectedCard()
+	end,
+
     OnGameStateChanged = function(self, newState)
         self.gameState = newState
     end,
@@ -156,6 +174,9 @@ local game = {
 
 	OnTimerFinished = function(self, timerId)
 		print("OnTimerFinished: timerId=", timerId)
+        for buttonName, button in pairs(self.buttons) do
+			button:SetActive(true)
+		end
 	end,
 }
 return game

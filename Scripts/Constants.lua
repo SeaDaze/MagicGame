@@ -4,6 +4,7 @@ local Constants =
     {
         MainMenu = 0,
         Game = 1,
+		Streets = 2,
     },
 
 	CardSuits = 

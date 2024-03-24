@@ -1,4 +1,4 @@
-local Constants = require("Scripts.Contants")
+local Constants = require("Scripts.Constants")
 
 local PlayingCard = {
     SetPosition = function(self, newPosition)

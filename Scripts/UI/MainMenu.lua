@@ -1,5 +1,5 @@
 local Clickable = require ("Scripts.Clickable")
-local Constants = require ("Scripts.Contants")
+local Constants = require ("Scripts.Constants")
 
 local MainMenu =
 {
