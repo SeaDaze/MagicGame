@@ -16,16 +16,16 @@ local LeftHand = {
     end,
 
     Draw = function(self)
-        love.graphics.draw(self.sprite, self.position.x, self.position.y, math.rad(self.angle), 1, 1, (self.width / 2), self.height / 2)
+        love.graphics.draw(self.sprite, self.position.x, self.position.y, math.rad(self.angle), 4, 4, (self.width / 2), self.height / 2)
     end,
 }
 
 LeftHand.__index = LeftHand
 LeftHand.New = function()
     local instance = setmetatable({}, LeftHand)
-    instance.sprite = love.graphics.newImage("Images/leftHandMechanicsGrip.png")
-    instance.position = { x = 0, y = 0 }
-    instance.targetPosition = { x = 200, y = 200 }
+    instance.sprite = love.graphics.newImage("Images/Hands/left_dealerGrip.png")
+    instance.position = { x = love.graphics.getWidth() / 2, y = love.graphics.getHeight() / 2 }
+    instance.targetPosition = { x = love.graphics.getWidth() / 2, y = love.graphics.getHeight() / 2 }
     instance.moveSpeed = 200
 	instance.width = instance.sprite:getWidth()
 	instance.height = instance.sprite:getHeight()

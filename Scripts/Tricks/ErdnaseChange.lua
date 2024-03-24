@@ -11,18 +11,12 @@ local ErdnaseChange = {
 
 	Start = function(self)
 		--self.deck:Fan()
+		--self.deck:Shuffle()
 		--self.deck:DoubleLift()
 		--self.deck:OffsetCard(5)
 	end,
 
     Update = function(self, Flux, dt)
-		self.rightHand:FollowMouse(Flux)
-		self.leftHand:HandleMovement(Flux, dt)
-		for _, card in ipairs(self.deck.cards) do
-			if not card.given then
-				card:SetPosition({x = self.leftHand.position.x, y = self.leftHand.position.y })
-			end
-		end
 		self:HandleChange()
     end,
 
@@ -36,14 +30,6 @@ local ErdnaseChange = {
 			print("HandleChange: successfully changed")
         end
 	end,
-
-    Draw = function(self)
-		self.leftHand:Draw()
-		for _, card in ipairs(self.deck.cards) do
-			card:Draw()
-		end
-		self.rightHand:Draw()
-    end,
 }
 
 ErdnaseChange.__index = ErdnaseChange

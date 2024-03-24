@@ -1,9 +1,50 @@
+local Common = require("Scripts.Common")
+local PlayingCard = require ("Scripts.PlayingCard")
+local Constants = require ("Scripts.Constants")
+
 local Deck = {
-	New = function(self)
+	New = function(self, leftHandReference)
 		local instance = setmetatable({}, self)
 		instance.cards = {}
 		instance.fannedCards = 0
 		instance.offsetCardIndex = nil
+		instance.leftHandReference = leftHandReference
+		instance.inLeftHand = true
+
+		instance.cards = {}
+        instance.clubs = {}
+        instance.hearts = {}
+        instance.diamonds = {}
+        instance.spades = {}
+
+		local cardSpritesheet = love.graphics.newImage("Images/Cards/cardSpritesheet.png")
+		local cardWidth = 18
+		local cardHeight = 24
+		local spritesheetWidth = cardSpritesheet:getWidth()
+        local spritesheetHeight = cardSpritesheet:getHeight()
+		local faceDownSprite = love.graphics.newImage("Images/Cards/cardBack_01.png")
+
+		local x = 0
+        for cardValue = 1, 13 do
+            local clubQuad = love.graphics.newQuad(x, 0, cardWidth, cardHeight, spritesheetWidth, spritesheetHeight)
+			instance.clubs[cardValue] = PlayingCard.New(cardValue, Constants.CardSuits.Clubs, cardSpritesheet, clubQuad, nil, faceDownSprite)
+			instance.cards[cardValue] = instance.clubs[cardValue]
+
+			local diamondQuad = love.graphics.newQuad(x, cardHeight, cardWidth, cardHeight, spritesheetWidth, spritesheetHeight)
+			instance.diamonds[cardValue] = PlayingCard.New(cardValue, Constants.CardSuits.Diamonds, cardSpritesheet, diamondQuad, nil, faceDownSprite)
+			instance.cards[cardValue + 13] = instance.diamonds[cardValue]
+
+			local heartQuad = love.graphics.newQuad(x, cardHeight * 2, cardWidth, cardHeight, spritesheetWidth, spritesheetHeight)
+			instance.hearts[cardValue] = PlayingCard.New(cardValue, Constants.CardSuits.Hearts, cardSpritesheet, heartQuad, nil, faceDownSprite)
+			instance.cards[cardValue + 26] = instance.hearts[cardValue]
+
+			local spadeQuad = love.graphics.newQuad(x, cardHeight * 3, cardWidth, cardHeight, spritesheetWidth, spritesheetHeight)
+			instance.spades[cardValue] = PlayingCard.New(cardValue, Constants.CardSuits.Spades, cardSpritesheet, spadeQuad, nil, faceDownSprite)
+			instance.cards[cardValue + 39] = instance.spades[cardValue]
+			
+            x = x + cardWidth
+        end
+
 		return instance
 	end,
 
@@ -17,9 +58,17 @@ local Deck = {
 			end
 			if card.given then
 				Flux.to(card.position, 0.3, { x = card.targetPosition.x, y = card.targetPosition.y } )
+			else
+				card:SetPosition({x = self.leftHandReference.position.x, y = self.leftHandReference.position.y })
 			end
 		end
 	end,
+
+	Draw = function(self)
+		for _, card in ipairs(self.cards) do
+			card:Draw()
+		end
+    end,
 
 	DoubleLift = function(self)
 		-- We swap the cards here because the second top card goes to the top when they are both flipped over together
@@ -41,6 +90,14 @@ local Deck = {
 		local temp = self.cards[a]
 		self.cards[a] = self.cards[b]
 		self.cards[b] = temp
+	end,
+
+	ToggleFan = function(self)
+		if self.fannedCards == 0 then
+			self:Fan()
+		else
+			self:Unfan()
+		end
 	end,
 
 	Fan = function(self)
@@ -110,6 +167,18 @@ local Deck = {
 			-- self.cards[self.offsetCardIndex].facingUp = true
 		end
 	end,
+
+	Shuffle = function(self)
+		local shuffledDeck = {}
+		for cardNumber = 1, 52 do
+			local cardCount = Common:TableCount(self.cards)
+			local randomIndex = math.random(1, cardCount)
+			table.insert(shuffledDeck, self.cards[randomIndex])
+			table.remove(self.cards, randomIndex)
+		end
+		self.cards = shuffledDeck
+	end,
+
 }
 
 Deck.__index = Deck

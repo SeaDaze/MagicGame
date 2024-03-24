@@ -13,22 +13,21 @@ local PlayingCard = {
 				self.position.x,
 				self.position.y,
 				math.rad(self.angle),
-				1,
-				1,
-				(Constants.CardDimensions.Width / 2) + self.offset.x,
-				(Constants.CardDimensions.Height / 2) + self.offset.y
+				4,
+				4,
+				self.halfWidth + self.offset.x,
+				self.halfHeight + self.offset.y
 			)
         else
 			love.graphics.draw(
-				self.faceDownSpritesheet,
-				self.faceDownQuad,
+				self.faceDownSprite,
 				self.position.x,
 				self.position.y,
 				math.rad(self.angle),
-				1,
-				1,
-				(Constants.CardDimensions.Width / 2) + self.offset.x,
-				(Constants.CardDimensions.Height / 2) + self.offset.y
+				4,
+				4,
+				self.halfWidth + self.offset.x,
+				self.halfHeight + self.offset.y
 			)
 		end
     end,
@@ -39,15 +38,14 @@ local PlayingCard = {
 }
 
 PlayingCard.__index = PlayingCard
-PlayingCard.New = function(value, suit, spritesheet, quad, position, faceDownSpritesheet, faceDownQuad)
+PlayingCard.New = function(value, suit, spritesheet, quad, position, faceDownSprite)
     local instance = setmetatable({}, PlayingCard)
 	instance.value = value
 	instance.suit = suit
     instance.spritesheet = spritesheet
     instance.quad = quad
 	instance.facingUp = false
-	instance.faceDownSpritesheet = faceDownSpritesheet
-	instance.faceDownQuad = faceDownQuad
+	instance.faceDownSprite = faceDownSprite
     instance.position = position or { x = 0, y = 0 }
 	instance.targetPosition = position or { x = 0, y = 0 }
 	instance.angle = 0
@@ -55,8 +53,9 @@ PlayingCard.New = function(value, suit, spritesheet, quad, position, faceDownSpr
 	instance.offset = { x = 0, y = 0 }
 	instance.targetOffset =  { x = 0, y = 0 }
 	instance.previousOffset = { x = 0, y = 0 }
-	instance.halfWidth = Constants.CardDimensions.Width / 2
-	instance.halfHeight = Constants.CardDimensions.Height / 2
+	local width, height = quad:getTextureDimensions()
+	instance.halfWidth = (width / 13) / 2
+	instance.halfHeight = (height / 4) / 2
 	instance.given = false
 
     return instance

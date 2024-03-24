@@ -2,7 +2,6 @@ local Background =
 {
 	New = function(self)
 		local instance = setmetatable({}, self)
-        print("New Background")
         instance.background = love.graphics.newImage("Images/Buildings/Background_01.png")
         instance.building1 = love.graphics.newImage("Images/Buildings/Buildings_01.png")
         instance.building2 = love.graphics.newImage("Images/Buildings/Buildings_02.png")

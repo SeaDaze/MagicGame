@@ -3,7 +3,7 @@ local Constants =
     GameStates = 
     {
         MainMenu = 0,
-        Game = 1,
+        Perform = 1,
 		Streets = 2,
     },
 

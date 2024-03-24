@@ -2,10 +2,9 @@ local Character =
 {
 	New = function(self)
 		local instance = setmetatable({}, self)
-        print("New Character")
-        instance.characterSprite = love.graphics.newImage("Images/Characters/character_02.png")
-        instance.movementSpeed = 40
-        instance.position = { x = 600, y = 550 }
+        instance.characterSprite = love.graphics.newImage("Images/Characters/character_03.png")
+        instance.movementSpeed = 60
+        instance.position = { x = 600, y = 510 }
         instance.facingRight = true
 		return instance
 	end,
