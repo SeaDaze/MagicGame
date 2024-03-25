@@ -16,7 +16,10 @@ local PerformScene =
 		-- self.erdnaseChange = ErdnaseChange:New(self.leftHand, self.rightHand, self.deck)
 		-- self.erdnaseChange:Start()
 
-		self.keyboardUI:SetKeyText("f", "Fan Cards")
+		--self.keyboardUI:SetKeyText("f", "FAN CARDS")
+		self.keyboardUI:AddKeyToUI("f", "FAN CARDS")
+		self.keyboardUI:AddKeyToUI("w", "MOVE UP")
+
 		Input:AddKeyListener("f", self.deck, "ToggleFan")
     end,
 

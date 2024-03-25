@@ -27,10 +27,6 @@ local game = {
 		self.AICharacter = AICharacter:New(true)
 		self.AICharacter2 = AICharacter:New(false)
 
-		self.keyboardUI = {}
-		self.keyboardUI["w"] = love.graphics.newImage("Images/Keyboard/key_spacebar.png")
-		self.keyboardUI["space"] = love.graphics.newImage("Images/Keyboard/key_spacebar_selected.png")
-
 		KeyboardUI:Load()
 		PerformScene:Load(KeyboardUI)
     end,
@@ -62,10 +58,6 @@ local game = {
             self.character:Draw()
 			self.AICharacter:Draw()
 			self.AICharacter2:Draw()
-
-			love.graphics.draw(self.keyboardUI["w"], 600, 650, 0, 2, 2, self.keyboardUI["w"]:getWidth() / 2)
-			love.graphics.draw(self.keyboardUI["space"], 600, 650, 0, 2, 2, self.keyboardUI["w"]:getWidth() / 2)
-			
         end
     end,
 

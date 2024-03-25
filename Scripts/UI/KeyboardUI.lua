@@ -1,34 +1,62 @@
-
+local Common = require("Scripts.Common")
 
 local KeyboardUI =
 {
     Load = function(self, gameInstance)
 		self.keys = {}
+		self.visibleKeys = {}
+
 		self.font = love.graphics.newFont("Fonts/pixelFont.ttf",24)
 		self.scale = 2
+		self.topPosition = 200
+
 		self.keys["f"] = {
 			image = love.graphics.newImage("Images/Keyboard/key_f.png"),
+			position = { x = love.graphics.getWidth() - 200 , y = self.topPosition },
+			text = "",
+		}
+		self.keys["w"] = {
+			image = love.graphics.newImage("Images/Keyboard/key_w.png"),
 			position = { x = love.graphics.getWidth() - 200 , y = 200 },
 			text = "",
 		}
+		self.keys["a"] = {
+			image = love.graphics.newImage("Images/Keyboard/key_a.png"),
+			position = { x = love.graphics.getWidth() - 200 , y = 200 },
+			text = "",
+		}
+		self.keys["s"] = {
+			image = love.graphics.newImage("Images/Keyboard/key_s.png"),
+			position = { x = love.graphics.getWidth() - 200 , y = 200 },
+			text = "",
+		}
+		self.keys["d"] = {
+			image = love.graphics.newImage("Images/Keyboard/key_d.png"),
+			position = { x = love.graphics.getWidth() - 200 , y = 200 },
+			text = "",
+		}
+		
+		self.interval = 30
     end,
 
     Update = function(self, Flux, dt)
     end,
 
     Draw = function(self)
-		for keyName, keyData in pairs(self.keys) do
-			love.graphics.draw(keyData.image, keyData.position.x, keyData.position.y, 0, self.scale, self.scale)
-			love.graphics.printf(keyData.text, self.font, keyData.position.x + (keyData.image:getWidth() * self.scale) + 10, keyData.position.y + 5, 500, "left")
+		local offsetIndex = 0
+		for keyName, keyData in ipairs(self.visibleKeys) do
+			love.graphics.draw(keyData.image, keyData.position.x, keyData.position.y + (offsetIndex * self.interval), 0, self.scale, self.scale)
+			love.graphics.printf(keyData.text, self.font, keyData.position.x + (keyData.image:getWidth() * self.scale) + 10, keyData.position.y + (offsetIndex * self.interval) + 5, 500, "left")
+			offsetIndex = offsetIndex + 1
 		end
     end,
 
-	SetKeyText = function(self, keyName, text)
-		self.keys[keyName].text = text
-	end,
-
 	AddKeyToUI = function(self, keyName, text)
-
+		if not keyName or not self.keys[keyName] then
+			return
+		end
+		table.insert(self.visibleKeys, self.keys[keyName])
+		self.visibleKeys[#self.visibleKeys].text = text
 	end,
 }
 return KeyboardUI
