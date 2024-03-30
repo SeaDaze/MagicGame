@@ -3,12 +3,13 @@ local PlayingCard = require ("Scripts.PlayingCard")
 local Constants = require ("Scripts.Constants")
 
 local Deck = {
-	New = function(self, leftHandReference)
+	New = function(self, leftHandReference, rightHandReference)
 		local instance = setmetatable({}, self)
 		instance.cards = {}
 		instance.fannedCards = 0
 		instance.offsetCardIndex = nil
 		instance.leftHandReference = leftHandReference
+		instance.rightHandReference = rightHandReference
 		instance.inLeftHand = true
 
 		instance.cards = {}
@@ -16,6 +17,9 @@ local Deck = {
         instance.hearts = {}
         instance.diamonds = {}
         instance.spades = {}
+
+		instance.lines = {}
+        instance.lineIndex = 1
 
 		local cardSpritesheet = love.graphics.newImage("Images/Cards/cardSpritesheet.png")
 		local cardWidth = 18
@@ -62,12 +66,33 @@ local Deck = {
 				card:SetPosition({x = self.leftHandReference.position.x, y = self.leftHandReference.position.y })
 			end
 		end
+
+		if self.fanSpreading then
+			self:DuringFanSpread()
+		end
+		self:SpreadingLines()
 	end,
 
 	Draw = function(self)
 		for _, card in ipairs(self.cards) do
 			card:Draw()
 		end
+
+		-- for _, line in pairs(self.lines) do
+        --     love.graphics.line(line.x1, line.y1, line.x2, line.y2)
+        -- end
+
+		-- local numberOfLines = Common:TableCount(self.lines)
+		-- if numberOfLines == 0 then
+		-- 	return
+		-- end
+		-- local targetLine = self.lines[numberOfLines]
+		-- if not targetLine then
+		-- 	return
+		-- end
+
+		-- local card = self.cards[1]
+		-- love.graphics.line(targetLine.x1, targetLine.y1, card.position.x, card.position.y)
     end,
 
 	DoubleLift = function(self)
@@ -97,6 +122,90 @@ local Deck = {
 			self:Fan()
 		else
 			self:Unfan()
+		end
+	end,
+
+	DuringFanSpread = function(self)
+		local numberOfLines = Common:TableCount(self.lines)
+		if numberOfLines == 0 then
+			return
+		end
+		local targetLine = self.lines[numberOfLines]
+		if not targetLine then
+			return
+		end
+		if love.mouse.getX() < self.leftHandReference.position.x then
+			return
+		end
+		for _, card in ipairs(self.spreadingCards) do
+			local v2 = Common:Normalize({ x = targetLine.x2 - card.position.x, y = targetLine.y2 - card.position.y })
+			local v1 = { x = 0, y = -1 }
+			local newAngle = Common:AngleBetweenVectors(v1, v2)
+			local angleDelta = (newAngle - card.targetAngle)
+			card.targetAngle = (card.targetAngle + angleDelta) * 2
+		end
+	end,
+
+	OnNewLineCreated = function(self, lineIndex)
+		if not self.spreadingCards then
+			return
+		end
+		table.remove(self.spreadingCards, 1)
+	end,
+
+	FanSpread = function(self)
+		self.fanSpreading = true
+		for _, card in ipairs(self.cards) do
+			card.targetOffset = { x = 0, y = card.halfHeight }
+			card.previousOffset = { x = 0, y = card.halfHeight }
+		end
+		self.spreadingCards = {}
+		for index, card in ipairs(self.cards) do
+			self.spreadingCards[index] = card
+		end
+	end,
+
+	UnfanSpread = function(self)
+		self.fanSpreading = false
+		self:Unfan()
+	end,
+
+	SpreadingLines = function(self)
+		if not love.mouse.isDown(1) then
+			if self.originPoint then
+				self.originPoint = nil
+			end
+			self.lines = {}
+			self.lineIndex = 1
+		end
+
+		local mouseX, mouseY = love.mouse.getPosition()
+		if mouseX < self.cards[1].position.x then
+			return
+		end
+		local leftHandPos = self.leftHandReference.position
+		local rightHandPos = self.rightHandReference.position
+		local handsDistance = Common:DistanceSquared(leftHandPos.x, leftHandPos.y, rightHandPos.x, rightHandPos.y)
+		print(handsDistance)
+		if handsDistance > 15000 then
+			return
+		end
+		if love.mouse.isDown(1) then
+			if not self.lines[self.lineIndex] then
+				local x = mouseX
+				local y = mouseY
+				if self.lines[self.lineIndex - 1] then
+					x = self.lines[self.lineIndex - 1].x2
+					y = self.lines[self.lineIndex - 1].y2
+				end
+				self.lines[self.lineIndex] = { x1 = x, y1 = y, x2 = x, y2 = y }
+			end
+			self.lines[self.lineIndex].x2 = mouseX
+			self.lines[self.lineIndex].y2 = mouseY
+			if Common:DistanceSquared(self.lines[self.lineIndex].x1, self.lines[self.lineIndex].y1, self.lines[self.lineIndex].x2, self.lines[self.lineIndex].y2) > 30 then
+				self.lineIndex = self.lineIndex + 1
+				self:OnNewLineCreated(self.lineIndex)
+			end
 		end
 	end,
 

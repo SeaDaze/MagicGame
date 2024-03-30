@@ -8,15 +8,18 @@ local Input =
 		end
 		for key, keyData in pairs(self.keyListeners) do
 			if not keyData.down and love.keyboard.isDown(key) then
-				keyData.tableInstance[keyData.callback](keyData.tableInstance)
+				keyData.tableInstance[keyData.downCallback](keyData.tableInstance)
 				keyData.down = true
 			elseif keyData.down and not love.keyboard.isDown(key) then
 				keyData.down = false
+				if keyData.upCallback then
+					keyData.tableInstance[keyData.upCallback](keyData.tableInstance)
+				end
 			end
 		end
     end,
 
-	AddKeyListener = function(self, key, tableInstance, callback)
+	AddKeyListener = function(self, key, tableInstance, downCallback, upCallback)
 		if not self.keyListeners then
 			self.keyListeners = {}
 		end
@@ -24,7 +27,8 @@ local Input =
 		{
 			down = false,
 			tableInstance = tableInstance,
-			callback = callback,
+			downCallback = downCallback,
+			upCallback = upCallback,
 		}
 		print("AddKeyListener: Added listener for key=", key, ", when pressed, will call function=", callback)
 	end,

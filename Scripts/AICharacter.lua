@@ -1,18 +1,25 @@
+local Common = require("Scripts.Common")
+
 local AICharacter =
 {
-	New = function(self, facingRight)
+	New = function(self, facingRight, position, playerReference, aicharacterSprite, id)
 		local instance = setmetatable({}, self)
-        instance.aicharacterSprite = love.graphics.newImage("Images/Characters/character_02.png")
-        instance.movementSpeed = 40
-		local x = facingRight and 0 or love.graphics.getWidth()
-        instance.position = { x = x, y = 510 }
+        
+        instance.movementSpeed = math.random(35, 45)
+        instance.position = position or { x = 0, y = 510 }
         instance.facingRight = facingRight
 		instance.moving = true
 		instance.cameraMovementDelta = 0
+        instance.withinPlayerRange = false
+        instance.distanceSqWithinRange = 400
+        instance.playerReference = playerReference
+        instance.aicharacterSprite = aicharacterSprite
+        instance.id = id
 		return instance
 	end,
 
     Update = function(self, Flux, dt)
+        self:EvaluateWithinPlayerRange()
 		if not self.moving then
 			return
 		end
@@ -34,6 +41,20 @@ local AICharacter =
             scale = -4
         end
         love.graphics.draw(self.aicharacterSprite, self.position.x, self.position.y, 0, scale, 4, self.aicharacterSprite:getWidth() / 2)
+    end,
+
+    GetPlayerWithinRange = function(self)
+        return Common:DistanceSquared(self.position.x, self.position.y, self.playerReference.position.x, self.playerReference.position.y) < self.distanceSqWithinRange
+    end,
+
+    EvaluateWithinPlayerRange = function(self)
+        if not self.withinPlayerRange and self:GetPlayerWithinRange() then
+            self.playerReference:OnAIEnteredRange(self)
+            self.withinPlayerRange = true
+        elseif self.withinPlayerRange and not self:GetPlayerWithinRange() then
+            self.playerReference:OnAIExitedRange(self)
+            self.withinPlayerRange = false
+        end
     end,
 }
 

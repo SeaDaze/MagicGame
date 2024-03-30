@@ -50,6 +50,7 @@ PlayingCard.New = function(value, suit, spritesheet, quad, position, faceDownSpr
 	instance.targetPosition = position or { x = 0, y = 0 }
 	instance.angle = 0
 	instance.targetAngle = 0
+	instance.previousTargetAngle = 0
 	instance.offset = { x = 0, y = 0 }
 	instance.targetOffset =  { x = 0, y = 0 }
 	instance.previousOffset = { x = 0, y = 0 }

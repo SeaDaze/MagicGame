@@ -1,49 +1,53 @@
 -- External Libraries
 local Flux = require("Scripts.libraries.flux")
+local moonshine = require ("Scripts.libraries.moonshine")
 
 -- Helpers
 local Constants = require ("Scripts.Constants")
-local Timer = require("Scripts.Timer")
-
 local Background = require("Scripts.Background")
-local Character = require("Scripts.Character")
-local AICharacter = require("Scripts.AICharacter")
 
 -- Scenes
 local PerformScene = require("Scripts.PerformScene")
+local StreetScene = require("Scripts.StreetScene")
 
+local HUD = require("Scripts.UI.HUD")
 local KeyboardUI = require("Scripts.UI.KeyboardUI")
+
+
+local Input = require("Scripts.Input")
+local PlayerStats = require("Scripts.PlayerStats")
 
 local game = {
 
     Load = function(self)
-		love.math.setRandomSeed(love.timer.getTime())
+        love.math.setRandomSeed(love.timer.getTime())
         love.graphics.setDefaultFilter("nearest", "nearest")
 
-        self.gameState = Constants.GameStates.Perform
+        KeyboardUI:Load()
+        self.gameState = Constants.GameStates.Streets
         
         self.background = Background:New()
-        self.character = Character:New()
-		self.AICharacter = AICharacter:New(true)
-		self.AICharacter2 = AICharacter:New(false)
 
-		KeyboardUI:Load()
-		PerformScene:Load(KeyboardUI)
+        StreetScene:Load(self, KeyboardUI, Input)
+		PerformScene:Load(self, KeyboardUI, Input)
+        HUD:Load(PlayerStats)
+
+        Input:AddKeyListener("escape", self, "ExitGame")
     end,
 
     Update = function(self, dt)
 		Flux.update(dt)
-        self:HandleInput()
+        KeyboardUI:Update(Flux, dt)
+        Input:Update()
+        --HUD:Update()
         if self.gameState == Constants.GameStates.MainMenu then
             self.mainMenu:Update(dt)
             return
         elseif self.gameState == Constants.GameStates.Perform then
 			PerformScene:Update(Flux, dt)
         elseif self.gameState == Constants.GameStates.Streets then
+            StreetScene:Update(Flux, dt)
             self.background:Update(Flux, dt)
-            self.character:Update(Flux, dt)
-			self.AICharacter:Update(Flux, dt)
-			self.AICharacter2:Update(Flux, dt)
         end
     end,
 
@@ -54,41 +58,34 @@ local game = {
 			self.background:Draw()
 			PerformScene:Draw()
         elseif self.gameState == Constants.GameStates.Streets then
-			self.background:Draw()
-            self.character:Draw()
-			self.AICharacter:Draw()
-			self.AICharacter2:Draw()
+            self.background:Draw()
+            StreetScene:Draw()
         end
+        KeyboardUI:Draw()
+        HUD:Draw()
     end,
-
-	OnFanButtonClicked = function(self)
-		self.deck:Fan()
-	end,
-
-	OnUnfanButtonClicked = function(self)
-		self.deck:Unfan()
-	end,
-
-	OffsetCardButtonClicked = function(self)
-		self.deck:OffsetRandomCard()
-	end,
-
-	OnGiveCardButtonClicked = function(self)
-		self.deck:GiveSelectedCard()
-	end,
-
-    OnRetrieveCardButtonClicked = function(self)
-		self.deck:RetrieveSelectedCard()
-	end,
 
     OnGameStateChanged = function(self, newState)
+        -- Handle Previous state
+        if self.gameState == Constants.GameStates.Perform then
+            PerformScene:OnStop()
+        elseif self.gameState == Constants.GameStates.Streets then
+            StreetScene:OnStop()
+        end
+
+        -- Change state
         self.gameState = newState
+
+        -- New state
+        if newState == Constants.GameStates.Perform then
+            PerformScene:OnStart()
+        elseif newState == Constants.GameStates.Streets then
+            StreetScene:OnStart()
+        end
     end,
 
-    HandleInput = function(self)
-        if love.keyboard.isDown("escape") then
-            love.window.close()
-        end
+    ExitGame = function(self)
+        love.window.close()
     end,
 }
 return game
