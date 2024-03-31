@@ -78,22 +78,28 @@ local Deck = {
 			card:Draw()
 		end
 
-		-- for _, line in pairs(self.lines) do
-        --     love.graphics.line(line.x1, line.y1, line.x2, line.y2)
-        -- end
+		for _, line in pairs(self.lines) do
+            love.graphics.line(line.x1, line.y1, line.x2, line.y2)
+        end
+    end,
 
+	LateDraw = function(self)
+		
 		-- local numberOfLines = Common:TableCount(self.lines)
 		-- if numberOfLines == 0 then
 		-- 	return
 		-- end
+
 		-- local targetLine = self.lines[numberOfLines]
 		-- if not targetLine then
 		-- 	return
 		-- end
 
 		-- local card = self.cards[1]
+		-- love.graphics.setColor(1, 0, 0, 1)
 		-- love.graphics.line(targetLine.x1, targetLine.y1, card.position.x, card.position.y)
-    end,
+		-- love.graphics.setColor(1, 1, 1, 1)
+	end,
 
 	DoubleLift = function(self)
 		-- We swap the cards here because the second top card goes to the top when they are both flipped over together
@@ -179,29 +185,28 @@ local Deck = {
 			self.lineIndex = 1
 		end
 
-		local mouseX, mouseY = love.mouse.getPosition()
-		if mouseX < self.cards[1].position.x then
+		local leftHandPos = self.leftHandReference.position
+		local indexFingerPos = self.rightHandReference:GetIndexFingerPosition()
+
+		local handsDistance = Common:DistanceSquared(leftHandPos.x, leftHandPos.y, indexFingerPos.x, indexFingerPos.y)
+		if handsDistance > 15000 then
 			return
 		end
-		local leftHandPos = self.leftHandReference.position
-		local rightHandPos = self.rightHandReference.position
-		local handsDistance = Common:DistanceSquared(leftHandPos.x, leftHandPos.y, rightHandPos.x, rightHandPos.y)
-		print(handsDistance)
-		if handsDistance > 15000 then
+		if indexFingerPos.x < self.cards[1].position.x then
 			return
 		end
 		if love.mouse.isDown(1) then
 			if not self.lines[self.lineIndex] then
-				local x = mouseX
-				local y = mouseY
+				local x = indexFingerPos.x
+				local y = indexFingerPos.y
 				if self.lines[self.lineIndex - 1] then
 					x = self.lines[self.lineIndex - 1].x2
 					y = self.lines[self.lineIndex - 1].y2
 				end
 				self.lines[self.lineIndex] = { x1 = x, y1 = y, x2 = x, y2 = y }
 			end
-			self.lines[self.lineIndex].x2 = mouseX
-			self.lines[self.lineIndex].y2 = mouseY
+			self.lines[self.lineIndex].x2 = indexFingerPos.x
+			self.lines[self.lineIndex].y2 = indexFingerPos.y
 			if Common:DistanceSquared(self.lines[self.lineIndex].x1, self.lines[self.lineIndex].y1, self.lines[self.lineIndex].x2, self.lines[self.lineIndex].y2) > 30 then
 				self.lineIndex = self.lineIndex + 1
 				self:OnNewLineCreated(self.lineIndex)

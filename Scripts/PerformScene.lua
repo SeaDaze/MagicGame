@@ -41,6 +41,10 @@ local PerformScene =
 		self.rightHand:Draw()
     end,
 
+	LateDraw = function(self)
+		self.deck:LateDraw()
+	end,
+
 	ExitPerform = function(self)
 		self.gameInstance:OnGameStateChanged(Constants.GameStates.Streets)
 	end,

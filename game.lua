@@ -22,7 +22,7 @@ local game = {
     Load = function(self)
         love.math.setRandomSeed(love.timer.getTime())
         love.graphics.setDefaultFilter("nearest", "nearest")
-
+		love.mouse.setVisible(false)
         KeyboardUI:Load()
         self.gameState = Constants.GameStates.Streets
         
@@ -64,6 +64,10 @@ local game = {
         KeyboardUI:Draw()
         HUD:Draw()
     end,
+
+	LateDraw = function(self)
+		PerformScene:LateDraw()
+	end,
 
     OnGameStateChanged = function(self, newState)
         -- Handle Previous state
