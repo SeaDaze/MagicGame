@@ -20,7 +20,7 @@ local PlayerStats = require("Scripts.PlayerStats")
 local game = {
 
     Load = function(self)
-        love.math.setRandomSeed(love.timer.getTime())
+        love.math.setRandomSeed(os.time())
         love.graphics.setDefaultFilter("nearest", "nearest")
 		love.mouse.setVisible(false)
         KeyboardUI:Load()
@@ -29,16 +29,28 @@ local game = {
         self.background = Background:New()
 
         StreetScene:Load(self, KeyboardUI, Input)
-		PerformScene:Load(self, KeyboardUI, Input)
+		PerformScene:Load(self, KeyboardUI, Input, HUD)
         HUD:Load(PlayerStats)
 
         Input:AddKeyListener("escape", self, "ExitGame")
+        Input:AddKeyListener("f11", self, "SetFullScreen")
+        self:OnGameStateChanged(Constants.GameStates.Perform)
+        self.fullScreen = false
+
+        self.effect = moonshine(moonshine.effects.vignette)
+        .chain(moonshine.effects.desaturate)
+        --.chain(moonshine.effects.glow)
+
+        self.desaturation = 0.5
+        self.glow = 5
+        Input:AddKeyListener("t", self, "Saturate", "Desaturate")
+        Input:AddKeyListener("right", self, "IncreaseOffset")
+        Input:AddKeyListener("left", self, "DecreaseOffset")
     end,
 
     Update = function(self, dt)
 		Flux.update(dt)
         KeyboardUI:Update(Flux, dt)
-        Input:Update()
         --HUD:Update()
         if self.gameState == Constants.GameStates.MainMenu then
             self.mainMenu:Update(dt)
@@ -49,18 +61,23 @@ local game = {
             StreetScene:Update(Flux, dt)
             self.background:Update(Flux, dt)
         end
+        self.effect.desaturate.strength = self.desaturation
+        --self.effect.glow.strength = self.glow
+        Input:Update()
     end,
 
     Draw = function(self)
-        if self.gameState == Constants.GameStates.MainMenu then
-            self.mainMenu:Draw()
-        elseif self.gameState == Constants.GameStates.Perform then
-			self.background:Draw()
-			PerformScene:Draw()
-        elseif self.gameState == Constants.GameStates.Streets then
-            self.background:Draw()
-            StreetScene:Draw()
-        end
+        self.effect(function()
+            if self.gameState == Constants.GameStates.MainMenu then
+                self.mainMenu:Draw()
+            elseif self.gameState == Constants.GameStates.Perform then
+                --self.background:Draw()
+                PerformScene:Draw()
+            elseif self.gameState == Constants.GameStates.Streets then
+                self.background:Draw()
+                StreetScene:Draw()
+            end
+        end)
         KeyboardUI:Draw()
         HUD:Draw()
     end,
@@ -90,6 +107,30 @@ local game = {
 
     ExitGame = function(self)
         love.window.close()
+    end,
+
+    SetFullScreen = function(self)
+        self.fullScreen = not self.fullScreen
+        love.window.setFullscreen(self.fullScreen, "desktop")
+    end,
+
+    Desaturate = function(self)
+        Flux.to(self, 1, { desaturation = 0.5 })
+        Flux.to(self, 1, { glow = 0 })
+    end,
+
+    Saturate = function(self)
+        Flux.to(self, 1, { desaturation = 0 })
+        Flux.to(self, 1, { glow = 5 })
+    end,
+
+    IncreaseOffset = function(self)
+        Flux.to(HUD, 1, { routineOffset = HUD.routineOffset - 150 })
+    end,
+
+    DecreaseOffset = function(self)
+        Flux.to(HUD, 1, { routineOffset = HUD.routineOffset + 150 })
+
     end,
 }
 return game

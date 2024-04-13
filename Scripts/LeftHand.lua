@@ -16,7 +16,7 @@ local LeftHand = {
     end,
 
     Draw = function(self)
-        love.graphics.draw(self.sprite, self.position.x, self.position.y, math.rad(self.angle), 4, 4, (self.width / 2), self.height / 2)
+        love.graphics.draw(self.sprite, self.position.x, self.position.y, math.rad(self.angle), 5, 5, (self.width / 2), self.height / 2)
     end,
 }
 

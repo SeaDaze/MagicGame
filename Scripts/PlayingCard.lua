@@ -1,9 +1,39 @@
 local Constants = require("Scripts.Constants")
+local Common = require("Scripts.Common")
 
 local PlayingCard = {
     SetPosition = function(self, newPosition)
         self.position = newPosition
     end,
+
+	Update = function(self, Flux, dt)
+		if self.spinning then
+			self:Spin(dt)
+		else
+			if not self.inRightHand then
+				if self.angle ~= self.targetAngle then
+					Flux.to(self, 0.3, { angle = self.targetAngle })
+				end
+			end
+		end
+
+		if self.offset ~= self.targetOffset then
+			Flux.to(self.offset, 0.3, { x = self.targetOffset.x, y = self.targetOffset.y })
+		end
+		if self.out then
+			if self.inRightHand then
+				self:SetPosition({x = self.rightHand.position.x, y = self.rightHand.position.y })
+			else
+				Flux.to(self.position, 1, { x = self.targetPosition.x, y = self.targetPosition.y } )
+			end
+		else
+			self:SetPosition({x = self.leftHand.position.x, y = self.leftHand.position.y })
+		end
+	end,
+
+	Spin = function(self, dt)
+		self.angle = self.angle + (self.spinningSpeed * dt)
+	end,
 
     Draw = function(self)
 		if self.facingUp then
@@ -13,8 +43,8 @@ local PlayingCard = {
 				self.position.x,
 				self.position.y,
 				math.rad(self.angle),
-				4,
-				4,
+				5,
+				5,
 				self.halfWidth + self.offset.x,
 				self.halfHeight + self.offset.y
 			)
@@ -24,8 +54,8 @@ local PlayingCard = {
 				self.position.x,
 				self.position.y,
 				math.rad(self.angle),
-				4,
-				4,
+				5,
+				5,
 				self.halfWidth + self.offset.x,
 				self.halfHeight + self.offset.y
 			)
@@ -35,10 +65,14 @@ local PlayingCard = {
 	SetFacingUp = function(self, facingUp)
 		self.facingUp = facingUp
 	end,
+	
+	Flip = function(self)
+		self.facingUp = not self.facingUp
+	end,
 }
 
 PlayingCard.__index = PlayingCard
-PlayingCard.New = function(value, suit, spritesheet, quad, position, faceDownSprite)
+PlayingCard.New = function(value, suit, spritesheet, quad, position, faceDownSprite, leftHand, rightHand)
     local instance = setmetatable({}, PlayingCard)
 	instance.value = value
 	instance.suit = suit
@@ -57,7 +91,12 @@ PlayingCard.New = function(value, suit, spritesheet, quad, position, faceDownSpr
 	local width, height = quad:getTextureDimensions()
 	instance.halfWidth = (width / 13) / 2
 	instance.halfHeight = (height / 4) / 2
-	instance.given = false
+	instance.out = false
+	instance.spinning = false
+	instance.inRightHand = false
+	instance.spinningSpeed = 500
+	instance.leftHand = leftHand
+	instance.rightHand = rightHand
 
     return instance
 end

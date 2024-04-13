@@ -3,13 +3,13 @@ local PlayingCard = require ("Scripts.PlayingCard")
 local Constants = require ("Scripts.Constants")
 
 local Deck = {
-	New = function(self, leftHandReference, rightHandReference)
+	New = function(self, leftHand, rightHand)
 		local instance = setmetatable({}, self)
 		instance.cards = {}
 		instance.fannedCards = 0
 		instance.offsetCardIndex = nil
-		instance.leftHandReference = leftHandReference
-		instance.rightHandReference = rightHandReference
+		instance.leftHand = leftHand
+		instance.rightHand = rightHand
 		instance.inLeftHand = true
 
 		instance.cards = {}
@@ -31,40 +31,31 @@ local Deck = {
 		local x = 0
         for cardValue = 1, 13 do
             local clubQuad = love.graphics.newQuad(x, 0, cardWidth, cardHeight, spritesheetWidth, spritesheetHeight)
-			instance.clubs[cardValue] = PlayingCard.New(cardValue, Constants.CardSuits.Clubs, cardSpritesheet, clubQuad, nil, faceDownSprite)
+			instance.clubs[cardValue] = PlayingCard.New(cardValue, Constants.CardSuits.Clubs, cardSpritesheet, clubQuad, nil, faceDownSprite, leftHand, rightHand)
 			instance.cards[cardValue] = instance.clubs[cardValue]
 
 			local diamondQuad = love.graphics.newQuad(x, cardHeight, cardWidth, cardHeight, spritesheetWidth, spritesheetHeight)
-			instance.diamonds[cardValue] = PlayingCard.New(cardValue, Constants.CardSuits.Diamonds, cardSpritesheet, diamondQuad, nil, faceDownSprite)
+			instance.diamonds[cardValue] = PlayingCard.New(cardValue, Constants.CardSuits.Diamonds, cardSpritesheet, diamondQuad, nil, faceDownSprite, leftHand, rightHand)
 			instance.cards[cardValue + 13] = instance.diamonds[cardValue]
 
 			local heartQuad = love.graphics.newQuad(x, cardHeight * 2, cardWidth, cardHeight, spritesheetWidth, spritesheetHeight)
-			instance.hearts[cardValue] = PlayingCard.New(cardValue, Constants.CardSuits.Hearts, cardSpritesheet, heartQuad, nil, faceDownSprite)
+			instance.hearts[cardValue] = PlayingCard.New(cardValue, Constants.CardSuits.Hearts, cardSpritesheet, heartQuad, nil, faceDownSprite, leftHand, rightHand)
 			instance.cards[cardValue + 26] = instance.hearts[cardValue]
 
 			local spadeQuad = love.graphics.newQuad(x, cardHeight * 3, cardWidth, cardHeight, spritesheetWidth, spritesheetHeight)
-			instance.spades[cardValue] = PlayingCard.New(cardValue, Constants.CardSuits.Spades, cardSpritesheet, spadeQuad, nil, faceDownSprite)
+			instance.spades[cardValue] = PlayingCard.New(cardValue, Constants.CardSuits.Spades, cardSpritesheet, spadeQuad, nil, faceDownSprite, leftHand, rightHand)
 			instance.cards[cardValue + 39] = instance.spades[cardValue]
 			
             x = x + cardWidth
         end
 
+		instance.notificationListeners = {}
 		return instance
 	end,
 
 	Update = function(self, Flux, dt)
 		for index, card in ipairs(self.cards) do
-			if card.angle ~= card.targetAngle then
-				Flux.to(card, 0.3, { angle = card.targetAngle })
-			end
-			if card.offset ~= card.targetOffset then
-				Flux.to(card.offset, 0.3, { x = card.targetOffset.x, y = card.targetOffset.y })
-			end
-			if card.given then
-				Flux.to(card.position, 0.3, { x = card.targetPosition.x, y = card.targetPosition.y } )
-			else
-				card:SetPosition({x = self.leftHandReference.position.x, y = self.leftHandReference.position.y })
-			end
+			card:Update(Flux, dt)
 		end
 
 		if self.fanSpreading then
@@ -101,11 +92,15 @@ local Deck = {
 		-- love.graphics.setColor(1, 1, 1, 1)
 	end,
 
+	SingleLift = function(self)
+		self.cards[52]:Flip()
+	end,
+
 	DoubleLift = function(self)
 		-- We swap the cards here because the second top card goes to the top when they are both flipped over together
 		self:Swap(51, 52)
-		self.cards[51]:SetFacingUp(true)
-		self.cards[52]:SetFacingUp(true)
+		self.cards[51]:Flip()
+		self.cards[52]:Flip()
 	end,
 
 	Swap = function(self, a, b)
@@ -121,6 +116,18 @@ local Deck = {
 		local temp = self.cards[a]
 		self.cards[a] = self.cards[b]
 		self.cards[b] = temp
+	end,
+
+	---@param self any
+	---@param a number index of element to swap
+	---@param b number newIndex
+	MoveToPosition = function(self, a, b)
+		table.insert(self.cards, b, table.remove(self.cards, a))
+	end,
+
+	CardiniChange = function(self)
+		self.cards[52]:SetFacingUp(false)
+		self:MoveToPosition(52, 1)
 	end,
 
 	ToggleFan = function(self)
@@ -140,7 +147,7 @@ local Deck = {
 		if not targetLine then
 			return
 		end
-		if love.mouse.getX() < self.leftHandReference.position.x then
+		if love.mouse.getX() < self.leftHand.position.x then
 			return
 		end
 		for _, card in ipairs(self.spreadingCards) do
@@ -185,11 +192,11 @@ local Deck = {
 			self.lineIndex = 1
 		end
 
-		local leftHandPos = self.leftHandReference.position
-		local indexFingerPos = self.rightHandReference:GetIndexFingerPosition()
+		local leftHandPos = self.leftHand.position
+		local indexFingerPos = self.rightHand:GetIndexFingerPosition()
 
 		local handsDistance = Common:DistanceSquared(leftHandPos.x, leftHandPos.y, indexFingerPos.x, indexFingerPos.y)
-		if handsDistance > 15000 then
+		if handsDistance > 20000 then
 			return
 		end
 		if indexFingerPos.x < self.cards[1].position.x then
@@ -265,20 +272,8 @@ local Deck = {
 			self.cards[self.offsetCardIndex].targetPosition = { x = 600, y = 100 }
 			self.cards[self.offsetCardIndex].targetOffset = { x = 0, y = 0 }
 			self.cards[self.offsetCardIndex].targetAngle = 0
-			self.cards[self.offsetCardIndex].given = true
+			self.cards[self.offsetCardIndex].out = true
 			self.cards[self.offsetCardIndex].facingUp = true
-		end
-	end,
-
-	RetrieveSelectedCard = function(self)
-		if self.offsetCardIndex then
-			
-			-- self.cards[self.offsetCardIndex].given = false
-			-- self.cards[self.offsetCardIndex].targetPosition = { x = 600, y = 100 }
-			-- self.cards[self.offsetCardIndex].targetOffset = { x = 0, y = 0 }
-			-- self.cards[self.offsetCardIndex].targetAngle = 0
-			-- self.cards[self.offsetCardIndex].given = true
-			-- self.cards[self.offsetCardIndex].facingUp = true
 		end
 	end,
 
@@ -293,6 +288,30 @@ local Deck = {
 		self.cards = shuffledDeck
 	end,
 
+	FlipDeck = function(self)
+		local reversed = {}
+		for i = 52, 1, -1 do
+			self.cards[i]:Flip()
+			table.insert(reversed, self.cards[i])
+		end
+		self.cards = reversed
+	end,
+
+	StartSpin = function(self)
+		self.cards[26]:SetPosition({x = self.leftHand.position.x, y = self.leftHand.position.y })
+		local randomY = love.math.random(0, love.graphics.getHeight())
+		self.cards[26].targetPosition = { x = love.graphics.getWidth() + 100, y = randomY }
+		self.cards[26].spinning = true
+		self.cards[26].out = true
+		self.cards[26].inRightHand = false
+	end,
+
+	CatchCard = function(self)
+		if Common:DistanceSquared(self.cards[26].position.x, self.cards[26].position.y, self.rightHand.position.x, self.rightHand.position.y) < 3000 then
+			self.cards[26].spinning = false
+			self.cards[26].inRightHand = true
+		end
+	end,
 }
 
 Deck.__index = Deck

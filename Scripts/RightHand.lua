@@ -11,9 +11,9 @@ local RightHand = {
 
     Draw = function(self)
 		if love.mouse.isDown(1) then
-			love.graphics.draw(self.pinchSprite, self.position.x, self.position.y, math.rad(self.angle), 4, 4, self.halfWidth, self.halfHeight)
+			love.graphics.draw(self.pinchSprite, self.position.x, self.position.y, math.rad(self.angle), 5, 5, self.halfWidth, self.halfHeight)
 		else
-			love.graphics.draw(self.sprite, self.position.x, self.position.y, math.rad(self.angle), 4, 4, self.halfWidth, self.halfHeight)
+			love.graphics.draw(self.sprite, self.position.x, self.position.y, math.rad(self.angle), 5, 5, self.halfWidth, self.halfHeight)
 		end
     end,
 
