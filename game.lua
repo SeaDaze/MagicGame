@@ -13,9 +13,9 @@ local StreetScene = require("Scripts.StreetScene")
 local HUD = require("Scripts.UI.HUD")
 local KeyboardUI = require("Scripts.UI.KeyboardUI")
 
-
 local Input = require("Scripts.Input")
 local PlayerStats = require("Scripts.PlayerStats")
+local Timer = require("Scripts.Timer")
 
 local game = {
 
@@ -24,13 +24,15 @@ local game = {
         love.graphics.setDefaultFilter("nearest", "nearest")
 		love.mouse.setVisible(false)
         KeyboardUI:Load()
+		Input:Load()
+		HUD:Load(PlayerStats, Flux)
+		self.globalTimer = Timer:New()
         self.gameState = Constants.GameStates.Streets
         
         self.background = Background:New()
 
         StreetScene:Load(self, KeyboardUI, Input)
-		PerformScene:Load(self, KeyboardUI, Input, HUD)
-        HUD:Load(PlayerStats)
+		PerformScene:Load(self, KeyboardUI, Input, HUD, self.globalTimer)
 
         Input:AddKeyListener("escape", self, "ExitGame")
         Input:AddKeyListener("f11", self, "SetFullScreen")
@@ -51,6 +53,7 @@ local game = {
     Update = function(self, dt)
 		Flux.update(dt)
         KeyboardUI:Update(Flux, dt)
+		self.globalTimer:Update(dt)
         --HUD:Update()
         if self.gameState == Constants.GameStates.MainMenu then
             self.mainMenu:Update(dt)

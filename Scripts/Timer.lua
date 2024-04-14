@@ -1,5 +1,13 @@
 
 local Timer = {
+	New = function(self)
+		local instance = setmetatable({}, self)
+		instance.callbackTargets = {}
+		instance.runningTimers = {}
+		instance.callbackId = 0
+		return instance
+	end,
+
     Update = function(self, dt)
 		local timersToRemove = {}
 		for timerId, timerData in pairs(self.runningTimers) do
@@ -22,6 +30,7 @@ local Timer = {
 			startTime = love.timer.getTime(),
 			endTime = love.timer.getTime() + duration,
 		}
+		print("Start: Started timer with id=", id, ", forr duration=", duration)
 	end,
 
 	AddListener = function(self, listenTarget, functionName)
@@ -32,14 +41,12 @@ local Timer = {
 		}
 		return self.callbackId
 	end,
-}
 
+	RemoveListener = function(self, callbackId)
+		self.callbackTargets[callbackId] = nil
+	end,
+
+}
 Timer.__index = Timer
-Timer.New = function()
-    local instance = setmetatable({}, Timer)
-	instance.callbackTargets = {}
-	instance.runningTimers = {}
-	instance.callbackId = 0
-    return instance
-end
+
 return Timer

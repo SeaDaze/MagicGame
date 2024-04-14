@@ -11,7 +11,7 @@ local Deck = {
 		instance.leftHand = leftHand
 		instance.rightHand = rightHand
 		instance.inLeftHand = true
-
+		instance.leftMouseDown = false
 		instance.cards = {}
         instance.clubs = {}
         instance.hearts = {}
@@ -31,37 +31,42 @@ local Deck = {
 		local x = 0
         for cardValue = 1, 13 do
             local clubQuad = love.graphics.newQuad(x, 0, cardWidth, cardHeight, spritesheetWidth, spritesheetHeight)
-			instance.clubs[cardValue] = PlayingCard.New(cardValue, Constants.CardSuits.Clubs, cardSpritesheet, clubQuad, nil, faceDownSprite, leftHand, rightHand)
+			instance.clubs[cardValue] = PlayingCard:New(cardValue, Constants.CardSuits.Clubs, cardSpritesheet, clubQuad, nil, faceDownSprite, leftHand, rightHand)
 			instance.cards[cardValue] = instance.clubs[cardValue]
 
 			local diamondQuad = love.graphics.newQuad(x, cardHeight, cardWidth, cardHeight, spritesheetWidth, spritesheetHeight)
-			instance.diamonds[cardValue] = PlayingCard.New(cardValue, Constants.CardSuits.Diamonds, cardSpritesheet, diamondQuad, nil, faceDownSprite, leftHand, rightHand)
+			instance.diamonds[cardValue] = PlayingCard:New(cardValue, Constants.CardSuits.Diamonds, cardSpritesheet, diamondQuad, nil, faceDownSprite, leftHand, rightHand)
 			instance.cards[cardValue + 13] = instance.diamonds[cardValue]
 
 			local heartQuad = love.graphics.newQuad(x, cardHeight * 2, cardWidth, cardHeight, spritesheetWidth, spritesheetHeight)
-			instance.hearts[cardValue] = PlayingCard.New(cardValue, Constants.CardSuits.Hearts, cardSpritesheet, heartQuad, nil, faceDownSprite, leftHand, rightHand)
+			instance.hearts[cardValue] = PlayingCard:New(cardValue, Constants.CardSuits.Hearts, cardSpritesheet, heartQuad, nil, faceDownSprite, leftHand, rightHand)
 			instance.cards[cardValue + 26] = instance.hearts[cardValue]
 
 			local spadeQuad = love.graphics.newQuad(x, cardHeight * 3, cardWidth, cardHeight, spritesheetWidth, spritesheetHeight)
-			instance.spades[cardValue] = PlayingCard.New(cardValue, Constants.CardSuits.Spades, cardSpritesheet, spadeQuad, nil, faceDownSprite, leftHand, rightHand)
+			instance.spades[cardValue] = PlayingCard:New(cardValue, Constants.CardSuits.Spades, cardSpritesheet, spadeQuad, nil, faceDownSprite, leftHand, rightHand)
 			instance.cards[cardValue + 39] = instance.spades[cardValue]
 			
             x = x + cardWidth
         end
 
 		instance.notificationListeners = {}
+		instance.listenerId = 0
 		return instance
 	end,
 
 	Update = function(self, Flux, dt)
-		for index, card in ipairs(self.cards) do
+		for _, card in ipairs(self.cards) do
 			card:Update(Flux, dt)
+			if not card:GetDropped() and (card:GetPosition().x < 0 or card:GetPosition().x > love.graphics.getWidth() or card:GetPosition().y < 0 or card:GetPosition().y > love.graphics.getHeight()) then
+				card:SetDropped(true)
+				self:OnCardDropped(card)
+			end
 		end
 
 		if self.fanSpreading then
 			self:DuringFanSpread()
+			self:SpreadingLines()
 		end
-		self:SpreadingLines()
 	end,
 
 	Draw = function(self)
@@ -75,59 +80,6 @@ local Deck = {
     end,
 
 	LateDraw = function(self)
-		
-		-- local numberOfLines = Common:TableCount(self.lines)
-		-- if numberOfLines == 0 then
-		-- 	return
-		-- end
-
-		-- local targetLine = self.lines[numberOfLines]
-		-- if not targetLine then
-		-- 	return
-		-- end
-
-		-- local card = self.cards[1]
-		-- love.graphics.setColor(1, 0, 0, 1)
-		-- love.graphics.line(targetLine.x1, targetLine.y1, card.position.x, card.position.y)
-		-- love.graphics.setColor(1, 1, 1, 1)
-	end,
-
-	SingleLift = function(self)
-		self.cards[52]:Flip()
-	end,
-
-	DoubleLift = function(self)
-		-- We swap the cards here because the second top card goes to the top when they are both flipped over together
-		self:Swap(51, 52)
-		self.cards[51]:Flip()
-		self.cards[52]:Flip()
-	end,
-
-	Swap = function(self, a, b)
-		if a < 1 or a > 52 then
-			return
-		end
-		if b < 1 or b > 52 then
-			return
-		end
-		if a == b then
-			return
-		end
-		local temp = self.cards[a]
-		self.cards[a] = self.cards[b]
-		self.cards[b] = temp
-	end,
-
-	---@param self any
-	---@param a number index of element to swap
-	---@param b number newIndex
-	MoveToPosition = function(self, a, b)
-		table.insert(self.cards, b, table.remove(self.cards, a))
-	end,
-
-	CardiniChange = function(self)
-		self.cards[52]:SetFacingUp(false)
-		self:MoveToPosition(52, 1)
 	end,
 
 	ToggleFan = function(self)
@@ -157,6 +109,10 @@ local Deck = {
 			local angleDelta = (newAngle - card.targetAngle)
 			card.targetAngle = (card.targetAngle + angleDelta) * 2
 		end
+		local firstCard = self.cards[1]
+		local lastCard = self.cards[52]
+		local angle = lastCard.targetAngle - firstCard.targetAngle
+		--print("DuringFanSpread: angle=", angle)
 	end,
 
 	OnNewLineCreated = function(self, lineIndex)
@@ -166,30 +122,15 @@ local Deck = {
 		table.remove(self.spreadingCards, 1)
 	end,
 
-	FanSpread = function(self)
-		self.fanSpreading = true
-		for _, card in ipairs(self.cards) do
-			card.targetOffset = { x = 0, y = card.halfHeight }
-			card.previousOffset = { x = 0, y = card.halfHeight }
-		end
-		self.spreadingCards = {}
-		for index, card in ipairs(self.cards) do
-			self.spreadingCards[index] = card
-		end
-	end,
-
-	UnfanSpread = function(self)
-		self.fanSpreading = false
-		self:Unfan()
-	end,
-
 	SpreadingLines = function(self)
-		if not love.mouse.isDown(1) then
+		if self.startedFanSpread and not self.leftMouseDown then
 			if self.originPoint then
 				self.originPoint = nil
 			end
 			self.lines = {}
 			self.lineIndex = 1
+			self.startedFanSpread = false
+			self:OnStopFanSpread()
 		end
 
 		local leftHandPos = self.leftHand.position
@@ -202,8 +143,12 @@ local Deck = {
 		if indexFingerPos.x < self.cards[1].position.x then
 			return
 		end
-		if love.mouse.isDown(1) then
+		if self.leftMouseDown then
 			if not self.lines[self.lineIndex] then
+				if Common:TableCount(self.lines) == 0 then
+					self.startedFanSpread = true
+					self:OnStartFanSpread()
+				end
 				local x = indexFingerPos.x
 				local y = indexFingerPos.y
 				if self.lines[self.lineIndex - 1] then
@@ -220,6 +165,110 @@ local Deck = {
 			end
 		end
 	end,
+
+	GiveSelectedCard = function(self)
+		if self.offsetCardIndex then
+			self.cards[self.offsetCardIndex].targetPosition = { x = love.graphics.getWidth() / 2, y = 100 }
+			self.cards[self.offsetCardIndex].targetOffset = { x = 0, y = 0 }
+			self.cards[self.offsetCardIndex].targetAngle = 0
+			self.cards[self.offsetCardIndex].out = true
+			self.cards[self.offsetCardIndex].facingUp = true
+		end
+	end,
+
+	RetrieveSelectedCard = function(self)
+		if self.offsetCardIndex then
+			print("RetrieveSelectedCard")
+			self.cards[self.offsetCardIndex].targetPosition = { x = 0, y = 0 }
+			self.cards[self.offsetCardIndex].out = false
+			self.cards[self.offsetCardIndex].facingUp = false
+		end
+	end,
+
+	-----------------------------------------------------------------------------------------------------------
+	-- Helpers
+	-----------------------------------------------------------------------------------------------------------
+
+	Swap = function(self, a, b)
+		if a < 1 or a > 52 then
+			return
+		end
+		if b < 1 or b > 52 then
+			return
+		end
+		if a == b then
+			return
+		end
+		local temp = self.cards[a]
+		self.cards[a] = self.cards[b]
+		self.cards[b] = temp
+	end,
+
+	---@param self any
+	---@param a number index of element to move
+	---@param b number newIndex
+	MoveToPosition = function(self, a, b)
+		table.insert(self.cards, b, table.remove(self.cards, a))
+	end,
+
+	FlipDeck = function(self)
+		local reversed = {}
+		for i = 52, 1, -1 do
+			self.cards[i]:Flip()
+			table.insert(reversed, self.cards[i])
+		end
+		self.cards = reversed
+	end,
+
+	Shuffle = function(self)
+		local shuffledDeck = {}
+		for cardNumber = 1, 52 do
+			local cardCount = Common:TableCount(self.cards)
+			local randomIndex = math.random(1, cardCount)
+			table.insert(shuffledDeck, self.cards[randomIndex])
+			table.remove(self.cards, randomIndex)
+		end
+		self.cards = shuffledDeck
+	end,
+
+	OffsetCard = function(self, cardIndex)
+		-- if self.fannedCards == 0 then
+		-- 	return
+		-- end
+		if self.offsetCardIndex then
+			self:UnoffsetCard(self.offsetCardIndex)
+		end
+		self.cards[cardIndex].previousOffset = { x = self.cards[cardIndex].offset.x, y = self.cards[cardIndex].offset.y }
+		self.cards[cardIndex].targetOffset = { x = 0, y = self.cards[cardIndex].offset.y + self.cards[cardIndex].halfHeight }
+		self.offsetCardIndex = cardIndex
+	end,
+	
+	UnoffsetCard = function(self, cardIndex)
+		self.cards[cardIndex].targetOffset = { x = self.cards[cardIndex].previousOffset.x, y = self.cards[cardIndex].previousOffset.y }
+		self.offsetCardIndex = nil
+	end,
+
+	OffsetRandomCard = function(self)
+		local randomCardIndex = love.math.random(1, 52)
+		self:OffsetCard(randomCardIndex)
+	end,
+
+	MoveSelectedCardToTop = function(self)
+		if not self.offsetCardIndex then
+			return
+		end
+		self:MoveToPosition(self.offsetCardIndex, 52)
+		self.offsetCardIndex = 52
+	end,
+
+	PlaceSelectedCardOnTop = function(self)
+		self:MoveSelectedCardToTop()
+		self.cards[self.offsetCardIndex].targetPosition = { x = self.leftHand.position.x, y = self.leftHand.position.y }
+	end,
+	
+	-----------------------------------------------------------------------------------------------------------
+	-- Techniques
+	-----------------------------------------------------------------------------------------------------------
 
 	Fan = function(self)
 		local angleIncrement = 8
@@ -245,56 +294,46 @@ local Deck = {
 		self.fannedCards = 0
 	end,
 
-	OffsetCard = function(self, cardIndex)
-		if self.fannedCards == 0 then
-			return
+	FanSpread = function(self)
+		self.fanSpreading = true
+		for _, card in ipairs(self.cards) do
+			card.targetOffset = { x = 0, y = card.halfHeight }
+			card.previousOffset = { x = 0, y = card.halfHeight }
 		end
-		if self.offsetCardIndex then
-			self:UnoffsetCard(self.offsetCardIndex)
-		end
-		self.cards[cardIndex].previousOffset = { x = self.cards[cardIndex].offset.x, y = self.cards[cardIndex].offset.y }
-		self.cards[cardIndex].targetOffset = { x = 0, y = self.cards[cardIndex].offset.y + self.cards[cardIndex].halfHeight }
-		self.offsetCardIndex = cardIndex
-	end,
-	
-	UnoffsetCard = function(self, cardIndex)
-		self.cards[cardIndex].targetOffset = { x = self.cards[cardIndex].previousOffset.x, y = self.cards[cardIndex].previousOffset.y }
-		self.offsetCardIndex = nil
-	end,
-
-	OffsetRandomCard = function(self)
-		local randomCardIndex = love.math.random(1, self.fannedCards)
-		self:OffsetCard(randomCardIndex)
-	end,
-
-	GiveSelectedCard = function(self)
-		if self.offsetCardIndex then
-			self.cards[self.offsetCardIndex].targetPosition = { x = 600, y = 100 }
-			self.cards[self.offsetCardIndex].targetOffset = { x = 0, y = 0 }
-			self.cards[self.offsetCardIndex].targetAngle = 0
-			self.cards[self.offsetCardIndex].out = true
-			self.cards[self.offsetCardIndex].facingUp = true
+		self.spreadingCards = {}
+		for index, card in ipairs(self.cards) do
+			self.spreadingCards[index] = card
 		end
 	end,
 
-	Shuffle = function(self)
-		local shuffledDeck = {}
-		for cardNumber = 1, 52 do
-			local cardCount = Common:TableCount(self.cards)
-			local randomIndex = math.random(1, cardCount)
-			table.insert(shuffledDeck, self.cards[randomIndex])
-			table.remove(self.cards, randomIndex)
-		end
-		self.cards = shuffledDeck
+	OnStartFanSpread = function(self)
+		print("OnStartFanSpread:")
 	end,
 
-	FlipDeck = function(self)
-		local reversed = {}
-		for i = 52, 1, -1 do
-			self.cards[i]:Flip()
-			table.insert(reversed, self.cards[i])
-		end
-		self.cards = reversed
+	OnStopFanSpread = function(self)
+		print("Deck:OnStartFanSpread")
+		self:BroadcastToListeners("OnStopFanSpread")
+	end,
+
+	UnfanSpread = function(self)
+		self.fanSpreading = false
+		self:Unfan()
+	end,
+
+	SingleLift = function(self)
+		self.cards[52]:Flip()
+	end,
+
+	DoubleLift = function(self)
+		-- We swap the cards here because the second top card goes to the top when they are both flipped over together
+		self:Swap(51, 52)
+		self.cards[51]:Flip()
+		self.cards[52]:Flip()
+	end,
+
+	CardiniChange = function(self)
+		self.cards[52]:SetFacingUp(false)
+		self:MoveToPosition(52, 1)
 	end,
 
 	StartSpin = function(self)
@@ -310,7 +349,70 @@ local Deck = {
 		if Common:DistanceSquared(self.cards[26].position.x, self.cards[26].position.y, self.rightHand.position.x, self.rightHand.position.y) < 3000 then
 			self.cards[26].spinning = false
 			self.cards[26].inRightHand = true
+			self:BroadcastToListeners("CatchCard")
 		end
+	end,
+
+	ResetSpinCard = function(self)
+		self.cards[26].inRightHand = false
+		self.cards[26].spinning = false
+		self.cards[26].out = false
+		self.cards[26].angle = 0
+		self.cards[26].targetAngle = 0
+	end,
+
+	OnCardDropped = function(self, card)
+		self:BroadcastToListeners("OnCardDropped")
+	end,
+
+	-----------------------------------------------------------------------------------------------------------
+	-- Listeners
+	-----------------------------------------------------------------------------------------------------------
+	AddListener = function(self, functionName, callbackTable, callbackFunction)
+		if not self.notificationListeners[functionName] then
+			self.notificationListeners[functionName] = {}
+		end
+		print("AddListener: functionName=", functionName)
+		self.listenerId = self.listenerId + 1
+		self.notificationListeners[functionName][self.listenerId] = {
+			callbackTable = callbackTable,
+			callbackFunction = callbackFunction,
+		}
+		return self.listenerId
+	end,
+
+	RemoveListener = function(self, functionName, listenerId)
+		if not self.notificationListeners[functionName] then
+			print("RemoveListener: No notification found for function=", functionName)
+			return
+		end
+		if not self.notificationListeners[functionName][listenerId] then
+			print("RemoveListener: No notification found for function=", functionName, " with listenerId=", listenerId)
+			return
+		end
+		self.notificationListeners[functionName][listenerId] = nil
+	end,
+
+	BroadcastToListeners = function(self, functionName)
+		if not self.notificationListeners[functionName] then
+			return
+		end
+		print("BroadcastToListeners: Listener count=", Common:TableCount(self.notificationListeners[functionName]))
+		for _, dataTable in pairs(self.notificationListeners[functionName]) do
+			dataTable.callbackTable[dataTable.callbackFunction](dataTable.callbackTable)
+		end
+	end,
+
+	-----------------------------------------------------------------------------------------------------------
+	-- Getters/Setters
+	-----------------------------------------------------------------------------------------------------------
+
+	SetLeftMouseButtonDown = function(self)
+		self.leftMouseDown = true
+	end,
+
+	SetLeftMouseButtonUp = function(self)
+		self.leftMouseDown = false
 	end,
 }
 

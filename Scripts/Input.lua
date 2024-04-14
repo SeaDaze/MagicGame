@@ -2,7 +2,21 @@
 
 local Input =
 {
+	Load = function(self)
+		self.enabled = true
+	end,
+
     Update = function(self)
+		if not self.enabled then
+			if self.reEnableTime and love.timer.getTime() > self.reEnableTime then
+				self.reEnableTime = nil
+				self.enabled = true
+				print("Update: input re-enabled")
+			else
+				return
+			end
+		end
+
 		if self.keyListeners then
 			for key, keyData in pairs(self.keyListeners) do
 				if not keyData.down and love.keyboard.isDown(key) then
@@ -63,6 +77,21 @@ local Input =
 	RemoveKeyListener = function(self, key)
 		self.keyListeners[key] = nil
 		print("RemoveKeyListener: Removed listener for key=", key)
+	end,
+
+	RemoveMouseListener = function(self, index)
+		self.mouseListeners[index] = nil
+		print("RemoveMouseListener: Removed listener for mouse button=", index)
+	end,
+
+	SetEnabled = function(self, enabled)
+		self.enabled = enabled
+	end,
+
+	DisableForSeconds = function(self, seconds)
+		self.enabled = false
+		self.reEnableTime = love.timer.getTime() + seconds
+		print("DisableForSeconds: input disable for seconds=", seconds)
 	end,
 }
 
