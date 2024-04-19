@@ -7,6 +7,15 @@ local Constants =
 		Streets = 2,
     },
 
+	CardStates = 
+	{
+		InDeck = 0,
+		HeldBySpectator = 1,
+		ReturningToDeck = 2,
+		SpinningOut = 3,
+		InRightHand = 4,
+	},
+
 	CardSuits = 
 	{
 		Spades = 1,

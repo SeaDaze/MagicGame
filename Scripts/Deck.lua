@@ -3,7 +3,7 @@ local PlayingCard = require ("Scripts.PlayingCard")
 local Constants = require ("Scripts.Constants")
 
 local Deck = {
-	New = function(self, leftHand, rightHand)
+	New = function(self, leftHand, rightHand, flux)
 		local instance = setmetatable({}, self)
 		instance.cards = {}
 		instance.fannedCards = 0
@@ -31,19 +31,59 @@ local Deck = {
 		local x = 0
         for cardValue = 1, 13 do
             local clubQuad = love.graphics.newQuad(x, 0, cardWidth, cardHeight, spritesheetWidth, spritesheetHeight)
-			instance.clubs[cardValue] = PlayingCard:New(cardValue, Constants.CardSuits.Clubs, cardSpritesheet, clubQuad, nil, faceDownSprite, leftHand, rightHand)
+			instance.clubs[cardValue] = PlayingCard:New(
+				cardValue,
+				Constants.CardSuits.Clubs,
+				cardSpritesheet,
+				clubQuad,
+				nil,
+				faceDownSprite,
+				leftHand,
+				rightHand,
+				flux
+			)
 			instance.cards[cardValue] = instance.clubs[cardValue]
 
 			local diamondQuad = love.graphics.newQuad(x, cardHeight, cardWidth, cardHeight, spritesheetWidth, spritesheetHeight)
-			instance.diamonds[cardValue] = PlayingCard:New(cardValue, Constants.CardSuits.Diamonds, cardSpritesheet, diamondQuad, nil, faceDownSprite, leftHand, rightHand)
+			instance.diamonds[cardValue] = PlayingCard:New(
+				cardValue,
+				Constants.CardSuits.Diamonds,
+				cardSpritesheet,
+				diamondQuad,
+				nil,
+				faceDownSprite,
+				leftHand,
+				rightHand,
+				flux
+			)
 			instance.cards[cardValue + 13] = instance.diamonds[cardValue]
 
 			local heartQuad = love.graphics.newQuad(x, cardHeight * 2, cardWidth, cardHeight, spritesheetWidth, spritesheetHeight)
-			instance.hearts[cardValue] = PlayingCard:New(cardValue, Constants.CardSuits.Hearts, cardSpritesheet, heartQuad, nil, faceDownSprite, leftHand, rightHand)
+			instance.hearts[cardValue] = PlayingCard:New(
+				cardValue,
+				Constants.CardSuits.Hearts,
+				cardSpritesheet,
+				heartQuad,
+				nil,
+				faceDownSprite,
+				leftHand,
+				rightHand,
+				flux
+			)
 			instance.cards[cardValue + 26] = instance.hearts[cardValue]
 
 			local spadeQuad = love.graphics.newQuad(x, cardHeight * 3, cardWidth, cardHeight, spritesheetWidth, spritesheetHeight)
-			instance.spades[cardValue] = PlayingCard:New(cardValue, Constants.CardSuits.Spades, cardSpritesheet, spadeQuad, nil, faceDownSprite, leftHand, rightHand)
+			instance.spades[cardValue] = PlayingCard:New(
+				cardValue,
+				Constants.CardSuits.Spades,
+				cardSpritesheet,
+				spadeQuad,
+				nil,
+				faceDownSprite,
+				leftHand,
+				rightHand,
+				flux
+			)
 			instance.cards[cardValue + 39] = instance.spades[cardValue]
 			
             x = x + cardWidth
@@ -168,20 +208,13 @@ local Deck = {
 
 	GiveSelectedCard = function(self)
 		if self.offsetCardIndex then
-			self.cards[self.offsetCardIndex].targetPosition = { x = love.graphics.getWidth() / 2, y = 100 }
-			self.cards[self.offsetCardIndex].targetOffset = { x = 0, y = 0 }
-			self.cards[self.offsetCardIndex].targetAngle = 0
-			self.cards[self.offsetCardIndex].out = true
-			self.cards[self.offsetCardIndex].facingUp = true
+			self.cards[self.offsetCardIndex]:ChangeState(Constants.CardStates.HeldBySpectator)
 		end
 	end,
 
 	RetrieveSelectedCard = function(self)
 		if self.offsetCardIndex then
-			print("RetrieveSelectedCard")
-			self.cards[self.offsetCardIndex].targetPosition = { x = 0, y = 0 }
-			self.cards[self.offsetCardIndex].out = false
-			self.cards[self.offsetCardIndex].facingUp = false
+			self.cards[self.offsetCardIndex]:ChangeState(Constants.CardStates.ReturningToDeck)
 		end
 	end,
 
@@ -261,9 +294,11 @@ local Deck = {
 		self.offsetCardIndex = 52
 	end,
 
-	PlaceSelectedCardOnTop = function(self)
-		self:MoveSelectedCardToTop()
-		self.cards[self.offsetCardIndex].targetPosition = { x = self.leftHand.position.x, y = self.leftHand.position.y }
+	ResetSelectedCard = function(self)
+		if not self.offsetCardIndex then
+			return
+		end
+		self.cards[self.offsetCardIndex]:ChangeState(Constants.CardStates.InDeck)
 	end,
 	
 	-----------------------------------------------------------------------------------------------------------
@@ -274,7 +309,7 @@ local Deck = {
 		local angleIncrement = 8
 		local angle = 0
 		self.fannedCards = 0
-		for index, card in ipairs(self.cards) do
+		for _, card in ipairs(self.cards) do
 			card.targetOffset = { x = 0, y = card.halfHeight }
 			card.previousOffset = { x = 0, y = card.halfHeight }
 			card.targetAngle = angle
@@ -286,7 +321,7 @@ local Deck = {
 	end,
 
 	Unfan = function(self)
-		for index, card in ipairs(self.cards) do
+		for _, card in ipairs(self.cards) do
 			card.targetOffset = { x = 0, y = 0 }
 			card.previousOffset = { x = 0, y = 0 }
 			card.targetAngle = 0
@@ -307,11 +342,9 @@ local Deck = {
 	end,
 
 	OnStartFanSpread = function(self)
-		print("OnStartFanSpread:")
 	end,
 
 	OnStopFanSpread = function(self)
-		print("Deck:OnStartFanSpread")
 		self:BroadcastToListeners("OnStopFanSpread")
 	end,
 
@@ -342,13 +375,13 @@ local Deck = {
 		self.cards[26].targetPosition = { x = love.graphics.getWidth() + 100, y = randomY }
 		self.cards[26].spinning = true
 		self.cards[26].out = true
-		self.cards[26].inRightHand = false
+		--self.cards[26].inRightHand = false
 	end,
 
 	CatchCard = function(self)
 		if Common:DistanceSquared(self.cards[26].position.x, self.cards[26].position.y, self.rightHand.position.x, self.rightHand.position.y) < 3000 then
 			self.cards[26].spinning = false
-			self.cards[26].inRightHand = true
+			--self.cards[26].inRightHand = true
 			self:BroadcastToListeners("CatchCard")
 		end
 	end,

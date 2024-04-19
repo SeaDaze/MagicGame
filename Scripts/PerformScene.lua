@@ -8,13 +8,13 @@ local Fan = require("Scripts.Techniques.Fan")
 
 local PerformScene =
 {
-    Load = function(self, gameInstance, keyboardUI, input, hud, timer)
+    Load = function(self, gameInstance, keyboardUI, input, hud, timer, flux)
 		self.gameInstance = gameInstance
 		self.background = love.graphics.newImage("Images/Background/mat.png")
         self.keyboardUI = keyboardUI
 		self.leftHand = LeftHand.New()
         self.rightHand = RightHand.New()
-		self.deck = Deck:New(self.leftHand, self.rightHand)
+		self.deck = Deck:New(self.leftHand, self.rightHand, flux)
 		self.input = input
 		self.hud = hud
 		self.routine = {

@@ -32,7 +32,7 @@ local game = {
         self.background = Background:New()
 
         StreetScene:Load(self, KeyboardUI, Input)
-		PerformScene:Load(self, KeyboardUI, Input, HUD, self.globalTimer)
+		PerformScene:Load(self, KeyboardUI, Input, HUD, self.globalTimer, Flux)
 
         Input:AddKeyListener("escape", self, "ExitGame")
         Input:AddKeyListener("f11", self, "SetFullScreen")

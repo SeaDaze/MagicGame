@@ -40,11 +40,12 @@ local Fan = {
 			self.deck:GiveSelectedCard()
 			self.timer:Start("UnfanSpread", 4)
 		elseif timerId == "UnfanSpread" then
-			self.deck:PlaceSelectedCardOnTop()
+			self.deck:MoveSelectedCardToTop()
 			self.deck:UnfanSpread()
-			self.timer:Start("Reset", 1)
-		elseif timerId == "Reset" then
 			self.deck:RetrieveSelectedCard()
+			self.timer:Start("Reset", 0.35)
+		elseif timerId == "Reset" then
+			self.deck:ResetSelectedCard()
 		end
 		
 	end,

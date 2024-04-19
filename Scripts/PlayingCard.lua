@@ -2,7 +2,7 @@ local Constants = require("Scripts.Constants")
 local Common = require("Scripts.Common")
 
 local PlayingCard = {
-	New = function(self, value, suit, spritesheet, quad, position, faceDownSprite, leftHand, rightHand)
+	New = function(self, value, suit, spritesheet, quad, position, faceDownSprite, leftHand, rightHand, flux)
 		local instance = setmetatable({}, self)
 
 		-- Sprites
@@ -17,7 +17,6 @@ local PlayingCard = {
 
 		-- Position/rotation
 		instance.position = position or { x = 0, y = 0 }
-		instance.targetPosition = position or { x = 0, y = 0 }
 		instance.angle = 0
 		instance.targetAngle = 0
 		instance.previousTargetAngle = 0
@@ -28,15 +27,13 @@ local PlayingCard = {
 		-- GameObject references
 		instance.leftHand = leftHand
 		instance.rightHand = rightHand
+		instance.flux = flux
 
-		-- State booleans
+		-- States
+		instance.state = Constants.CardStates.InDeck
 		instance.facingUp = false
-		instance.out = false
 		instance.spinning = false
-		instance.inRightHand = false
 		instance.dropped = false
-		instance.heldBySpectator = false
-		instance.handingBack = false
 		
 		-- Variables
 		instance.value = value
@@ -50,7 +47,7 @@ local PlayingCard = {
 		if self.spinning then
 			self:Spin(dt)
 		else
-			if not self.inRightHand then
+			if not self.state == Constants.CardStates.InRightHand then
 				if self.angle ~= self.targetAngle then
 					Flux.to(self, 0.3, { angle = self.targetAngle })
 				end
@@ -61,14 +58,10 @@ local PlayingCard = {
 			Flux.to(self.offset, 0.3, { x = self.targetOffset.x, y = self.targetOffset.y })
 		end
 
-		if self.out then
-			if self.inRightHand then
-				self:SetPosition({x = self.rightHand.position.x, y = self.rightHand.position.y })
-			else
-				Flux.to(self.position, 1, { x = self.targetPosition.x, y = self.targetPosition.y } )
-			end
-		else
+		if self.state == Constants.CardStates.InDeck then
 			self:SetPosition({x = self.leftHand.position.x, y = self.leftHand.position.y })
+		elseif self.state == Constants.CardStates.InRightHand then
+			self:SetPosition({x = self.rightHand.position.x, y = self.rightHand.position.y })
 		end
 	end,
 
@@ -100,8 +93,43 @@ local PlayingCard = {
     end,
 
 	-----------------------------------------------------------------------------------------------------------
+	-- State change functions
+	-----------------------------------------------------------------------------------------------------------
+
+	ChangeState = function(self, newState)
+		if self.state == newState then
+			print("ChangeState: cannot change state, newState == old state. state=", self.state)
+			return
+		end
+		self.StateChangeFunctions[newState](self)
+	end,
+
+	StateChangeFunctions = 
+	{
+		[Constants.CardStates.InDeck] = function(self)
+			self.state = Constants.CardStates.InDeck
+		end,
+
+		[Constants.CardStates.HeldBySpectator] = function(self)
+			self.state = Constants.CardStates.HeldBySpectator
+			self.targetOffset = { x = 0, y = 0 }
+			self.targetAngle = 0
+			self.facingUp = true
+			self.flux.to(self.position, 0.5, { x = love.graphics.getWidth() / 2, y = 100 } )
+		end,
+
+		[Constants.CardStates.ReturningToDeck] = function(self)
+			self.state = Constants.CardStates.ReturningToDeck
+			self.facingUp = false
+			self.flux.to(self.position, 0.35, { x = self.leftHand.position.x, y = self.leftHand.position.y } )
+		end,
+	},
+
+
+	-----------------------------------------------------------------------------------------------------------
 	-- Public functions
 	-----------------------------------------------------------------------------------------------------------
+
 	Flip = function(self)
 		self.facingUp = not self.facingUp
 	end,
