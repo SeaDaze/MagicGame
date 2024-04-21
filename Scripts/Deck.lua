@@ -10,8 +10,8 @@ local Deck = {
 		instance.offsetCardIndex = nil
 		instance.leftHand = leftHand
 		instance.rightHand = rightHand
-		instance.inLeftHand = true
 		instance.leftMouseDown = false
+		instance.visible = true
 		instance.cards = {}
         instance.clubs = {}
         instance.hearts = {}
@@ -110,6 +110,9 @@ local Deck = {
 	end,
 
 	Draw = function(self)
+		if not self.visible then
+			return
+		end
 		for _, card in ipairs(self.cards) do
 			card:Draw()
 		end
@@ -118,9 +121,6 @@ local Deck = {
             love.graphics.line(line.x1, line.y1, line.x2, line.y2)
         end
     end,
-
-	LateDraw = function(self)
-	end,
 
 	ToggleFan = function(self)
 		if self.fannedCards == 0 then
@@ -152,7 +152,7 @@ local Deck = {
 		local firstCard = self.cards[1]
 		local lastCard = self.cards[52]
 		local angle = lastCard.targetAngle - firstCard.targetAngle
-		--print("DuringFanSpread: angle=", angle)
+		print("DuringFanSpread: angle=", angle)
 	end,
 
 	OnNewLineCreated = function(self, lineIndex)
@@ -370,18 +370,12 @@ local Deck = {
 	end,
 
 	StartSpin = function(self)
-		self.cards[26]:SetPosition({x = self.leftHand.position.x, y = self.leftHand.position.y })
-		local randomY = love.math.random(0, love.graphics.getHeight())
-		self.cards[26].targetPosition = { x = love.graphics.getWidth() + 100, y = randomY }
-		self.cards[26].spinning = true
-		self.cards[26].out = true
-		--self.cards[26].inRightHand = false
+		self.cards[52]:ChangeState(Constants.CardStates.SpinningOut)
 	end,
 
 	CatchCard = function(self)
-		if Common:DistanceSquared(self.cards[26].position.x, self.cards[26].position.y, self.rightHand.position.x, self.rightHand.position.y) < 3000 then
-			self.cards[26].spinning = false
-			--self.cards[26].inRightHand = true
+		if Common:DistanceSquared(self.cards[52].position.x, self.cards[52].position.y, self.rightHand.position.x, self.rightHand.position.y) < 3000 then
+			self.cards[52]:ChangeState(Constants.CardStates.InRightHandPinchPalmDown)
 			self:BroadcastToListeners("CatchCard")
 		end
 	end,

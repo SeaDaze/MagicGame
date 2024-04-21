@@ -5,6 +5,7 @@ local Deck = require("Scripts.Deck")
 local Constants = require ("Scripts.Constants")
 local CardShootCatch = require ("Scripts.Tricks.CardShootCatch")
 local Fan = require("Scripts.Techniques.Fan")
+local FalseCut = require("Scripts.Techniques.FalseCut")
 
 local PerformScene =
 {
@@ -12,14 +13,15 @@ local PerformScene =
 		self.gameInstance = gameInstance
 		self.background = love.graphics.newImage("Images/Background/mat.png")
         self.keyboardUI = keyboardUI
-		self.leftHand = LeftHand.New()
-        self.rightHand = RightHand.New()
+		self.leftHand = LeftHand:New()
+        self.rightHand = RightHand:New()
 		self.deck = Deck:New(self.leftHand, self.rightHand, flux)
 		self.input = input
 		self.hud = hud
 		self.routine = {
-			Fan:New(self.deck, input, timer),
-			CardShootCatch:New(self.deck, input),
+			Fan:New(self.deck, input, self.leftHand, self.rightHand, timer),
+			FalseCut:New(self.deck, input, self.leftHand, self.rightHand, timer, flux),
+			CardShootCatch:New(self.deck, input, self.leftHand, self.rightHand, timer),
 		}
 		
 		local routineHudText = {}
@@ -45,19 +47,26 @@ local PerformScene =
 
     Update = function(self, Flux, dt)
 		self.deck:Update(Flux, dt)
-		self.rightHand:FollowMouse(Flux)
-		self.leftHand:HandleMovement(Flux, dt)
+		self.rightHand:Update(Flux, dt)
+		self.leftHand:Update(Flux, dt)
+		if self.routine[self.routineIndex].Update then
+			self.routine[self.routineIndex]:Update(Flux, dt)
+		end
     end,
 
     Draw = function(self)
 		love.graphics.draw(self.background, 0, 0, 0, 4, 4)
 		self.leftHand:Draw()
-		self.deck:Draw()
 		self.rightHand:Draw()
+		self.deck:Draw()
+		if self.routine[self.routineIndex].Draw then
+			self.routine[self.routineIndex]:Draw()
+		end
     end,
 
 	LateDraw = function(self)
-		self.deck:LateDraw()
+		self.leftHand:LateDraw()
+		self.rightHand:LateDraw()
 	end,
 
 	ExitPerform = function(self)

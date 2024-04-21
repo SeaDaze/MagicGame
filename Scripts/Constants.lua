@@ -13,7 +13,24 @@ local Constants =
 		HeldBySpectator = 1,
 		ReturningToDeck = 2,
 		SpinningOut = 3,
-		InRightHand = 4,
+		InRightHandPinchPalmDown = 4,
+		InRightHandPinchPalmUp = 5,
+		Dropped = 6,
+	},
+
+	LeftHandStates = 
+	{
+		MechanicsGrip = 0,
+		Fan = 1,
+	},
+
+	RightHandStates = 
+	{
+		PalmDown = 0,
+		PalmDownPinch = 1,
+		PalmDownIndexOut = 2,
+		PalmUp = 3,
+		PalmUpPinch = 4,
 	},
 
 	CardSuits = 

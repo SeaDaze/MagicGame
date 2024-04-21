@@ -39,8 +39,7 @@ local game = {
         self:OnGameStateChanged(Constants.GameStates.Perform)
         self.fullScreen = false
 
-        self.effect = moonshine(moonshine.effects.vignette)
-        .chain(moonshine.effects.desaturate)
+        --self.effect = moonshine(moonshine.effects.vignette).chain(moonshine.effects.desaturate)
         --.chain(moonshine.effects.glow)
 
         self.desaturation = 0.5
@@ -51,7 +50,6 @@ local game = {
     end,
 
     Update = function(self, dt)
-		Flux.update(dt)
         KeyboardUI:Update(Flux, dt)
 		self.globalTimer:Update(dt)
         --HUD:Update()
@@ -64,23 +62,25 @@ local game = {
             StreetScene:Update(Flux, dt)
             self.background:Update(Flux, dt)
         end
-        self.effect.desaturate.strength = self.desaturation
+        --self.effect.desaturate.strength = self.desaturation
         --self.effect.glow.strength = self.glow
         Input:Update()
+		Flux.update(dt)
     end,
 
     Draw = function(self)
-        self.effect(function()
-            if self.gameState == Constants.GameStates.MainMenu then
-                self.mainMenu:Draw()
-            elseif self.gameState == Constants.GameStates.Perform then
-                --self.background:Draw()
-                PerformScene:Draw()
-            elseif self.gameState == Constants.GameStates.Streets then
-                self.background:Draw()
-                StreetScene:Draw()
-            end
-        end)
+        -- self.effect(function()
+
+        -- end)
+		if self.gameState == Constants.GameStates.MainMenu then
+			self.mainMenu:Draw()
+		elseif self.gameState == Constants.GameStates.Perform then
+			--self.background:Draw()
+			PerformScene:Draw()
+		elseif self.gameState == Constants.GameStates.Streets then
+			self.background:Draw()
+			StreetScene:Draw()
+		end
         KeyboardUI:Draw()
         HUD:Draw()
     end,

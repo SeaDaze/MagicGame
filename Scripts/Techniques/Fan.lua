@@ -1,21 +1,27 @@
 local Technique = require("Scripts.Techniques.Technique")
+local Constants = require("Scripts.Constants")
 
 local Fan = {
-    New = function(self, deck, input, timer)
+    New = function(self, deck, input, leftHand, rightHand, timer)
         local instance = setmetatable({}, self)
 
         instance.deck = deck
         instance.input = input
-        instance.name = "fan"
+		instance.leftHand = leftHand
+        instance.rightHand = rightHand
 		instance.timer = timer
+
+		instance.name = "fan"
         return instance
     end,
 
     OnStart = function(self)
 		self.timerNotificationId = self.timer:AddListener(self, "OnTimerFinished")
+		self.leftHand:ChangeState(Constants.LeftHandStates.Fan)
 		self.deck:FanSpread()
 		self.input:AddMouseListener(1, self.deck, "SetLeftMouseButtonDown", "SetLeftMouseButtonUp")
 		self.stopFanSpreadNotificationId = self.deck:AddListener("OnStopFanSpread", self, "OnStopFanSpread")
+		self.rightHand:ChangeState(Constants.RightHandStates.PalmDownIndexOut)
     end,
 
     OnStop = function(self)
@@ -26,13 +32,13 @@ local Fan = {
     end,
 
 	OnStopFanSpread = function(self)
-		print("OnStopFanSpread: ")
-		self.input:DisableForSeconds(8)
+		--print("OnStopFanSpread: ")
+		self.input:DisableForSeconds(7)
 		self.timer:Start("SelectCard", 1)
 	end,
 
 	OnTimerFinished = function(self, timerId)
-		print("OnTimerFinished: timerId=", timerId)
+		--print("OnTimerFinished: timerId=", timerId)
 		if timerId == "SelectCard" then
 			self.deck:OffsetRandomCard()
 			self.timer:Start("GiveCard", 1)
@@ -47,7 +53,6 @@ local Fan = {
 		elseif timerId == "Reset" then
 			self.deck:ResetSelectedCard()
 		end
-		
 	end,
 }
 

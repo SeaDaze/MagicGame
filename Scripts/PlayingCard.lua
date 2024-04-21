@@ -44,13 +44,14 @@ local PlayingCard = {
 	end,
 
 	Update = function(self, Flux, dt)
-		if self.spinning then
+		if self.state == Constants.CardStates.SpinningOut then
 			self:Spin(dt)
 		else
-			if not self.state == Constants.CardStates.InRightHand then
-				if self.angle ~= self.targetAngle then
-					Flux.to(self, 0.3, { angle = self.targetAngle })
-				end
+			-- if self.state ~= Constants.CardStates.InRightHand then
+				
+			-- end
+			if self.angle ~= self.targetAngle then
+				Flux.to(self, 0.3, { angle = self.targetAngle })
 			end
 		end
 
@@ -60,8 +61,14 @@ local PlayingCard = {
 
 		if self.state == Constants.CardStates.InDeck then
 			self:SetPosition({x = self.leftHand.position.x, y = self.leftHand.position.y })
-		elseif self.state == Constants.CardStates.InRightHand then
-			self:SetPosition({x = self.rightHand.position.x, y = self.rightHand.position.y })
+		elseif self.state == Constants.CardStates.InRightHandPinchPalmDown then
+			self:SetPosition(self.rightHand:GetIndexFingerPosition())
+		elseif self.state == Constants.CardStates.InRightHandPinchPalmUp then
+			self:SetPosition(self.rightHand:GetPalmUpPinchFingerPosition())
+		end
+
+		if self.state ~= Constants.CardStates.Dropped and self.position.x > love.graphics.getWidth() then
+			self:ChangeState(Constants.CardStates.Dropped)
 		end
 	end,
 
@@ -122,6 +129,27 @@ local PlayingCard = {
 			self.state = Constants.CardStates.ReturningToDeck
 			self.facingUp = false
 			self.flux.to(self.position, 0.35, { x = self.leftHand.position.x, y = self.leftHand.position.y } )
+		end,
+
+		[Constants.CardStates.SpinningOut] = function(self)
+			self.state = Constants.CardStates.SpinningOut
+			self:SetPosition({x = self.leftHand.position.x, y = self.leftHand.position.y })
+			local randomY = love.math.random(0, love.graphics.getHeight())
+			self.targetPosition = { x = love.graphics.getWidth() + 100, y = randomY }
+			self.flux.to(self.position, 1.2, { x = self.targetPosition.x, y = self.targetPosition.y })
+		end,
+
+		[Constants.CardStates.Dropped] = function(self)
+			self.state = Constants.CardStates.Dropped
+		end,
+
+		[Constants.CardStates.InRightHandPinchPalmDown] = function(self)
+			self.state = Constants.CardStates.InRightHandPinchPalmDown
+		end,
+
+		[Constants.CardStates.InRightHandPinchPalmUp] = function(self)
+			self.state = Constants.CardStates.InRightHandPinchPalmUp
+			self.facingUp = true
 		end,
 	},
 
