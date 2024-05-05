@@ -50,6 +50,7 @@ local game = {
     end,
 
     Update = function(self, dt)
+		Flux.update(dt)
         KeyboardUI:Update(Flux, dt)
 		self.globalTimer:Update(dt)
         --HUD:Update()
@@ -65,7 +66,6 @@ local game = {
         --self.effect.desaturate.strength = self.desaturation
         --self.effect.glow.strength = self.glow
         Input:Update()
-		Flux.update(dt)
     end,
 
     Draw = function(self)

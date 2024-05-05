@@ -20,8 +20,10 @@ local Input =
 		if self.keyListeners then
 			for key, keyData in pairs(self.keyListeners) do
 				if not keyData.down and love.keyboard.isDown(key) then
-					keyData.tableInstance[keyData.downCallback](keyData.tableInstance)
 					keyData.down = true
+					if keyData.downCallback then
+						keyData.tableInstance[keyData.downCallback](keyData.tableInstance)
+					end
 				elseif keyData.down and not love.keyboard.isDown(key) then
 					keyData.down = false
 					if keyData.upCallback then

@@ -2,7 +2,7 @@ local Technique = require("Scripts.Techniques.Technique")
 local Constants = require("Scripts.Constants")
 
 local Fan = {
-    New = function(self, deck, input, leftHand, rightHand, timer)
+    New = function(self, deck, input, leftHand, rightHand, timer, hud)
         local instance = setmetatable({}, self)
 
         instance.deck = deck
@@ -10,6 +10,7 @@ local Fan = {
 		instance.leftHand = leftHand
         instance.rightHand = rightHand
 		instance.timer = timer
+		instance.hud = hud
 
 		instance.name = "fan"
         return instance
@@ -31,8 +32,9 @@ local Fan = {
 		self.timer:RemoveListener(self.timerNotificationId)
     end,
 
-	OnStopFanSpread = function(self)
+	OnStopFanSpread = function(self, params)
 		--print("OnStopFanSpread: ")
+		self.hud:SetScoreText(math.floor(params.quality))
 		self.input:DisableForSeconds(7)
 		self.timer:Start("SelectCard", 1)
 	end,
@@ -53,6 +55,10 @@ local Fan = {
 		elseif timerId == "Reset" then
 			self.deck:ResetSelectedCard()
 		end
+	end,
+
+	EvaluateScore = function(self)
+
 	end,
 }
 

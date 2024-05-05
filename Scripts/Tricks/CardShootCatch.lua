@@ -21,7 +21,7 @@ local CardShootCatch = {
     OnStart = function(self)
 		self.timerNotificationId = self.timer:AddListener(self, "OnTimerFinished")
 		self.leftHand:ChangeState(Constants.LeftHandStates.MechanicsGrip)
-        self.input:AddKeyListener("f", self.deck, "StartSpin")
+        self.input:AddKeyListener("f", self.deck, nil, "StartSpin")
 		self.input:AddMouseListener(1, self.deck, "CatchCard")
 		self.rightHand:ChangeState(Constants.RightHandStates.PalmDown)
 		self.catchCardNotificationId = self.deck:AddListener("CatchCard", self, "OnCatchCard")

@@ -152,14 +152,19 @@ local Deck = {
 		local firstCard = self.cards[1]
 		local lastCard = self.cards[52]
 		local angle = lastCard.targetAngle - firstCard.targetAngle
-		print("DuringFanSpread: angle=", angle)
+
+		--print("DuringFanSpread: angle=", angle)
 	end,
 
 	OnNewLineCreated = function(self, lineIndex)
 		if not self.spreadingCards then
 			return
 		end
+		table.insert(self.cardsInSpread, self.spreadingCards[1])
 		table.remove(self.spreadingCards, 1)
+
+		--print("OnNewLineCreated: Cards in spread=", Common:TableCount(self.cardsInSpread))
+		--self:EvaluateCardAngleDistribution()
 	end,
 
 	SpreadingLines = function(self)
@@ -219,7 +224,7 @@ local Deck = {
 	end,
 
 	-----------------------------------------------------------------------------------------------------------
-	-- Helpers
+	-- SECTION Helpers
 	-----------------------------------------------------------------------------------------------------------
 
 	Swap = function(self, a, b)
@@ -300,9 +305,47 @@ local Deck = {
 		end
 		self.cards[self.offsetCardIndex]:ChangeState(Constants.CardStates.InDeck)
 	end,
-	
+
+	EvaluateCardAngleDistribution = function(self)
+		local targetAngleDiff = 180 / Common:TableCount(self.cardsInSpread)
+
+		local angleDiffPercentages = {}
+		local cardIndex = 1
+		local totalDiff = 0
+
+		for _, card in ipairs(self.cardsInSpread) do
+			if self.cardsInSpread[cardIndex + 1] then
+				local angleDiff = self.cardsInSpread[cardIndex + 1].angle - card.angle
+				local calculatedAngleDistribution = (angleDiff / targetAngleDiff) * 100
+				if calculatedAngleDistribution > 100 then
+					local overEstimation = calculatedAngleDistribution - 100
+					calculatedAngleDistribution = 100 - overEstimation
+				end
+				table.insert(angleDiffPercentages, calculatedAngleDistribution)
+				totalDiff = totalDiff + calculatedAngleDistribution
+				cardIndex = cardIndex + 1
+			end
+		end
+
+		return totalDiff / Common:TableCount(angleDiffPercentages)
+	end,
+
+	EvaluateFanQuality = function(self)
+		local numberOfCardsInSpread = Common:TableCount(self.cardsInSpread)
+		local angleDistributionQuality = self:EvaluateCardAngleDistribution()
+		local cardNumberQuality = (numberOfCardsInSpread / 52) * 100
+		local fullAngleQuality = (self.cardsInSpread[numberOfCardsInSpread].angle - self.cardsInSpread[1].angle) / 180 * 100
+
+		print("EvaluateFanQuality: angleDistributionQuality=", angleDistributionQuality)
+		print("EvaluateFanQuality: cardNumberQuality=", cardNumberQuality)
+		print("EvaluateFanQuality: fullAngleQuality=", fullAngleQuality)
+		print("EvaluateFanQuality: Final evaluation=", (angleDistributionQuality + cardNumberQuality + fullAngleQuality) / 3)
+
+		return (angleDistributionQuality + cardNumberQuality + fullAngleQuality) / 3
+	end,
 	-----------------------------------------------------------------------------------------------------------
-	-- Techniques
+	-- !SECTION
+	-- SECTION Techniques
 	-----------------------------------------------------------------------------------------------------------
 
 	Fan = function(self)
@@ -336,6 +379,7 @@ local Deck = {
 			card.previousOffset = { x = 0, y = card.halfHeight }
 		end
 		self.spreadingCards = {}
+		self.cardsInSpread = {}
 		for index, card in ipairs(self.cards) do
 			self.spreadingCards[index] = card
 		end
@@ -345,7 +389,7 @@ local Deck = {
 	end,
 
 	OnStopFanSpread = function(self)
-		self:BroadcastToListeners("OnStopFanSpread")
+		self:BroadcastToListeners("OnStopFanSpread", { quality = self:EvaluateFanQuality() })
 	end,
 
 	UnfanSpread = function(self)
@@ -393,13 +437,14 @@ local Deck = {
 	end,
 
 	-----------------------------------------------------------------------------------------------------------
-	-- Listeners
+	-- !SECTION
+	-- SECTION Listeners
 	-----------------------------------------------------------------------------------------------------------
 	AddListener = function(self, functionName, callbackTable, callbackFunction)
 		if not self.notificationListeners[functionName] then
 			self.notificationListeners[functionName] = {}
 		end
-		print("AddListener: functionName=", functionName)
+		--print("AddListener: functionName=", functionName)
 		self.listenerId = self.listenerId + 1
 		self.notificationListeners[functionName][self.listenerId] = {
 			callbackTable = callbackTable,
@@ -420,18 +465,19 @@ local Deck = {
 		self.notificationListeners[functionName][listenerId] = nil
 	end,
 
-	BroadcastToListeners = function(self, functionName)
+	BroadcastToListeners = function(self, functionName, params)
 		if not self.notificationListeners[functionName] then
 			return
 		end
-		print("BroadcastToListeners: Listener count=", Common:TableCount(self.notificationListeners[functionName]))
+		--print("BroadcastToListeners: Listener count=", Common:TableCount(self.notificationListeners[functionName]))
 		for _, dataTable in pairs(self.notificationListeners[functionName]) do
-			dataTable.callbackTable[dataTable.callbackFunction](dataTable.callbackTable)
+			dataTable.callbackTable[dataTable.callbackFunction](dataTable.callbackTable, params)
 		end
 	end,
 
 	-----------------------------------------------------------------------------------------------------------
-	-- Getters/Setters
+	-- !SECTION
+	-- SECTION Getters/Setters
 	-----------------------------------------------------------------------------------------------------------
 
 	SetLeftMouseButtonDown = function(self)
@@ -441,6 +487,10 @@ local Deck = {
 	SetLeftMouseButtonUp = function(self)
 		self.leftMouseDown = false
 	end,
+
+	-----------------------------------------------------------------------------------------------------------
+	-- !SECTION
+	-----------------------------------------------------------------------------------------------------------
 }
 
 Deck.__index = Deck

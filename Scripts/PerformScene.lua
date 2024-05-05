@@ -19,7 +19,7 @@ local PerformScene =
 		self.input = input
 		self.hud = hud
 		self.routine = {
-			Fan:New(self.deck, input, self.leftHand, self.rightHand, timer),
+			Fan:New(self.deck, input, self.leftHand, self.rightHand, timer, hud),
 			FalseCut:New(self.deck, input, self.leftHand, self.rightHand, timer, flux),
 			CardShootCatch:New(self.deck, input, self.leftHand, self.rightHand, timer),
 		}
