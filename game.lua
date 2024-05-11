@@ -17,12 +17,16 @@ local Input = require("Scripts.Input")
 local PlayerStats = require("Scripts.PlayerStats")
 local Timer = require("Scripts.Timer")
 
+local Logger = require("Scripts.Debug.Log")
+
 local game = {
 
     Load = function(self)
         love.math.setRandomSeed(os.time())
         love.graphics.setDefaultFilter("nearest", "nearest")
 		love.mouse.setVisible(false)
+
+        Logger:Load()
         KeyboardUI:Load()
 		Input:Load()
 		HUD:Load(PlayerStats, Flux)
@@ -47,6 +51,7 @@ local game = {
         Input:AddKeyListener("t", self, "Saturate", "Desaturate")
         Input:AddKeyListener("right", self, "IncreaseOffset")
         Input:AddKeyListener("left", self, "DecreaseOffset")
+        Logger:Log("Test Log")
     end,
 
     Update = function(self, dt)
