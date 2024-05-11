@@ -4,6 +4,9 @@ local LeftHand = require("Scripts.LeftHand")
 local Deck = require("Scripts.Deck")
 local Constants = require ("Scripts.Constants")
 local CardShootCatch = require ("Scripts.Tricks.CardShootCatch")
+local DoubleLift = require("Scripts.Techniques.DoubleLift")
+local CardiniChange = require("Scripts.Tricks.CardiniChange")
+
 local Fan = require("Scripts.Techniques.Fan")
 local FalseCut = require("Scripts.Techniques.FalseCut")
 
@@ -21,7 +24,9 @@ local PerformScene =
 		self.routine = {
 			Fan:New(self.deck, input, self.leftHand, self.rightHand, timer, hud),
 			FalseCut:New(self.deck, input, self.leftHand, self.rightHand, timer, flux),
-			CardShootCatch:New(self.deck, input, self.leftHand, self.rightHand, timer),
+			DoubleLift:New(self.deck, input, self.leftHand, self.rightHand, timer),
+			CardiniChange:New(self.deck, input, self.leftHand, self.rightHand, timer, flux),
+			--CardShootCatch:New(self.deck, input, self.leftHand, self.rightHand, timer),
 		}
 		
 		local routineHudText = {}

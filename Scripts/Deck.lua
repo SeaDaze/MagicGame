@@ -341,7 +341,8 @@ local Deck = {
 		print("EvaluateFanQuality: fullAngleQuality=", fullAngleQuality)
 		print("EvaluateFanQuality: Final evaluation=", (angleDistributionQuality + cardNumberQuality + fullAngleQuality) / 3)
 
-		return (angleDistributionQuality + cardNumberQuality + fullAngleQuality) / 3
+		local finalEvaluation = (angleDistributionQuality + cardNumberQuality + fullAngleQuality) / 3
+		return Common:Clamp(finalEvaluation, 0, 100)
 	end,
 	-----------------------------------------------------------------------------------------------------------
 	-- !SECTION

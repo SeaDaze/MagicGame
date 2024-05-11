@@ -56,10 +56,6 @@ local Fan = {
 			self.deck:ResetSelectedCard()
 		end
 	end,
-
-	EvaluateScore = function(self)
-
-	end,
 }
 
 Fan.__index = Fan

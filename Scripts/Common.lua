@@ -46,5 +46,15 @@ local Common = {
 		return { x = vec.x / length, y = vec.y / length }
 	end,
 
+	Clamp = function(self, num, lower, upper)
+		if num > upper then
+			return upper
+		end
+		if num < lower then
+			return lower
+		end
+		return num
+	end,
+
 }
 return Common

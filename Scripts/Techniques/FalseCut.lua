@@ -28,6 +28,7 @@ local FalseCut = {
     end,
 
     OnStop = function(self)
+		self.input:RemoveKeyListener("f")
 		self.timer:RemoveListener(self.timerNotificationId)
 		self.leftHand.visible = true
 		self.rightHand.visible = true

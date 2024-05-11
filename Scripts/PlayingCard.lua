@@ -15,7 +15,7 @@ local PlayingCard = {
 		instance.halfWidth = instance.width / 2
 		instance.halfHeight = instance.height / 2
 
-		-- Position/rotation
+		-- Position/rotation/scale
 		instance.position = position or { x = 0, y = 0 }
 		instance.angle = 0
 		instance.targetAngle = 0
@@ -23,6 +23,7 @@ local PlayingCard = {
 		instance.offset = { x = 0, y = 0 }
 		instance.targetOffset =  { x = 0, y = 0 }
 		instance.previousOffset = { x = 0, y = 0 }
+		instance.scale = { x = 5, y = 5 }
 
 		-- GameObject references
 		instance.leftHand = leftHand
@@ -55,9 +56,9 @@ local PlayingCard = {
 			end
 		end
 
-		if self.offset ~= self.targetOffset then
-			Flux.to(self.offset, 0.3, { x = self.targetOffset.x, y = self.targetOffset.y })
-		end
+		-- if self.offset ~= self.targetOffset then
+		-- 	Flux.to(self.offset, 0.3, { x = self.targetOffset.x, y = self.targetOffset.y })
+		-- end
 
 		if self.state == Constants.CardStates.InDeck then
 			self:SetPosition({x = self.leftHand.position.x, y = self.leftHand.position.y })
@@ -80,8 +81,8 @@ local PlayingCard = {
 				self.position.x,
 				self.position.y,
 				math.rad(self.angle),
-				5,
-				5,
+				self.scale.x,
+				self.scale.y,
 				self.halfWidth + self.offset.x,
 				self.halfHeight + self.offset.y
 			)
@@ -91,8 +92,8 @@ local PlayingCard = {
 				self.position.x,
 				self.position.y,
 				math.rad(self.angle),
-				5,
-				5,
+				self.scale.x,
+				self.scale.y,
 				self.halfWidth + self.offset.x,
 				self.halfHeight + self.offset.y
 			)
