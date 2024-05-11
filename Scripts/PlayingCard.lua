@@ -17,12 +17,13 @@ local PlayingCard = {
 
 		-- Position/rotation/scale
 		instance.position = position or { x = 0, y = 0 }
+		instance.positionOffset = { x = 0, y = 0 }
 		instance.angle = 0
 		instance.targetAngle = 0
 		instance.previousTargetAngle = 0
-		instance.offset = { x = 0, y = 0 }
-		instance.targetOffset =  { x = 0, y = 0 }
-		instance.previousOffset = { x = 0, y = 0 }
+		instance.originOffset = { x = 0, y = 0 }
+		instance.targetOriginOffset =  { x = 0, y = 0 }
+		instance.previousOriginOffset = { x = 0, y = 0 }
 		instance.scale = { x = 5, y = 5 }
 
 		-- GameObject references
@@ -56,9 +57,9 @@ local PlayingCard = {
 			end
 		end
 
-		-- if self.offset ~= self.targetOffset then
-		-- 	Flux.to(self.offset, 0.3, { x = self.targetOffset.x, y = self.targetOffset.y })
-		-- end
+		if self.originOffset ~= self.targetOriginOffset then
+			Flux.to(self.originOffset, 0.3, { x = self.targetOriginOffset.x, y = self.targetOriginOffset.y })
+		end
 
 		if self.state == Constants.CardStates.InDeck then
 			self:SetPosition({x = self.leftHand.position.x, y = self.leftHand.position.y })
@@ -78,24 +79,24 @@ local PlayingCard = {
 			love.graphics.draw(
 				self.spritesheet,
 				self.quad,
-				self.position.x,
-				self.position.y,
+				self.position.x + self.positionOffset.x,
+				self.position.y + self.positionOffset.y,
 				math.rad(self.angle),
 				self.scale.x,
 				self.scale.y,
-				self.halfWidth + self.offset.x,
-				self.halfHeight + self.offset.y
+				self.halfWidth + self.originOffset.x,
+				self.halfHeight + self.originOffset.y
 			)
         else
 			love.graphics.draw(
 				self.faceDownSprite,
-				self.position.x,
-				self.position.y,
+				self.position.x + self.positionOffset.x,
+				self.position.y + self.positionOffset.y,
 				math.rad(self.angle),
 				self.scale.x,
 				self.scale.y,
-				self.halfWidth + self.offset.x,
-				self.halfHeight + self.offset.y
+				self.halfWidth + self.originOffset.x,
+				self.halfHeight + self.originOffset.y
 			)
 		end
     end,
@@ -120,7 +121,7 @@ local PlayingCard = {
 
 		[Constants.CardStates.HeldBySpectator] = function(self)
 			self.state = Constants.CardStates.HeldBySpectator
-			self.targetOffset = { x = 0, y = 0 }
+			self.targetOriginOffset = { x = 0, y = 0 }
 			self.targetAngle = 0
 			self.facingUp = true
 			self.flux.to(self.position, 0.5, { x = love.graphics.getWidth() / 2, y = 100 } )

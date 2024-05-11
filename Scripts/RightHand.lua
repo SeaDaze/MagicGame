@@ -39,6 +39,7 @@ local RightHand = {
     end,
 
     Draw = function(self)
+		love.graphics.setColor(1, 1, 1, 0.8)
 		if not self.visible then
 			return
 		end
@@ -49,9 +50,11 @@ local RightHand = {
 		elseif self.state == Constants.RightHandStates.PalmUpPinch then
 			self:DrawHand(self.spritePalmUpNoThumb)
 		end
+		love.graphics.setColor(1, 1, 1, 1)
     end,
 
 	LateDraw = function(self)
+		love.graphics.setColor(1, 1, 1, 0.8)
 		if not self.visible then
 			return
 		end
@@ -64,6 +67,7 @@ local RightHand = {
 		elseif self.state == Constants.RightHandStates.PalmUpPinch then
 			self:DrawHand(self.spritePalmUpThumbOnly)
 		end
+		love.graphics.setColor(1, 1, 1, 1)
     end,
 
     DrawHand = function(self, sprite)

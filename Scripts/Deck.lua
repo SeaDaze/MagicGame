@@ -276,13 +276,13 @@ local Deck = {
 		if self.offsetCardIndex then
 			self:UnoffsetCard(self.offsetCardIndex)
 		end
-		self.cards[cardIndex].previousOffset = { x = self.cards[cardIndex].offset.x, y = self.cards[cardIndex].offset.y }
-		self.cards[cardIndex].targetOffset = { x = 0, y = self.cards[cardIndex].offset.y + self.cards[cardIndex].halfHeight }
+		self.cards[cardIndex].previousOriginOffset = { x = self.cards[cardIndex].originOffset.x, y = self.cards[cardIndex].originOffset.y }
+		self.cards[cardIndex].targetOriginOffset = { x = 0, y = self.cards[cardIndex].originOffset.y + self.cards[cardIndex].halfHeight }
 		self.offsetCardIndex = cardIndex
 	end,
 	
 	UnoffsetCard = function(self, cardIndex)
-		self.cards[cardIndex].targetOffset = { x = self.cards[cardIndex].previousOffset.x, y = self.cards[cardIndex].previousOffset.y }
+		self.cards[cardIndex].targetOriginOffset = { x = self.cards[cardIndex].previousOriginOffset.x, y = self.cards[cardIndex].previousOriginOffset.y }
 		self.offsetCardIndex = nil
 	end,
 
@@ -354,8 +354,8 @@ local Deck = {
 		local angle = 0
 		self.fannedCards = 0
 		for _, card in ipairs(self.cards) do
-			card.targetOffset = { x = 0, y = card.halfHeight }
-			card.previousOffset = { x = 0, y = card.halfHeight }
+			card.targetOriginOffset = { x = 0, y = card.halfHeight }
+			card.previousOriginOffset = { x = 0, y = card.halfHeight }
 			card.targetAngle = angle
 			if angle < 180 then
 				angle = angle + angleIncrement
@@ -366,8 +366,8 @@ local Deck = {
 
 	Unfan = function(self)
 		for _, card in ipairs(self.cards) do
-			card.targetOffset = { x = 0, y = 0 }
-			card.previousOffset = { x = 0, y = 0 }
+			card.targetOriginOffset = { x = 0, y = 0 }
+			card.previousOriginOffset = { x = 0, y = 0 }
 			card.targetAngle = 0
 		end
 		self.fannedCards = 0
@@ -376,8 +376,8 @@ local Deck = {
 	FanSpread = function(self)
 		self.fanSpreading = true
 		for _, card in ipairs(self.cards) do
-			card.targetOffset = { x = 0, y = card.halfHeight }
-			card.previousOffset = { x = 0, y = card.halfHeight }
+			card.targetOriginOffset = { x = 0, y = card.halfHeight }
+			card.previousOriginOffset = { x = 0, y = card.halfHeight }
 		end
 		self.spreadingCards = {}
 		self.cardsInSpread = {}

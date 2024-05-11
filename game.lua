@@ -19,6 +19,8 @@ local Timer = require("Scripts.Timer")
 
 local Logger = require("Scripts.Debug.Log")
 
+GameScale = 5
+
 local game = {
 
     Load = function(self)

@@ -32,8 +32,9 @@ local HUD =
             love.graphics.printf(text, self.trickFont, (x + self.routineOffset), love.graphics.getHeight() - 60, love.graphics.getWidth(), "center")
             x = x + self.textOffsetInterval
         end
-        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.setColor(self.scoreTextRed or 1, self.scoreTextGreen or 1, 0, 1)
 		love.graphics.printf(self.scoreText, self.scoreFont, 0, love.graphics.getHeight() - 150, love.graphics.getWidth(), "center")
+        love.graphics.setColor(1, 1, 1, 1)
     end,
 
     SetRoutineText = function(self, textTable)
@@ -46,7 +47,17 @@ local HUD =
 	end,
 
 	SetScoreText = function(self, scoreText)
-		self.scoreText = scoreText .. "!"
+        self.scoreText = scoreText .. "!"
+        if type(scoreText) ~= "number" then
+            return
+        end
+        if scoreText == 0 then
+            self.scoreTextRed = 1
+            self.scoreTextGreen = 0
+        else
+            self.scoreTextRed = (100 - scoreText) / 100
+            self.scoreTextGreen = scoreText / 100
+        end
 	end,
 
 }

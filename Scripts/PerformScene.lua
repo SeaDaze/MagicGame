@@ -25,7 +25,7 @@ local PerformScene =
 			Fan:New(self.deck, input, self.leftHand, self.rightHand, timer, hud),
 			FalseCut:New(self.deck, input, self.leftHand, self.rightHand, timer, flux),
 			DoubleLift:New(self.deck, input, self.leftHand, self.rightHand, timer),
-			CardiniChange:New(self.deck, input, self.leftHand, self.rightHand, timer, flux),
+			CardiniChange:New(self.deck, input, self.leftHand, self.rightHand, timer, flux, hud),
 			--CardShootCatch:New(self.deck, input, self.leftHand, self.rightHand, timer),
 		}
 		
