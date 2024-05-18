@@ -149,11 +149,20 @@ local Deck = {
 			local angleDelta = (newAngle - card.targetAngle)
 			card.targetAngle = (card.targetAngle + angleDelta) * 2
 		end
-		local firstCard = self.cards[1]
-		local lastCard = self.cards[52]
-		local angle = lastCard.targetAngle - firstCard.targetAngle
+	end,
 
-		--print("DuringFanSpread: angle=", angle)
+	DuringTableSpread = function(self)
+		local numberOfLines = Common:TableCount(self.lines)
+		if numberOfLines == 0 then
+			return
+		end
+		for _, card in ipairs(self.spreadingCards) do
+			local v2 = Common:Normalize({ x = targetLine.x2 - card.position.x, y = targetLine.y2 - card.position.y })
+			local v1 = { x = 0, y = -1 }
+			local newAngle = Common:AngleBetweenVectors(v1, v2)
+			local angleDelta = (newAngle - card.targetAngle)
+			card.targetAngle = (card.targetAngle + angleDelta) * 2
+		end
 	end,
 
 	OnNewLineCreated = function(self, lineIndex)
@@ -303,7 +312,7 @@ local Deck = {
 		if not self.offsetCardIndex then
 			return
 		end
-		self.cards[self.offsetCardIndex]:ChangeState(Constants.CardStates.InDeck)
+		self.cards[self.offsetCardIndex]:ChangeState(Constants.CardStates.InLeftHand)
 	end,
 
 	EvaluateCardAngleDistribution = function(self)
@@ -387,6 +396,7 @@ local Deck = {
 	end,
 
 	OnStartFanSpread = function(self)
+		self.tableSpreading = true
 	end,
 
 	OnStopFanSpread = function(self)
@@ -396,6 +406,12 @@ local Deck = {
 	UnfanSpread = function(self)
 		self.fanSpreading = false
 		self:Unfan()
+	end,
+
+	TableSpread = function(self)
+		for _, card in ipairs(self.cards) do
+			card:ChangeState(Constants.CardStates.InRightHandTableSpread)
+		end
 	end,
 
 	SingleLift = function(self)

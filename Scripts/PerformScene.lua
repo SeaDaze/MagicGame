@@ -6,6 +6,7 @@ local Constants = require ("Scripts.Constants")
 local CardShootCatch = require ("Scripts.Tricks.CardShootCatch")
 local DoubleLift = require("Scripts.Techniques.DoubleLift")
 local CardiniChange = require("Scripts.Tricks.CardiniChange")
+local TableSpread   = require("Scripts.Techniques.TableSpread")
 
 local Fan = require("Scripts.Techniques.Fan")
 local FalseCut = require("Scripts.Techniques.FalseCut")
@@ -22,6 +23,7 @@ local PerformScene =
 		self.input = input
 		self.hud = hud
 		self.routine = {
+			TableSpread:New(self.deck, input, self.leftHand, self.rightHand, timer, hud),
 			Fan:New(self.deck, input, self.leftHand, self.rightHand, timer, hud),
 			FalseCut:New(self.deck, input, self.leftHand, self.rightHand, timer, flux),
 			DoubleLift:New(self.deck, input, self.leftHand, self.rightHand, timer),

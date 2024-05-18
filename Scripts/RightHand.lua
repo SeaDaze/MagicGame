@@ -8,6 +8,7 @@ local RightHand = {
 		instance.spritePalmDownIndexOut = love.graphics.newImage("Images/Hands/right_palmDown_IndexOut.png")
 		instance.spritePalmDownPinchNoThumb = love.graphics.newImage("Images/Hands/right_palmDown_PinchNoThumb.png")
 		instance.spritePalmDownPinchThumbOnly = love.graphics.newImage("Images/Hands/right_palmDown_PinchThumbOnly.png")
+		instance.spritePalmDownTableSpread = love.graphics.newImage("Images/Hands/right_palmDown_TableSpread.png")
 
 		instance.spritePalmUp = love.graphics.newImage("Images/Hands/right_palmUp_ThumbIn.png")
 		instance.spritePalmUpNoThumb = love.graphics.newImage("Images/Hands/right_palmUp_NoThumb.png")
@@ -66,6 +67,8 @@ local RightHand = {
 			self:DrawHand(self.spritePalmDownIndexOut)
 		elseif self.state == Constants.RightHandStates.PalmUpPinch then
 			self:DrawHand(self.spritePalmUpThumbOnly)
+		elseif self.state == Constants.RightHandStates.PalmDownTableSpread then
+			self:DrawHand(self.spritePalmDownTableSpread)
 		end
 		love.graphics.setColor(1, 1, 1, 1)
     end,

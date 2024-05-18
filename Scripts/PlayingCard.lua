@@ -32,7 +32,7 @@ local PlayingCard = {
 		instance.flux = flux
 
 		-- States
-		instance.state = Constants.CardStates.InDeck
+		instance.state = Constants.CardStates.InLeftHand
 		instance.facingUp = false
 		instance.spinning = false
 		instance.dropped = false
@@ -61,12 +61,14 @@ local PlayingCard = {
 			Flux.to(self.originOffset, 0.3, { x = self.targetOriginOffset.x, y = self.targetOriginOffset.y })
 		end
 
-		if self.state == Constants.CardStates.InDeck then
+		if self.state == Constants.CardStates.InLeftHand then
 			self:SetPosition({x = self.leftHand.position.x, y = self.leftHand.position.y })
 		elseif self.state == Constants.CardStates.InRightHandPinchPalmDown then
 			self:SetPosition(self.rightHand:GetIndexFingerPosition())
 		elseif self.state == Constants.CardStates.InRightHandPinchPalmUp then
 			self:SetPosition(self.rightHand:GetPalmUpPinchFingerPosition())
+		elseif self.state == Constants.CardStates.InRightHandTableSpread then
+			self:SetPosition({x = self.rightHand.position.x, y = self.rightHand.position.y })
 		end
 
 		if self.state ~= Constants.CardStates.Dropped and self.position.x > love.graphics.getWidth() then
@@ -115,8 +117,8 @@ local PlayingCard = {
 
 	StateChangeFunctions = 
 	{
-		[Constants.CardStates.InDeck] = function(self)
-			self.state = Constants.CardStates.InDeck
+		[Constants.CardStates.InLeftHand] = function(self)
+			self.state = Constants.CardStates.InLeftHand
 		end,
 
 		[Constants.CardStates.HeldBySpectator] = function(self)
@@ -152,6 +154,10 @@ local PlayingCard = {
 		[Constants.CardStates.InRightHandPinchPalmUp] = function(self)
 			self.state = Constants.CardStates.InRightHandPinchPalmUp
 			self.facingUp = true
+		end,
+
+		[Constants.CardStates.InRightHandTableSpread] = function(self)
+			self.state = Constants.CardStates.InRightHandTableSpread
 		end,
 	},
 
