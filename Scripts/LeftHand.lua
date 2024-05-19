@@ -68,6 +68,14 @@ local LeftHand = {
 		self.state = newState
 	end,
 
+	Disable = function(self)
+		self.active = false
+		self.activeTween:stop()
+	end,
+
+	Enable = function(self)
+		self.active = true
+	end,
 }
 LeftHand.__index = LeftHand
 

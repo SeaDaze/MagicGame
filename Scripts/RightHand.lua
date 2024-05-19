@@ -36,7 +36,7 @@ local RightHand = {
 		if not self.active then
 			return
 		end
-        self.activeTween = Flux.to(self.position, 0.2, { x = love.mouse.getX(), y = love.mouse.getY()})
+        self.activeTween = Flux.to(self.position, 0.5, { x = love.mouse.getX(), y = love.mouse.getY()})
     end,
 
     Draw = function(self)
@@ -89,6 +89,19 @@ local RightHand = {
 	GetPalmUpPinchFingerPosition = function(self)
 		local pos = { x = self.position.x + self.palmUpPinchOffset.x, y = self.position.y + self.palmUpPinchOffset.y }
 		return pos
+	end,
+
+	GetPosition = function(self)
+		return self.position
+	end,
+	
+	Disable = function(self)
+		self.active = false
+		self.activeTween:stop()
+	end,
+
+	Enable = function(self)
+		self.active = true
 	end,
 }
 RightHand.__index = RightHand

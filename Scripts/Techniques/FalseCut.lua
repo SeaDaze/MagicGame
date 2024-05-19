@@ -76,14 +76,10 @@ local FalseCut = {
 
 	StartFalseCut = function(self)
 		self.timer:Start("HandsToCentre", 0.5)
-		self.leftHand.active = false
-		self.rightHand.active = false
-		if self.leftHand.activeTween then
-			self.leftHand.activeTween:stop()
-		end
-		if self.rightHand.activeTween then
-			self.rightHand.activeTween:stop()
-		end
+
+		self.leftHand:Disable()
+		self.rightHand:Disable()
+
 		self.flux.to(self.leftHand.position, 0.5, { x = (love.graphics.getWidth() / 2), y = (love.graphics.getHeight() / 2) } )
 		self.flux.to(self.rightHand.position, 0.5, { x = (love.graphics.getWidth() / 2), y = (love.graphics.getHeight() / 2) } )
 	end,

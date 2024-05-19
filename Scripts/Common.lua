@@ -3,6 +3,10 @@ local Common = {
 		return (x2-x1)^2 + (y2-y1)^2
 	end,
 
+	Distance = function(self, x1, y1, x2, y2)
+		return math.sqrt(self:DistanceSquared(x1, y1, x2, y2))
+	end,
+
 	TableCount = function(self, t)
 		local count = 0
 		for _ in pairs(t) do
@@ -42,7 +46,7 @@ local Common = {
 	end,
 
 	Normalize = function(self, vec)
-		local length = math.sqrt(vec.x * vec.x + vec.y * vec.y)
+		local length = math.sqrt((vec.x * vec.x) + (vec.y * vec.y))
 		return { x = vec.x / length, y = vec.y / length }
 	end,
 

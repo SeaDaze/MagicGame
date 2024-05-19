@@ -177,6 +177,11 @@ local PlayingCard = {
 	-----------------------------------------------------------------------------------------------------------
 	-- Getters/Setters
 	-----------------------------------------------------------------------------------------------------------
+
+	GetState = function(self)
+		return self.state
+	end,
+
 	SetFacingUp = function(self, facingUp)
 		self.facingUp = facingUp
 	end,

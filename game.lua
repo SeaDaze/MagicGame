@@ -54,6 +54,9 @@ local game = {
         Input:AddKeyListener("right", self, "IncreaseOffset")
         Input:AddKeyListener("left", self, "DecreaseOffset")
         Logger:Log("Test Log")
+		self.nextFixedUpdate = 0
+		self.lastFixedUpdate = 0
+		self.fixedUpdateStep = 1/60
     end,
 
     Update = function(self, dt)
@@ -73,7 +76,20 @@ local game = {
         --self.effect.desaturate.strength = self.desaturation
         --self.effect.glow.strength = self.glow
         Input:Update()
+
+		local currentTime = love.timer.getTime()
+		if currentTime >= self.nextFixedUpdate then
+			self:FixedUpdate(currentTime - self.lastFixedUpdate)
+			self.lastFixedUpdate = currentTime
+			self.nextFixedUpdate = currentTime + self.fixedUpdateStep
+		end
     end,
+
+	FixedUpdate = function(self, dt)
+		if self.gameState == Constants.GameStates.Perform then
+			PerformScene:FixedUpdate(dt)
+        end
+	end,
 
     Draw = function(self)
         -- self.effect(function()

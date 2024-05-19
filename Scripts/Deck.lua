@@ -102,10 +102,14 @@ local Deck = {
 				self:OnCardDropped(card)
 			end
 		end
+	end,
 
+	FixedUpdate = function(self, dt)
 		if self.fanSpreading then
 			self:DuringFanSpread()
-			self:SpreadingLines()
+			self:HandleFanSpreadLines()
+		elseif self.tableSpreading then
+			self:HandleTableSpreadLines()
 		end
 	end,
 
@@ -151,32 +155,18 @@ local Deck = {
 		end
 	end,
 
-	DuringTableSpread = function(self)
-		local numberOfLines = Common:TableCount(self.lines)
-		if numberOfLines == 0 then
-			return
-		end
-		for _, card in ipairs(self.spreadingCards) do
-			local v2 = Common:Normalize({ x = targetLine.x2 - card.position.x, y = targetLine.y2 - card.position.y })
-			local v1 = { x = 0, y = -1 }
-			local newAngle = Common:AngleBetweenVectors(v1, v2)
-			local angleDelta = (newAngle - card.targetAngle)
-			card.targetAngle = (card.targetAngle + angleDelta) * 2
-		end
-	end,
-
 	OnNewLineCreated = function(self, lineIndex)
 		if not self.spreadingCards then
 			return
 		end
 		table.insert(self.cardsInSpread, self.spreadingCards[1])
-		table.remove(self.spreadingCards, 1)
-
-		--print("OnNewLineCreated: Cards in spread=", Common:TableCount(self.cardsInSpread))
-		--self:EvaluateCardAngleDistribution()
+		local removedCard = table.remove(self.spreadingCards, 1)
+		if removedCard and self.tableSpreading then
+			removedCard:ChangeState(Constants.CardStates.Dropped)
+		end
 	end,
 
-	SpreadingLines = function(self)
+	HandleFanSpreadLines = function(self)
 		if self.startedFanSpread and not self.leftMouseDown then
 			if self.originPoint then
 				self.originPoint = nil
@@ -213,6 +203,43 @@ local Deck = {
 			end
 			self.lines[self.lineIndex].x2 = indexFingerPos.x
 			self.lines[self.lineIndex].y2 = indexFingerPos.y
+			if Common:DistanceSquared(self.lines[self.lineIndex].x1, self.lines[self.lineIndex].y1, self.lines[self.lineIndex].x2, self.lines[self.lineIndex].y2) > 30 then
+				self.lineIndex = self.lineIndex + 1
+				self:OnNewLineCreated(self.lineIndex)
+			end
+		end
+	end,
+
+	HandleTableSpreadLines = function(self)
+		if self.startedTableSpread and not self.leftMouseDown then
+			if self.originPoint then
+				self.originPoint = nil
+			end
+			self.lines = {}
+			self.lineIndex = 1
+			self.startedTableSpread = false
+			self:OnStopTableSpread()
+			return
+		end
+
+		local rightHandPosition = self.rightHand:GetPosition()
+
+		if self.leftMouseDown then
+			if not self.lines[self.lineIndex] then
+				if Common:TableCount(self.lines) == 0 then
+					self.startedTableSpread = true
+					self:OnStartFanSpread()
+				end
+				local x = rightHandPosition.x
+				local y = rightHandPosition.y
+				if self.lines[self.lineIndex - 1] then
+					x = self.lines[self.lineIndex - 1].x2
+					y = self.lines[self.lineIndex - 1].y2
+				end
+				self.lines[self.lineIndex] = { x1 = x, y1 = y, x2 = x, y2 = y }
+			end
+			self.lines[self.lineIndex].x2 = rightHandPosition.x
+			self.lines[self.lineIndex].y2 = rightHandPosition.y
 			if Common:DistanceSquared(self.lines[self.lineIndex].x1, self.lines[self.lineIndex].y1, self.lines[self.lineIndex].x2, self.lines[self.lineIndex].y2) > 30 then
 				self.lineIndex = self.lineIndex + 1
 				self:OnNewLineCreated(self.lineIndex)
@@ -344,14 +371,52 @@ local Deck = {
 		local angleDistributionQuality = self:EvaluateCardAngleDistribution()
 		local cardNumberQuality = (numberOfCardsInSpread / 52) * 100
 		local fullAngleQuality = (self.cardsInSpread[numberOfCardsInSpread].angle - self.cardsInSpread[1].angle) / 180 * 100
-
-		print("EvaluateFanQuality: angleDistributionQuality=", angleDistributionQuality)
-		print("EvaluateFanQuality: cardNumberQuality=", cardNumberQuality)
-		print("EvaluateFanQuality: fullAngleQuality=", fullAngleQuality)
-		print("EvaluateFanQuality: Final evaluation=", (angleDistributionQuality + cardNumberQuality + fullAngleQuality) / 3)
-
 		local finalEvaluation = (angleDistributionQuality + cardNumberQuality + fullAngleQuality) / 3
 		return Common:Clamp(finalEvaluation, 0, 100)
+	end,
+
+	EvaluateTableSpreadQuality = function(self)
+		local numberOfCardsInSpread = Common:TableCount(self.cardsInSpread)
+
+		local totalDistance = 0
+		local distances = {}
+		for cardIndex, card in ipairs(self.cardsInSpread) do
+			local nextCard = self.cardsInSpread[cardIndex + 1]
+			if nextCard then
+				local distanceSquared = Common:DistanceSquared(card.position.x, card.position.y, nextCard.position.x, nextCard.position.y)
+				totalDistance = totalDistance + distanceSquared
+				table.insert(distances, distanceSquared)
+			end
+		end
+
+		local averageDistance = totalDistance / numberOfCardsInSpread
+
+		local distanceDiffScore = 0
+		for _, distanceDiff in ipairs(distances) do
+			local calculatedDistanceDistribution = (distanceDiff / averageDistance) * 100
+			if calculatedDistanceDistribution > 100 then
+				local overEstimation = calculatedDistanceDistribution - 100
+				calculatedDistanceDistribution = 100 - overEstimation
+			end
+			distanceDiffScore = distanceDiffScore + calculatedDistanceDistribution
+		end
+
+		distanceDiffScore = distanceDiffScore / Common:TableCount(distances)
+
+		local cardNumberQuality = (numberOfCardsInSpread / 52) * 100
+		local finalScore = (cardNumberQuality + distanceDiffScore) / 2
+
+		return finalScore
+	end,
+
+	SwapHands = function(self)
+		for _, card in ipairs(self.cards) do
+			if card:GetState() == Constants.CardStates.InLeftHand then
+				card:ChangeState(Constants.CardStates.InRightHandTableSpread)
+			elseif card:GetState() == Constants.CardStates.InRightHandTableSpread then
+				card:ChangeState(Constants.CardStates.InLeftHand)
+			end
+		end
 	end,
 	-----------------------------------------------------------------------------------------------------------
 	-- !SECTION
@@ -383,11 +448,11 @@ local Deck = {
 	end,
 
 	FanSpread = function(self)
-		self.fanSpreading = true
 		for _, card in ipairs(self.cards) do
 			card.targetOriginOffset = { x = 0, y = card.halfHeight }
 			card.previousOriginOffset = { x = 0, y = card.halfHeight }
 		end
+		self.fanSpreading = true
 		self.spreadingCards = {}
 		self.cardsInSpread = {}
 		for index, card in ipairs(self.cards) do
@@ -403,6 +468,10 @@ local Deck = {
 		self:BroadcastToListeners("OnStopFanSpread", { quality = self:EvaluateFanQuality() })
 	end,
 
+	OnStopTableSpread = function(self)
+		self:BroadcastToListeners("OnStopTableSpread", { quality = self:EvaluateTableSpreadQuality() })
+	end,
+
 	UnfanSpread = function(self)
 		self.fanSpreading = false
 		self:Unfan()
@@ -411,6 +480,12 @@ local Deck = {
 	TableSpread = function(self)
 		for _, card in ipairs(self.cards) do
 			card:ChangeState(Constants.CardStates.InRightHandTableSpread)
+		end
+		self.tableSpreading = true
+		self.spreadingCards = {}
+		self.cardsInSpread = {}
+		for index, card in ipairs(self.cards) do
+			self.spreadingCards[index] = card
 		end
 	end,
 
@@ -503,6 +578,14 @@ local Deck = {
 
 	SetLeftMouseButtonUp = function(self)
 		self.leftMouseDown = false
+	end,
+
+	GetCard = function(self, cardIndex)
+		if cardIndex < 1 or cardIndex > 52 then
+			print("GetCard: cardIndex is out of bounds. index=", cardIndex)
+			return nil
+		end
+		return self.cards[cardIndex]
 	end,
 
 	-----------------------------------------------------------------------------------------------------------

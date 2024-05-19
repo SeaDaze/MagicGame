@@ -23,7 +23,7 @@ local PerformScene =
 		self.input = input
 		self.hud = hud
 		self.routine = {
-			TableSpread:New(self.deck, input, self.leftHand, self.rightHand, timer, hud),
+			TableSpread:New(self.deck, input, self.leftHand, self.rightHand, timer, flux, hud),
 			Fan:New(self.deck, input, self.leftHand, self.rightHand, timer, hud),
 			FalseCut:New(self.deck, input, self.leftHand, self.rightHand, timer, flux),
 			DoubleLift:New(self.deck, input, self.leftHand, self.rightHand, timer),
@@ -60,6 +60,10 @@ local PerformScene =
 			self.routine[self.routineIndex]:Update(Flux, dt)
 		end
     end,
+
+	FixedUpdate = function(self, dt)
+		self.deck:FixedUpdate(dt)
+	end,
 
     Draw = function(self)
 		love.graphics.draw(self.background, 0, 0, 0, 4, 4)
