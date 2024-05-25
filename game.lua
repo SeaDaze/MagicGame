@@ -9,6 +9,7 @@ local Background = require("Scripts.Background")
 -- Scenes
 local PerformScene = require("Scripts.PerformScene")
 local StreetScene = require("Scripts.StreetScene")
+local MainMenu = require("Scripts.UI.MainMenu")
 
 local HUD = require("Scripts.UI.HUD")
 local KeyboardUI = require("Scripts.UI.KeyboardUI")
@@ -33,16 +34,16 @@ local game = {
 		Input:Load()
 		HUD:Load(PlayerStats, Flux)
 		self.globalTimer = Timer:New()
-        self.gameState = Constants.GameStates.Streets
         
         self.background = Background:New()
 
+        MainMenu:Load(self)
         StreetScene:Load(self, KeyboardUI, Input)
 		PerformScene:Load(self, KeyboardUI, Input, HUD, self.globalTimer, Flux)
 
         Input:AddKeyListener("escape", self, "ExitGame")
         Input:AddKeyListener("f11", self, "SetFullScreen")
-        self:OnGameStateChanged(Constants.GameStates.Perform)
+        self:OnGameStateChanged(Constants.GameStates.MainMenu)
         self.fullScreen = false
 
         --self.effect = moonshine(moonshine.effects.vignette).chain(moonshine.effects.desaturate)
@@ -65,7 +66,7 @@ local game = {
 		self.globalTimer:Update(dt)
         --HUD:Update()
         if self.gameState == Constants.GameStates.MainMenu then
-            self.mainMenu:Update(dt)
+            MainMenu:Update(dt)
             return
         elseif self.gameState == Constants.GameStates.Perform then
 			PerformScene:Update(Flux, dt)
@@ -96,20 +97,22 @@ local game = {
 
         -- end)
 		if self.gameState == Constants.GameStates.MainMenu then
-			self.mainMenu:Draw()
+			MainMenu:Draw()
 		elseif self.gameState == Constants.GameStates.Perform then
 			--self.background:Draw()
 			PerformScene:Draw()
+            HUD:Draw()
 		elseif self.gameState == Constants.GameStates.Streets then
 			self.background:Draw()
 			StreetScene:Draw()
 		end
         KeyboardUI:Draw()
-        HUD:Draw()
     end,
 
 	LateDraw = function(self)
-		PerformScene:LateDraw()
+        if self.gameState == Constants.GameStates.Perform then
+            PerformScene:LateDraw()
+        end
 	end,
 
     OnGameStateChanged = function(self, newState)
