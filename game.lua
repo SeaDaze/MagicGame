@@ -43,7 +43,7 @@ local game = {
 
         Input:AddKeyListener("escape", self, "ExitGame")
         Input:AddKeyListener("f11", self, "SetFullScreen")
-        self:OnGameStateChanged(Constants.GameStates.MainMenu)
+        self:OnGameStateChanged(Constants.GameStates.Perform)
         self.fullScreen = false
 
         --self.effect = moonshine(moonshine.effects.vignette).chain(moonshine.effects.desaturate)

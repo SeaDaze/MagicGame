@@ -1,9 +1,9 @@
 local HUD =
 {
     Load = function(self, playerStatsReference, flux)
-        self.font = love.graphics.newFont("Fonts/pixelFont.ttf", 12)
-        self.trickFont = love.graphics.newFont("Fonts/vollkorn.ttf", 30)
-		self.scoreFont = love.graphics.newFont("Fonts/vollkorn.ttf", 45)
+        self.font = love.graphics.newFont("Fonts/tifax.ttf", 12)
+        self.trickFont = love.graphics.newFont("Fonts/tifax.ttf", 30)
+		self.scoreFont = love.graphics.newFont("Fonts/tifax.ttf", 45)
         self.position = { x = 5, y = 5 }
         self.playerStats = playerStatsReference
         self.routineText = { "fan", "selection", "false cut", "double lift", "cardini" }
