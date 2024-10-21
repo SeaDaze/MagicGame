@@ -1,20 +1,16 @@
 local Technique = require("Scripts.Techniques.Technique")
-local Constants = require("Scripts.Constants")
 local Animator = require("Scripts.libraries.anim8")
 
 local FalseCut = {
-    New = function(self, deck, input, leftHand, rightHand, timer, flux)
+    New = function(self, deck, leftHand, rightHand)
         local instance = setmetatable({}, self)
 
 		instance.spriteSheet = love.graphics.newImage("Images/Animations/BasicCut.png")
 		instance.grid = Animator.newGrid(64, 64, instance.spriteSheet:getWidth(), instance.spriteSheet:getHeight())
 		instance.animation = Animator.newAnimation(instance.grid('1-5', 1), 0.2)
         instance.deck = deck
-        instance.input = input
 		instance.leftHand = leftHand
         instance.rightHand = rightHand
-		instance.timer = timer
-		instance.flux = flux
 		instance.position = { x = (love.graphics.getWidth() / 2) - (32 * 5), y = (love.graphics.getHeight() / 2) - (32 * 5) }
 		instance.name = "false cut"
 		instance.visible = false
@@ -23,13 +19,13 @@ local FalseCut = {
     end,
 
     OnStart = function(self)
-		self.timerNotificationId = self.timer:AddListener(self, "OnTimerFinished")
-		self.input:AddKeyListener("f", self, "StartFalseCut")
+		self.timerNotificationId = Timer:AddListener(self, "OnTimerFinished")
+		Input:AddKeyListener("f", self, "StartFalseCut")
     end,
 
     OnStop = function(self)
-		self.input:RemoveKeyListener("f")
-		self.timer:RemoveListener(self.timerNotificationId)
+		Input:RemoveKeyListener("f")
+		Timer:RemoveListener(self.timerNotificationId)
 		self.leftHand.visible = true
 		self.rightHand.visible = true
 		self.leftHand.active = true
@@ -39,7 +35,7 @@ local FalseCut = {
 		self.active = false
     end,
 
-    Update = function(self, Flux, dt)
+    Update = function(self, dt)
 		if not self.active then
 			return
 		end
@@ -60,10 +56,10 @@ local FalseCut = {
 			self.deck.visible = false
 			self.visible = true
 			self.active = true
-			self.timer:Start("AfterCut", 2)
+			Timer:Start("AfterCut", 2)
 		elseif timerId == "AfterCut" then
 			self.active = false
-			self.timer:Start("Finish", 0.5)
+			Timer:Start("Finish", 0.5)
 		elseif timerId == "Finish" then
 			self.leftHand.visible = true
 			self.rightHand.visible = true
@@ -75,13 +71,13 @@ local FalseCut = {
 	end,
 
 	StartFalseCut = function(self)
-		self.timer:Start("HandsToCentre", 0.5)
+		Timer:Start("HandsToCentre", 0.5)
 
 		self.leftHand:Disable()
 		self.rightHand:Disable()
 
-		self.flux.to(self.leftHand.position, 0.5, { x = (love.graphics.getWidth() / 2), y = (love.graphics.getHeight() / 2) } )
-		self.flux.to(self.rightHand.position, 0.5, { x = (love.graphics.getWidth() / 2), y = (love.graphics.getHeight() / 2) } )
+		Flux.to(self.leftHand.position, 0.5, { x = (love.graphics.getWidth() / 2), y = (love.graphics.getHeight() / 2) } )
+		Flux.to(self.rightHand.position, 0.5, { x = (love.graphics.getWidth() / 2), y = (love.graphics.getHeight() / 2) } )
 	end,
 }
 

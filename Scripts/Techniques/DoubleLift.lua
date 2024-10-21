@@ -1,16 +1,13 @@
 local Technique = require("Scripts.Techniques.Technique")
-local Constants = require("Scripts.Constants")
 
 local DoubleLift = {
-    New = function(self, deck, input, leftHand, rightHand, timer)
+    New = function(self, deck, leftHand, rightHand)
         local instance = setmetatable({}, self)
 
 		-- Object references
         instance.deck = deck
-        instance.input = input
 		instance.leftHand = leftHand
 		instance.rightHand = rightHand
-		instance.timer = timer
 
 		-- Variables
         instance.name = "double lift"
@@ -19,15 +16,15 @@ local DoubleLift = {
     end,
 
     OnStart = function(self)
-		self.timerNotificationId = self.timer:AddListener(self, "OnTimerFinished")
-		self.leftHand:ChangeState(Constants.LeftHandStates.MechanicsGrip)
-        self.input:AddKeyListener("f", self.deck, "DoubleLift")
-		self.rightHand:ChangeState(Constants.RightHandStates.PalmDown)
+		self.timerNotificationId = Timer:AddListener(self, "OnTimerFinished")
+		self.leftHand:ChangeState(GameConstants.LeftHandStates.MechanicsGrip)
+        Input:AddKeyListener("f", self.deck, "DoubleLift")
+		self.rightHand:ChangeState(GameConstants.RightHandStates.PalmDown)
     end,
 
     OnStop = function(self)
-		self.input:RemoveKeyListener("f")
-		self.timer:RemoveListener(self.timerNotificationId)
+		Input:RemoveKeyListener("f")
+		Timer:RemoveListener(self.timerNotificationId)
     end,
 
 	OnTimerFinished = function(self, timerId)

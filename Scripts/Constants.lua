@@ -1,10 +1,9 @@
-local Constants = 
+local GameConstants = 
 {
     GameStates = 
     {
         MainMenu = 0,
         Perform = 1,
-		Streets = 2,
     },
 
 	CardStates = 
@@ -50,4 +49,4 @@ local Constants =
         Height = 124,
 	}
 }
-return Constants
+return GameConstants

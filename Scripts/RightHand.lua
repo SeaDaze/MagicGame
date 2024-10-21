@@ -1,4 +1,3 @@
-local Constants = require("Scripts.Constants")
 
 local RightHand = {
 	New = function(self)
@@ -21,7 +20,7 @@ local RightHand = {
 		instance.halfWidth = instance.spritePalmDown:getWidth() / 2
 		instance.halfHeight = instance.spritePalmDown:getHeight() / 2
 		instance.angle = 0
-		instance.state = Constants.RightHandStates.PalmUpPinch
+		instance.state = GameConstants.RightHandStates.PalmUpPinch
 		instance.visible = true
 		instance.active = true
 
@@ -32,7 +31,7 @@ local RightHand = {
         self.position = newPosition
     end,
 
-    Update = function(self, Flux, dt)
+    Update = function(self, dt)
 		if not self.active then
 			return
 		end
@@ -43,34 +42,34 @@ local RightHand = {
 		if not self.visible then
 			return
 		end
-		love.graphics.setColor(1, 1, 1, 0.8)
-		if self.state == Constants.RightHandStates.PalmDownPinch then
+		--love.graphics.setColor(1, 1, 1, 0.8)
+		if self.state == GameConstants.RightHandStates.PalmDownPinch then
 			self:DrawHand(self.spritePalmDownPinchThumbOnly)
-		elseif self.state == Constants.RightHandStates.PalmUp then
+		elseif self.state == GameConstants.RightHandStates.PalmUp then
 			self:DrawHand(self.spritePalmUp)
-		elseif self.state == Constants.RightHandStates.PalmUpPinch then
+		elseif self.state == GameConstants.RightHandStates.PalmUpPinch then
 			self:DrawHand(self.spritePalmUpNoThumb)
 		end
-		love.graphics.setColor(1, 1, 1, 1)
+		--love.graphics.setColor(1, 1, 1, 1)
     end,
 
 	LateDraw = function(self)
 		if not self.visible then
 			return
 		end
-		love.graphics.setColor(1, 1, 1, 0.8)
-		if self.state == Constants.RightHandStates.PalmDown then
+		--love.graphics.setColor(1, 1, 1, 0.8)
+		if self.state == GameConstants.RightHandStates.PalmDown then
 			self:DrawHand(self.spritePalmDown)
-		elseif self.state == Constants.RightHandStates.PalmDownPinch then
+		elseif self.state == GameConstants.RightHandStates.PalmDownPinch then
 			self:DrawHand(self.spritePalmDownPinchNoThumb)
-		elseif self.state == Constants.RightHandStates.PalmDownIndexOut then
+		elseif self.state == GameConstants.RightHandStates.PalmDownIndexOut then
 			self:DrawHand(self.spritePalmDownIndexOut)
-		elseif self.state == Constants.RightHandStates.PalmUpPinch then
+		elseif self.state == GameConstants.RightHandStates.PalmUpPinch then
 			self:DrawHand(self.spritePalmUpThumbOnly)
-		elseif self.state == Constants.RightHandStates.PalmDownTableSpread then
+		elseif self.state == GameConstants.RightHandStates.PalmDownTableSpread then
 			self:DrawHand(self.spritePalmDownTableSpread)
 		end
-		love.graphics.setColor(1, 1, 1, 1)
+		--love.graphics.setColor(1, 1, 1, 1)
     end,
 
     DrawHand = function(self, sprite)

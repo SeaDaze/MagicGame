@@ -1,4 +1,3 @@
-local Constants = require("Scripts.Constants")
 
 local LeftHand = {
 	New = function(self)
@@ -8,7 +7,7 @@ local LeftHand = {
 		instance.spriteFanNoThumb = love.graphics.newImage("Images/Hands/left_fan_NoThumb.png")
 		instance.spriteFanThumbOnly = love.graphics.newImage("Images/Hands/left_fan_ThumbOnly.png")
 
-		instance.state = Constants.LeftHandStates.MechanicsGrip
+		instance.state = GameConstants.LeftHandStates.MechanicsGrip
 		instance.position = { x = love.graphics.getWidth() / 2, y = love.graphics.getHeight() / 2 }
 		instance.targetPosition = { x = love.graphics.getWidth() / 2, y = love.graphics.getHeight() / 2 }
 		instance.moveSpeed = 200
@@ -21,7 +20,7 @@ local LeftHand = {
 		return instance
 	end,
 
-    Update = function(self, Flux, dt)
+    Update = function(self, dt)
 		if not self.active then
 			return
 		end
@@ -44,9 +43,9 @@ local LeftHand = {
 		if not self.visible then
 			return
 		end
-		if self.state == Constants.LeftHandStates.MechanicsGrip then
+		if self.state == GameConstants.LeftHandStates.MechanicsGrip then
 			self:DrawHand(self.spriteMechanicsGrip)
-		elseif self.state == Constants.LeftHandStates.Fan then
+		elseif self.state == GameConstants.LeftHandStates.Fan then
 			self:DrawHand(self.spriteFanNoThumb)
 		end
     end,
@@ -55,7 +54,7 @@ local LeftHand = {
 		if not self.visible then
 			return
 		end
-		if self.state == Constants.LeftHandStates.Fan then
+		if self.state == GameConstants.LeftHandStates.Fan then
 			self:DrawHand(self.spriteFanThumbOnly)
 		end
     end,

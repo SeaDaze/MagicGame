@@ -1,11 +1,9 @@
 
 local Timer = {
-	New = function(self)
-		local instance = setmetatable({}, self)
-		instance.callbackTargets = {}
-		instance.runningTimers = {}
-		instance.callbackId = 0
-		return instance
+	Load = function(self)
+		self.callbackTargets = {}
+		self.runningTimers = {}
+		self.callbackId = 0
 	end,
 
     Update = function(self, dt)
@@ -45,8 +43,6 @@ local Timer = {
 	RemoveListener = function(self, callbackId)
 		self.callbackTargets[callbackId] = nil
 	end,
-
 }
-Timer.__index = Timer
 
 return Timer

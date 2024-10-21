@@ -2,71 +2,76 @@
 local RightHand = require("Scripts.RightHand")
 local LeftHand = require("Scripts.LeftHand")
 local Deck = require("Scripts.Deck")
-local Constants = require ("Scripts.Constants")
 local CardShootCatch = require ("Scripts.Tricks.CardShootCatch")
 local DoubleLift = require("Scripts.Techniques.DoubleLift")
 local CardiniChange = require("Scripts.Tricks.CardiniChange")
 local TableSpread   = require("Scripts.Techniques.TableSpread")
-
 local Fan = require("Scripts.Techniques.Fan")
 local FalseCut = require("Scripts.Techniques.FalseCut")
+local Audience = require("Scripts.Audience.Audience")
+local Mat = require("Scripts.Mat")
 
 local PerformScene =
 {
-    Load = function(self, gameInstance, keyboardUI, input, hud, timer, flux)
-		self.gameInstance = gameInstance
-		self.background = love.graphics.newImage("Images/Background/mat.png")
-        self.keyboardUI = keyboardUI
+    Load = function(self)
+		-- Create new objects
+		self.audience = Audience:New()
 		self.leftHand = LeftHand:New()
         self.rightHand = RightHand:New()
-		self.deck = Deck:New(self.leftHand, self.rightHand, flux)
-		self.input = input
-		self.hud = hud
-		self.routine = {
-			TableSpread:New(self.deck, input, self.leftHand, self.rightHand, timer, flux, hud),
-			Fan:New(self.deck, input, self.leftHand, self.rightHand, timer, hud),
-			FalseCut:New(self.deck, input, self.leftHand, self.rightHand, timer, flux),
-			DoubleLift:New(self.deck, input, self.leftHand, self.rightHand, timer),
-			CardiniChange:New(self.deck, input, self.leftHand, self.rightHand, timer, flux, hud),
-			--CardShootCatch:New(self.deck, input, self.leftHand, self.rightHand, timer),
-		}
+		self.deck = Deck:New(self.leftHand, self.rightHand)
 		
+
+		Mat:Load()
+		-- Variables
+		self.routine = {
+			--TableSpread:New(self.deck, self.leftHand, self.rightHand),
+			Fan:New(self.deck, self.leftHand, self.rightHand),
+			FalseCut:New(self.deck, self.leftHand, self.rightHand),
+			--DoubleLift:New(self.deck, self.leftHand, self.rightHand),
+			-- CardiniChange:New(self.deck, self.leftHand, self.rightHand),
+			CardShootCatch:New(self.deck, self.leftHand, self.rightHand),
+		}
+
 		local routineHudText = {}
 		for index, techniqueTable in ipairs(self.routine) do
 			routineHudText[index] = techniqueTable:GetName()
 		end
-		self.hud:SetRoutineText(routineHudText)
-		
+		HUD:SetRoutineText(routineHudText)
+
 		self:EquipRoutineIndex(1)
     end,
 
 	OnStart = function(self)
-		self.input:AddKeyListener("tab", self, "ExitPerform")
-		self.input:AddKeyListener("1", self, "EquipOne")
-		self.input:AddKeyListener("2", self, "EquipTwo")
-		self.input:AddKeyListener("3", self, "EquipThree")
-		self.input:AddKeyListener("4", self, "EquipFour")
-		self.input:AddKeyListener("5", self, "EquipFive")
+		Input:AddKeyListener("1", self, "EquipOne")
+		Input:AddKeyListener("2", self, "EquipTwo")
+		Input:AddKeyListener("3", self, "EquipThree")
+		Input:AddKeyListener("4", self, "EquipFour")
+		Input:AddKeyListener("5", self, "EquipFive")
+		love.mouse.setVisible(false)
 	end,
 
 	OnStop = function(self)
 	end,
 
-    Update = function(self, Flux, dt)
-		self.deck:Update(Flux, dt)
-		self.rightHand:Update(Flux, dt)
-		self.leftHand:Update(Flux, dt)
+    Update = function(self, dt)
+		self.deck:Update(dt)
+		self.rightHand:Update(dt)
+		self.leftHand:Update(dt)
 		if self.routine[self.routineIndex].Update then
-			self.routine[self.routineIndex]:Update(Flux, dt)
+			self.routine[self.routineIndex]:Update(dt)
 		end
     end,
 
 	FixedUpdate = function(self, dt)
 		self.deck:FixedUpdate(dt)
+		self.audience:FixedUpdate(dt)
 	end,
 
     Draw = function(self)
-		love.graphics.draw(self.background, 0, 0, 0, 4, 4)
+		love.graphics.setBackgroundColor(0.128, 0.128, 0.136, 1)
+		Mat:Draw()
+
+		self.audience:Draw()
 		self.leftHand:Draw()
 		self.rightHand:Draw()
 		self.deck:Draw()
@@ -78,10 +83,12 @@ local PerformScene =
 	LateDraw = function(self)
 		self.leftHand:LateDraw()
 		self.rightHand:LateDraw()
+		HUD:Draw()
 	end,
 
-	ExitPerform = function(self)
-		self.gameInstance:OnGameStateChanged(Constants.GameStates.Streets)
+	OnTechniqueEvaluated = function(self, score)
+		self.audience:SetAudienceAwe(score)
+		print("OnTechniqueEvaluated: score=", score)
 	end,
 
 	EquipRoutineIndex = function(self, index)
@@ -94,10 +101,13 @@ local PerformScene =
 		if self.routineIndex and self.routine[self.routineIndex] then
 			self.routine[self.routineIndex]:OnStop()
 		end
-		
+
 		self.routineIndex = index
 		self.routine[self.routineIndex]:OnStart()
-		self.hud:SetRoutineIndex(index)
+		self.routine[self.routineIndex]:Technique_HookFunction("Technique_OnTechniqueEvaluated", function(params)
+			self:OnTechniqueEvaluated(params.score)
+		end)
+		HUD:SetRoutineIndex(index)
 	end,
 
 	EquipOne = function(self)

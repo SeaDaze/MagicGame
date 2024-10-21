@@ -1,18 +1,14 @@
 local Technique = require("Scripts.Techniques.Technique")
-local Constants = require("Scripts.Constants")
 local Common = require("Scripts.Common")
+
 local CardiniChange = {
-    New = function(self, deck, input, leftHand, rightHand, timer, flux, hud)
+    New = function(self, deck, leftHand, rightHand)
         local instance = setmetatable({}, self)
 
 		-- Object references
         instance.deck = deck
-        instance.input = input
 		instance.leftHand = leftHand
 		instance.rightHand = rightHand
-		instance.timer = timer
-		instance.flux = flux
-		instance.hud = hud
 
 		-- Variables
         instance.name = "cardini"
@@ -21,13 +17,13 @@ local CardiniChange = {
     end,
 
     OnStart = function(self)
-		self.timerNotificationId = self.timer:AddListener(self, "OnTimerFinished")
-		self.leftHand:ChangeState(Constants.LeftHandStates.MechanicsGrip)
-        self.input:AddKeyListener("f", self, nil, "HandleChange")
-		self.rightHand:ChangeState(Constants.RightHandStates.PalmDown)
+		self.timerNotificationId = Timer:AddListener(self, "OnTimerFinished")
+		self.leftHand:ChangeState(GameConstants.LeftHandStates.MechanicsGrip)
+        Input:AddKeyListener("f", self, nil, "HandleChange")
+		self.rightHand:ChangeState(GameConstants.RightHandStates.PalmDown)
     end,
 
-    Update = function(self, Flux, dt)
+    Update = function(self, dt)
 		if not self.evaluateScore then
 			return
 		end
@@ -43,28 +39,28 @@ local CardiniChange = {
 	end,
 
     OnStop = function(self)
-		self.input:RemoveKeyListener("f")
-		self.timer:RemoveListener(self.timerNotificationId)
+		Input:RemoveKeyListener("f")
+		Timer:RemoveListener(self.timerNotificationId)
     end,
 
 	OnTimerFinished = function(self, timerId)
 		if timerId == "Halfway" then
 			self.evaluateScore = false
 			self.deck:CardiniChange()
-			self.flux.to(self.deck.cards[1].scale, 0.3, { x = 5 } )
-			self.flux.to(self.deck.cards[1].positionOffset, 0.3, { x = 0 } )
-			self.timer:Start("Finished", 1)
-			self.hud:SetScoreText(math.floor(self:EvaluateScore()))
+			Flux.to(self.deck.cards[1].scale, 0.3, { x = 5 } )
+			Flux.to(self.deck.cards[1].positionOffset, 0.3, { x = 0 } )
+			Timer:Start("Finished", 1)
+			HUD:SetScoreText(math.floor(self:EvaluateScore()))
 		elseif timerId == "Finished" then
 			
 		end
 	end,
 
 	HandleChange = function(self)
-		self.input:DisableForSeconds(1)
-		self.flux.to(self.deck.cards[52].scale, self.duration, { x = 0 } )
-		self.flux.to(self.deck.cards[52].positionOffset, self.duration, { x = self.deck.cards[52].halfWidth * GameScale } )
-		self.timer:Start("Halfway", self.duration)
+		Input:DisableForSeconds(1)
+		Flux.to(self.deck.cards[52].scale, self.duration, { x = 0 } )
+		Flux.to(self.deck.cards[52].positionOffset, self.duration, { x = self.deck.cards[52].halfWidth * GameSettings.WindowResolutionScale } )
+		Timer:Start("Halfway", self.duration)
 		self.evaluateScore = true
 		self.scores = {}
 	end,

@@ -1,9 +1,9 @@
 local HUD =
 {
-    Load = function(self, playerStatsReference, flux)
-        self.font = love.graphics.newFont("Fonts/tifax.ttf", 12)
-        self.trickFont = love.graphics.newFont("Fonts/tifax.ttf", 30)
-		self.scoreFont = love.graphics.newFont("Fonts/tifax.ttf", 45)
+    Load = function(self, playerStatsReference)
+        self.font = love.graphics.newFont("Fonts/pixelifySans.ttf", 12)
+        self.trickFont = love.graphics.newFont("Fonts/pixelifySans.ttf", 30)
+		self.scoreFont = love.graphics.newFont("Fonts/micro5.ttf", 45)
         self.position = { x = 5, y = 5 }
         self.playerStats = playerStatsReference
         self.routineText = { "fan", "selection", "false cut", "double lift", "cardini" }
@@ -11,11 +11,10 @@ local HUD =
         self.routineOffset = 0
 		self.textOffsetInterval = 150
 		self.routineIndex = 1
-		self.flux = flux
     end,
 
     Draw = function(self)
-        --love.graphics.printf("Money: " .. tostring(self.playerStats.Money), self.font, self.position.x, self.position.y, 500, "left")
+        love.graphics.printf("Money: " .. tostring(self.playerStats.Money), self.trickFont, self.position.x, self.position.y + 670, 500, "left")
         -- love.graphics.printf("Reputation: " .. tostring(self.playerStats.Reputation), self.font, self.position.x, self.position.y + 20, 500, "left")
 		love.graphics.setColor(1, 1, 0, 1)
 		love.graphics.printf("FPS: " .. tostring(love.timer.getFPS()), self.font, self.position.x, self.position.y, 500, "left")
@@ -43,7 +42,7 @@ local HUD =
 
 	SetRoutineIndex = function(self, index)
 		self.routineIndex = index
-		self.flux.to(self, 0.5, { routineOffset = (self.routineIndex - 1) * (-self.textOffsetInterval) })
+		Flux.to(self, 0.5, { routineOffset = (self.routineIndex - 1) * (-self.textOffsetInterval) })
 	end,
 
 	SetScoreText = function(self, scoreText)

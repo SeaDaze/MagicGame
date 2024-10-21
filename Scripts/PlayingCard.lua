@@ -1,8 +1,6 @@
-local Constants = require("Scripts.Constants")
-local Common = require("Scripts.Common")
 
 local PlayingCard = {
-	New = function(self, value, suit, spritesheet, quad, position, faceDownSprite, leftHand, rightHand, flux)
+	New = function(self, value, suit, spritesheet, quad, position, faceDownSprite, leftHand, rightHand)
 		local instance = setmetatable({}, self)
 
 		-- Sprites
@@ -29,10 +27,9 @@ local PlayingCard = {
 		-- GameObject references
 		instance.leftHand = leftHand
 		instance.rightHand = rightHand
-		instance.flux = flux
 
 		-- States
-		instance.state = Constants.CardStates.InLeftHand
+		instance.state = GameConstants.CardStates.InLeftHand
 		instance.facingUp = false
 		instance.spinning = false
 		instance.dropped = false
@@ -45,11 +42,11 @@ local PlayingCard = {
 		return instance
 	end,
 
-	Update = function(self, Flux, dt)
-		if self.state == Constants.CardStates.SpinningOut then
+	Update = function(self, dt)
+		if self.state == GameConstants.CardStates.SpinningOut then
 			self:Spin(dt)
 		else
-			-- if self.state ~= Constants.CardStates.InRightHand then
+			-- if self.state ~= GameConstants.CardStates.InRightHand then
 				
 			-- end
 			if self.angle ~= self.targetAngle then
@@ -61,18 +58,18 @@ local PlayingCard = {
 			Flux.to(self.originOffset, 0.3, { x = self.targetOriginOffset.x, y = self.targetOriginOffset.y })
 		end
 
-		if self.state == Constants.CardStates.InLeftHand then
+		if self.state == GameConstants.CardStates.InLeftHand then
 			self:SetPosition({x = self.leftHand.position.x, y = self.leftHand.position.y })
-		elseif self.state == Constants.CardStates.InRightHandPinchPalmDown then
+		elseif self.state == GameConstants.CardStates.InRightHandPinchPalmDown then
 			self:SetPosition(self.rightHand:GetIndexFingerPosition())
-		elseif self.state == Constants.CardStates.InRightHandPinchPalmUp then
+		elseif self.state == GameConstants.CardStates.InRightHandPinchPalmUp then
 			self:SetPosition(self.rightHand:GetPalmUpPinchFingerPosition())
-		elseif self.state == Constants.CardStates.InRightHandTableSpread then
+		elseif self.state == GameConstants.CardStates.InRightHandTableSpread then
 			self:SetPosition({x = self.rightHand.position.x, y = self.rightHand.position.y })
 		end
 
-		if self.state ~= Constants.CardStates.Dropped and self.position.x > love.graphics.getWidth() then
-			self:ChangeState(Constants.CardStates.Dropped)
+		if self.state ~= GameConstants.CardStates.Dropped and self.position.x > love.graphics.getWidth() then
+			self:ChangeState(GameConstants.CardStates.Dropped)
 		end
 	end,
 
@@ -117,47 +114,47 @@ local PlayingCard = {
 
 	StateChangeFunctions = 
 	{
-		[Constants.CardStates.InLeftHand] = function(self)
-			self.state = Constants.CardStates.InLeftHand
+		[GameConstants.CardStates.InLeftHand] = function(self)
+			self.state = GameConstants.CardStates.InLeftHand
 		end,
 
-		[Constants.CardStates.HeldBySpectator] = function(self)
-			self.state = Constants.CardStates.HeldBySpectator
+		[GameConstants.CardStates.HeldBySpectator] = function(self)
+			self.state = GameConstants.CardStates.HeldBySpectator
 			self.targetOriginOffset = { x = 0, y = 0 }
 			self.targetAngle = 0
 			self.facingUp = true
-			self.flux.to(self.position, 0.5, { x = love.graphics.getWidth() / 2, y = 100 } )
+			Flux.to(self.position, 0.5, { x = love.graphics.getWidth() / 2, y = 100 } )
 		end,
 
-		[Constants.CardStates.ReturningToDeck] = function(self)
-			self.state = Constants.CardStates.ReturningToDeck
+		[GameConstants.CardStates.ReturningToDeck] = function(self)
+			self.state = GameConstants.CardStates.ReturningToDeck
 			self.facingUp = false
-			self.flux.to(self.position, 0.35, { x = self.leftHand.position.x, y = self.leftHand.position.y } )
+			Flux.to(self.position, 0.35, { x = self.leftHand.position.x, y = self.leftHand.position.y } )
 		end,
 
-		[Constants.CardStates.SpinningOut] = function(self)
-			self.state = Constants.CardStates.SpinningOut
+		[GameConstants.CardStates.SpinningOut] = function(self)
+			self.state = GameConstants.CardStates.SpinningOut
 			self:SetPosition({x = self.leftHand.position.x, y = self.leftHand.position.y })
 			local randomY = love.math.random(0, love.graphics.getHeight())
 			self.targetPosition = { x = love.graphics.getWidth() + 100, y = randomY }
-			self.flux.to(self.position, 1.2, { x = self.targetPosition.x, y = self.targetPosition.y })
+			Flux.to(self.position, 1.2, { x = self.targetPosition.x, y = self.targetPosition.y })
 		end,
 
-		[Constants.CardStates.Dropped] = function(self)
-			self.state = Constants.CardStates.Dropped
+		[GameConstants.CardStates.Dropped] = function(self)
+			self.state = GameConstants.CardStates.Dropped
 		end,
 
-		[Constants.CardStates.InRightHandPinchPalmDown] = function(self)
-			self.state = Constants.CardStates.InRightHandPinchPalmDown
+		[GameConstants.CardStates.InRightHandPinchPalmDown] = function(self)
+			self.state = GameConstants.CardStates.InRightHandPinchPalmDown
 		end,
 
-		[Constants.CardStates.InRightHandPinchPalmUp] = function(self)
-			self.state = Constants.CardStates.InRightHandPinchPalmUp
+		[GameConstants.CardStates.InRightHandPinchPalmUp] = function(self)
+			self.state = GameConstants.CardStates.InRightHandPinchPalmUp
 			self.facingUp = true
 		end,
 
-		[Constants.CardStates.InRightHandTableSpread] = function(self)
-			self.state = Constants.CardStates.InRightHandTableSpread
+		[GameConstants.CardStates.InRightHandTableSpread] = function(self)
+			self.state = GameConstants.CardStates.InRightHandTableSpread
 		end,
 	},
 

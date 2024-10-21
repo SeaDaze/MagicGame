@@ -1,9 +1,8 @@
 local Common = require("Scripts.Common")
 local PlayingCard = require ("Scripts.PlayingCard")
-local Constants = require ("Scripts.Constants")
 
 local Deck = {
-	New = function(self, leftHand, rightHand, flux)
+	New = function(self, leftHand, rightHand)
 		local instance = setmetatable({}, self)
 		instance.cards = {}
 		instance.fannedCards = 0
@@ -33,56 +32,52 @@ local Deck = {
             local clubQuad = love.graphics.newQuad(x, 0, cardWidth, cardHeight, spritesheetWidth, spritesheetHeight)
 			instance.clubs[cardValue] = PlayingCard:New(
 				cardValue,
-				Constants.CardSuits.Clubs,
+				GameConstants.CardSuits.Clubs,
 				cardSpritesheet,
 				clubQuad,
 				nil,
 				faceDownSprite,
 				leftHand,
-				rightHand,
-				flux
+				rightHand
 			)
 			instance.cards[cardValue] = instance.clubs[cardValue]
 
 			local diamondQuad = love.graphics.newQuad(x, cardHeight, cardWidth, cardHeight, spritesheetWidth, spritesheetHeight)
 			instance.diamonds[cardValue] = PlayingCard:New(
 				cardValue,
-				Constants.CardSuits.Diamonds,
+				GameConstants.CardSuits.Diamonds,
 				cardSpritesheet,
 				diamondQuad,
 				nil,
 				faceDownSprite,
 				leftHand,
-				rightHand,
-				flux
+				rightHand
 			)
 			instance.cards[cardValue + 13] = instance.diamonds[cardValue]
 
 			local heartQuad = love.graphics.newQuad(x, cardHeight * 2, cardWidth, cardHeight, spritesheetWidth, spritesheetHeight)
 			instance.hearts[cardValue] = PlayingCard:New(
 				cardValue,
-				Constants.CardSuits.Hearts,
+				GameConstants.CardSuits.Hearts,
 				cardSpritesheet,
 				heartQuad,
 				nil,
 				faceDownSprite,
 				leftHand,
-				rightHand,
-				flux
+				rightHand
 			)
 			instance.cards[cardValue + 26] = instance.hearts[cardValue]
 
 			local spadeQuad = love.graphics.newQuad(x, cardHeight * 3, cardWidth, cardHeight, spritesheetWidth, spritesheetHeight)
 			instance.spades[cardValue] = PlayingCard:New(
 				cardValue,
-				Constants.CardSuits.Spades,
+				GameConstants.CardSuits.Spades,
 				cardSpritesheet,
 				spadeQuad,
 				nil,
 				faceDownSprite,
 				leftHand,
-				rightHand,
-				flux
+				rightHand
 			)
 			instance.cards[cardValue + 39] = instance.spades[cardValue]
 			
@@ -94,9 +89,9 @@ local Deck = {
 		return instance
 	end,
 
-	Update = function(self, Flux, dt)
+	Update = function(self, dt)
 		for _, card in ipairs(self.cards) do
-			card:Update(Flux, dt)
+			card:Update(dt)
 			if not card:GetDropped() and (card:GetPosition().x < 0 or card:GetPosition().x > love.graphics.getWidth() or card:GetPosition().y < 0 or card:GetPosition().y > love.graphics.getHeight()) then
 				card:SetDropped(true)
 				self:OnCardDropped(card)
@@ -162,7 +157,7 @@ local Deck = {
 		table.insert(self.cardsInSpread, self.spreadingCards[1])
 		local removedCard = table.remove(self.spreadingCards, 1)
 		if removedCard and self.tableSpreading then
-			removedCard:ChangeState(Constants.CardStates.Dropped)
+			removedCard:ChangeState(GameConstants.CardStates.Dropped)
 		end
 	end,
 
@@ -228,7 +223,7 @@ local Deck = {
 			if not self.lines[self.lineIndex] then
 				if Common:TableCount(self.lines) == 0 then
 					self.startedTableSpread = true
-					self:OnStartFanSpread()
+					self:OnStartTableSpread()
 				end
 				local x = rightHandPosition.x
 				local y = rightHandPosition.y
@@ -249,13 +244,13 @@ local Deck = {
 
 	GiveSelectedCard = function(self)
 		if self.offsetCardIndex then
-			self.cards[self.offsetCardIndex]:ChangeState(Constants.CardStates.HeldBySpectator)
+			self.cards[self.offsetCardIndex]:ChangeState(GameConstants.CardStates.HeldBySpectator)
 		end
 	end,
 
 	RetrieveSelectedCard = function(self)
 		if self.offsetCardIndex then
-			self.cards[self.offsetCardIndex]:ChangeState(Constants.CardStates.ReturningToDeck)
+			self.cards[self.offsetCardIndex]:ChangeState(GameConstants.CardStates.ReturningToDeck)
 		end
 	end,
 
@@ -339,7 +334,7 @@ local Deck = {
 		if not self.offsetCardIndex then
 			return
 		end
-		self.cards[self.offsetCardIndex]:ChangeState(Constants.CardStates.InLeftHand)
+		self.cards[self.offsetCardIndex]:ChangeState(GameConstants.CardStates.InLeftHand)
 	end,
 
 	EvaluateCardAngleDistribution = function(self)
@@ -368,6 +363,9 @@ local Deck = {
 
 	EvaluateFanQuality = function(self)
 		local numberOfCardsInSpread = Common:TableCount(self.cardsInSpread)
+		if numberOfCardsInSpread <= 0 then
+			return
+		end
 		local angleDistributionQuality = self:EvaluateCardAngleDistribution()
 		local cardNumberQuality = (numberOfCardsInSpread / 52) * 100
 		local fullAngleQuality = (self.cardsInSpread[numberOfCardsInSpread].angle - self.cardsInSpread[1].angle) / 180 * 100
@@ -411,10 +409,10 @@ local Deck = {
 
 	SwapHands = function(self)
 		for _, card in ipairs(self.cards) do
-			if card:GetState() == Constants.CardStates.InLeftHand then
-				card:ChangeState(Constants.CardStates.InRightHandTableSpread)
-			elseif card:GetState() == Constants.CardStates.InRightHandTableSpread then
-				card:ChangeState(Constants.CardStates.InLeftHand)
+			if card:GetState() == GameConstants.CardStates.InLeftHand then
+				card:ChangeState(GameConstants.CardStates.InRightHandTableSpread)
+			elseif card:GetState() == GameConstants.CardStates.InRightHandTableSpread then
+				card:ChangeState(GameConstants.CardStates.InLeftHand)
 			end
 		end
 	end,
@@ -461,6 +459,10 @@ local Deck = {
 	end,
 
 	OnStartFanSpread = function(self)
+		--self.tableSpreading = true
+	end,
+
+	OnStartTableSpread = function(self)
 		self.tableSpreading = true
 	end,
 
@@ -479,7 +481,7 @@ local Deck = {
 
 	TableSpread = function(self)
 		for _, card in ipairs(self.cards) do
-			card:ChangeState(Constants.CardStates.InRightHandTableSpread)
+			card:ChangeState(GameConstants.CardStates.InRightHandTableSpread)
 		end
 		self.tableSpreading = true
 		self.spreadingCards = {}
@@ -506,12 +508,12 @@ local Deck = {
 	end,
 
 	StartSpin = function(self)
-		self.cards[52]:ChangeState(Constants.CardStates.SpinningOut)
+		self.cards[52]:ChangeState(GameConstants.CardStates.SpinningOut)
 	end,
 
 	CatchCard = function(self)
 		if Common:DistanceSquared(self.cards[52].position.x, self.cards[52].position.y, self.rightHand.position.x, self.rightHand.position.y) < 3000 then
-			self.cards[52]:ChangeState(Constants.CardStates.InRightHandPinchPalmDown)
+			self.cards[52]:ChangeState(GameConstants.CardStates.InRightHandPinchPalmDown)
 			self:BroadcastToListeners("CatchCard")
 		end
 	end,

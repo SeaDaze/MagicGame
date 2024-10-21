@@ -16,7 +16,7 @@ local ErdnaseChange = {
 		--self.deck:OffsetCard(5)
 	end,
 
-    Update = function(self, Flux, dt)
+    Update = function(self, dt)
 		self:HandleChange()
     end,
 

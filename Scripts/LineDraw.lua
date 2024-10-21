@@ -8,7 +8,7 @@ local LineDraw =
         self.lineIndex = 1
     end,
 
-    Update = function(self, Flux, dt)
+    Update = function(self, dt)
         local mouseX, mouseY = love.mouse.getPosition()
         if love.mouse.isDown(1) then
             if not self.lines[self.lineIndex] then
