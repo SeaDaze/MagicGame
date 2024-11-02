@@ -86,6 +86,7 @@ local GameConstants =
 		PalmUp = 3,
 		PalmUpPinch = 4,
 		PalmDownTableSpread = 5,
+        PalmDownNatural = 6,
 	},
 
 	CardSuits = 
@@ -101,5 +102,37 @@ local GameConstants =
 		Width = 88,
         Height = 124,
 	},
+
+    JoystickAxis = 
+    {
+        LeftStick = 
+        {
+            X = "leftx",
+            Y = "lefty",
+        },
+        RightStick = 
+        {
+            X = "rightx",
+            Y = "righty",
+        },
+        LeftTrigger = "triggerleft",
+        RightTrigger = "triggerright"
+    },
+
+    InputAxis = 
+    {
+        Left = 
+        {
+            X = 0,
+            Y = 1,
+        },
+        Right =
+        {
+            X = 2,
+            Y = 3,
+        }
+    },
+
+    JoystickInputDeadzone = 0.2,
 }
 return GameConstants

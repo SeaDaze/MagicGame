@@ -16,9 +16,9 @@ local BasicButtonType =
     },
     [GameConstants.UI.BasicButtonType.Square] = 
     {
-        default = "Images/UI/Buttons/Basic/BasicSquareButton_Default.png",
-        hovered = "Images/UI/Buttons/Basic/BasicSquareButton_Hovered.png",
-        selected = "Images/UI/Buttons/Basic/BasicSquareButton_Selected.png",
+        default = "Images/UI/Buttons/squareButton_Default.png",
+        hovered = "Images/UI/Buttons/squareButton_Hovered.png",
+        selected = "Images/UI/Buttons/squareButton_Selected.png",
         size = 
         {
             x = 32,
@@ -30,13 +30,17 @@ local BasicButtonType =
 local BasicButton = {
     New = function(self, type, text, position, anchor)
         local instance = setmetatable({}, self)
-        instance.size = BasicButtonType[type].size
-        instance:Initialize(instance.size.x, instance.size.y)
-
+        --instance.size = BasicButtonType[type].size
+    
         instance.defaultSprite = love.graphics.newImage(BasicButtonType[type].default)
         instance.hoveredSprite = love.graphics.newImage(BasicButtonType[type].hovered)
         instance.selectedSprite = love.graphics.newImage(BasicButtonType[type].selected)
-
+        instance.size = 
+        {
+            x = instance.defaultSprite:getWidth(),
+            y = instance.defaultSprite:getHeight(),
+        }
+        instance:Initialize(instance.size.x, instance.size.y)
         instance.sprite = instance.defaultSprite
         instance.text = text
         instance.anchor = anchor

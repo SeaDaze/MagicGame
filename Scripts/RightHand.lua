@@ -8,12 +8,14 @@ local RightHand = {
 		instance.spritePalmDownPinchNoThumb = love.graphics.newImage("Images/Hands/right_palmDown_PinchNoThumb.png")
 		instance.spritePalmDownPinchThumbOnly = love.graphics.newImage("Images/Hands/right_palmDown_PinchThumbOnly.png")
 		instance.spritePalmDownTableSpread = love.graphics.newImage("Images/Hands/right_palmDown_TableSpread.png")
+		instance.spritePalmDownNatural = love.graphics.newImage("Images/Hands/right_palmDown_Natural.png")
 
 		instance.spritePalmUp = love.graphics.newImage("Images/Hands/right_palmUp_ThumbIn.png")
 		instance.spritePalmUpNoThumb = love.graphics.newImage("Images/Hands/right_palmUp_NoThumb.png")
 		instance.spritePalmUpThumbOnly = love.graphics.newImage("Images/Hands/right_palmUp_ThumbOnly.png")
 
 		instance.position = { x = love.graphics.getWidth() / 2, y = love.graphics.getHeight() / 2 }
+		instance.targetPosition = { x = love.graphics.getWidth() / 2, y = love.graphics.getHeight() / 2 }
 		instance.indexFingerOffset = { x = -25, y = -35 }
 		instance.palmUpPinchOffset = { x = 25, y = -35 }
 
@@ -23,6 +25,7 @@ local RightHand = {
 		instance.state = GameConstants.RightHandStates.PalmUpPinch
 		instance.visible = true
 		instance.active = true
+		instance.moveSpeed = 500
 
 		return instance
 	end,
@@ -35,7 +38,18 @@ local RightHand = {
 		if not self.active then
 			return
 		end
-        self.activeTween = Flux.to(self.position, 0.5, { x = love.mouse.getX(), y = love.mouse.getY()})
+
+		if Input:GetRightJoystickAxisPriority() then
+			local horizontal = Input:GetInputAxis(GameConstants.InputAxis.Right.X)
+			local vertical = Input:GetInputAxis(GameConstants.InputAxis.Right.Y)
+	
+			self.targetPosition.x = self.targetPosition.x + (horizontal * self.moveSpeed * dt)
+			self.targetPosition.y = self.targetPosition.y + (vertical * self.moveSpeed * dt)
+		else
+			self.targetPosition = { x = love.mouse.getX(), y = love.mouse.getY() }
+		end
+
+        self.activeTween = Flux.to(self.position, 0.3, { x = self.targetPosition.x, y = self.targetPosition.y})
     end,
 
     Draw = function(self)
@@ -68,6 +82,8 @@ local RightHand = {
 			self:DrawHand(self.spritePalmUpThumbOnly)
 		elseif self.state == GameConstants.RightHandStates.PalmDownTableSpread then
 			self:DrawHand(self.spritePalmDownTableSpread)
+		elseif self.state == GameConstants.RightHandStates.PalmDownNatural then
+			self:DrawHand(self.spritePalmDownNatural)
 		end
 		--love.graphics.setColor(1, 1, 1, 1)
     end,

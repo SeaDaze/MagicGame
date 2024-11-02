@@ -138,7 +138,7 @@ local Deck = {
 		if not targetLine then
 			return
 		end
-		if love.mouse.getX() < self.leftHand.position.x then
+		if self.rightHand.position.x < self.leftHand.position.x then
 			return
 		end
 		for _, card in ipairs(self.spreadingCards) do
@@ -162,7 +162,7 @@ local Deck = {
 	end,
 
 	HandleFanSpreadLines = function(self)
-		if self.startedFanSpread and not self.leftMouseDown then
+		if self.startedFanSpread and not Input:GetRightActionDown() then
 			if self.originPoint then
 				self.originPoint = nil
 			end
@@ -182,7 +182,7 @@ local Deck = {
 		if indexFingerPos.x < self.cards[1].position.x then
 			return
 		end
-		if self.leftMouseDown then
+		if Input:GetRightActionDown() then
 			if not self.lines[self.lineIndex] then
 				if Common:TableCount(self.lines) == 0 then
 					self.startedFanSpread = true

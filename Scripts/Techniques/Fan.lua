@@ -18,7 +18,7 @@ local Fan = {
 		self.deck:FanSpread()
 		Input:AddMouseListener(1, self.deck, "SetLeftMouseButtonDown", "SetLeftMouseButtonUp")
 		self.stopFanSpreadNotificationId = self.deck:AddListener("OnStopFanSpread", self, "OnStopFanSpread")
-		self.rightHand:ChangeState(GameConstants.RightHandStates.PalmDownIndexOut)
+		--self.rightHand:ChangeState(GameConstants.RightHandStates.PalmDownNatural)
     end,
 
     OnStop = function(self)
@@ -27,6 +27,18 @@ local Fan = {
 		Input:RemoveMouseListener(1)
 		Timer:RemoveListener(self.timerNotificationId)
     end,
+
+	Update = function(self, dt)
+		local leftHandPos = self.leftHand.position
+		local indexFingerPos = self.rightHand:GetIndexFingerPosition()
+	
+		local handsDistance = Common:DistanceSquared(leftHandPos.x, leftHandPos.y, indexFingerPos.x, indexFingerPos.y)
+		if handsDistance > 20000 and self.leftHand:GetState() ~= GameConstants.RightHandStates.PalmDownNatural then
+			self.rightHand:ChangeState(GameConstants.RightHandStates.PalmDownNatural)
+		elseif handsDistance <= 20000 and self.leftHand:GetState() ~= GameConstants.RightHandStates.PalmDownIndexOut then
+			self.rightHand:ChangeState(GameConstants.RightHandStates.PalmDownIndexOut)
+		end
+	end,
 
 	OnStopFanSpread = function(self, params)
 		self:Technique_OnTechniqueEvaluated(params.quality)

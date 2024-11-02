@@ -10,7 +10,7 @@ local LeftHand = {
 		instance.state = GameConstants.LeftHandStates.MechanicsGrip
 		instance.position = { x = love.graphics.getWidth() / 2, y = love.graphics.getHeight() / 2 }
 		instance.targetPosition = { x = love.graphics.getWidth() / 2, y = love.graphics.getHeight() / 2 }
-		instance.moveSpeed = 200
+		instance.moveSpeed = 500
 		instance.width = instance.spriteMechanicsGrip:getWidth()
 		instance.height = instance.spriteMechanicsGrip:getHeight()
 		instance.angle = 0
@@ -24,18 +24,12 @@ local LeftHand = {
 		if not self.active then
 			return
 		end
-        if love.keyboard.isDown("w") then
-            self.targetPosition.y = self.targetPosition.y - (self.moveSpeed * dt)
-        end
-        if love.keyboard.isDown("a") then
-            self.targetPosition.x = self.targetPosition.x - (self.moveSpeed * dt)
-        end
-        if love.keyboard.isDown("s") then
-            self.targetPosition.y = self.targetPosition.y + (self.moveSpeed * dt)
-        end
-        if love.keyboard.isDown("d") then
-            self.targetPosition.x = self.targetPosition.x + (self.moveSpeed * dt)
-        end
+		local horizontal = Input:GetInputAxis(GameConstants.InputAxis.Left.X)
+		local vertical = Input:GetInputAxis(GameConstants.InputAxis.Left.Y)
+
+		self.targetPosition.x = self.targetPosition.x + (horizontal * self.moveSpeed * dt)
+		self.targetPosition.y = self.targetPosition.y + (vertical * self.moveSpeed * dt)
+
         self.activeTween = Flux.to(self.position, 0.3, { x = self.targetPosition.x, y = self.targetPosition.y })
     end,
 
@@ -65,6 +59,10 @@ local LeftHand = {
 
 	ChangeState = function(self, newState)
 		self.state = newState
+	end,
+
+	GetState = function(self)
+		return self.state
 	end,
 
 	Disable = function(self)

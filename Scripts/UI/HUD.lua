@@ -14,7 +14,7 @@ local HUD =
     end,
 
     Draw = function(self)
-        love.graphics.printf("Money: " .. tostring(self.playerStats.Money), self.trickFont, self.position.x, self.position.y + 670, 500, "left")
+        --love.graphics.printf("Money: " .. tostring(self.playerStats.Money), self.trickFont, self.position.x, self.position.y + 670, 500, "left")
         -- love.graphics.printf("Reputation: " .. tostring(self.playerStats.Reputation), self.font, self.position.x, self.position.y + 20, 500, "left")
 		love.graphics.setColor(1, 1, 0, 1)
 		love.graphics.printf("FPS: " .. tostring(love.timer.getFPS()), self.font, self.position.x, self.position.y, 500, "left")

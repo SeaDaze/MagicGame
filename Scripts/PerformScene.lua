@@ -31,14 +31,27 @@ local PerformScene =
 			-- CardiniChange:New(self.deck, self.leftHand, self.rightHand),
 			CardShootCatch:New(self.deck, self.leftHand, self.rightHand),
 		}
-
+		
 		local routineHudText = {}
 		for index, techniqueTable in ipairs(self.routine) do
 			routineHudText[index] = techniqueTable:GetName()
 		end
 		HUD:SetRoutineText(routineHudText)
 
+
 		self:EquipRoutineIndex(1)
+
+
+		local img = love.graphics.newImage("Images/Cards/heart_01.png")
+
+		self.psystem = love.graphics.newParticleSystem(img, 1000)
+		self.psystem:setParticleLifetime(2, 5) -- Particles live at least 2s and at most 5s.
+		self.psystem:setEmissionRate(100)
+		self.psystem:setLinearAcceleration(0, -20, 0, -20) -- Random movement in all directions.
+		self.psystem:setColors(1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0) -- Fade to transparency.
+		self.psystem:setSizes(1, 0)
+		--self.psystem:setSpeed(20, 20)
+		self.psystemPosition = { x = 0, y = 0 }
     end,
 
 	OnStart = function(self)
@@ -47,7 +60,8 @@ local PerformScene =
 		Input:AddKeyListener("3", self, "EquipThree")
 		Input:AddKeyListener("4", self, "EquipFour")
 		Input:AddKeyListener("5", self, "EquipFive")
-		love.mouse.setVisible(false)
+		Input:AddKeyListener("space", self, "MoveParticle")
+		love.mouse.setVisible(true)
 	end,
 
 	OnStop = function(self)
@@ -60,6 +74,8 @@ local PerformScene =
 		if self.routine[self.routineIndex].Update then
 			self.routine[self.routineIndex]:Update(dt)
 		end
+		self.psystem:update(dt)
+		self.psystem:moveTo(self.psystemPosition.x, self.psystemPosition.y)
     end,
 
 	FixedUpdate = function(self, dt)
@@ -78,12 +94,18 @@ local PerformScene =
 		if self.routine[self.routineIndex].Draw then
 			self.routine[self.routineIndex]:Draw()
 		end
+
+		love.graphics.draw(self.psystem)
     end,
 
 	LateDraw = function(self)
 		self.leftHand:LateDraw()
 		self.rightHand:LateDraw()
 		HUD:Draw()
+	end,
+
+	MoveParticle = function(self)
+		Flux.to(self.psystemPosition, 0.5, { x = love.mouse.getX(), y = love.mouse.getY() } ):ease("cubicinout")
 	end,
 
 	OnTechniqueEvaluated = function(self, score)

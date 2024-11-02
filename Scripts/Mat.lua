@@ -14,8 +14,8 @@ local Mat =
 		local matHalfWidth = (self.mat:getWidth() / 2) * self.baseScale
 		local matHalfHeight = (self.mat:getHeight() / 2) * self.baseScale
 		love.graphics.draw(self.mat, centerX - matHalfWidth, centerY - matHalfHeight, 0, 4, 4)
-        love.graphics.draw(self.balanceBar, centerX - matHalfWidth, centerY + matHalfHeight, 0, 4, 4)
-        love.graphics.draw(self.balanceBarIndicator, centerX - matHalfWidth, centerY + matHalfHeight, 0, 4, 4)
+        --love.graphics.draw(self.balanceBar, centerX - matHalfWidth, centerY + matHalfHeight, 0, 4, 4)
+        --love.graphics.draw(self.balanceBarIndicator, centerX - matHalfWidth, centerY + matHalfHeight, 0, 4, 4)
     end,
 }
 
