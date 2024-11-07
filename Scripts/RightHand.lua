@@ -9,6 +9,8 @@ local RightHand = {
 		instance.spritePalmDownPinchThumbOnly = love.graphics.newImage("Images/Hands/right_palmDown_PinchThumbOnly.png")
 		instance.spritePalmDownTableSpread = love.graphics.newImage("Images/Hands/right_palmDown_TableSpread.png")
 		instance.spritePalmDownNatural = love.graphics.newImage("Images/Hands/right_palmDown_Natural.png")
+		instance.spritePalmDownGrabOpen = love.graphics.newImage("Images/Hands/right_palmDown_GrabOpen.png")
+		instance.spritePalmDownGrabClose = love.graphics.newImage("Images/Hands/right_palmDown_GrabClose.png")
 
 		instance.spritePalmUp = love.graphics.newImage("Images/Hands/right_palmUp_ThumbIn.png")
 		instance.spritePalmUpNoThumb = love.graphics.newImage("Images/Hands/right_palmUp_NoThumb.png")
@@ -22,11 +24,12 @@ local RightHand = {
 		instance.halfWidth = instance.spritePalmDown:getWidth() / 2
 		instance.halfHeight = instance.spritePalmDown:getHeight() / 2
 		instance.angle = 0
-		instance.state = GameConstants.RightHandStates.PalmUpPinch
+		instance.state = GameConstants.RightHandStates.PalmDownGrabOpen
 		instance.visible = true
 		instance.active = true
 		instance.moveSpeed = 500
 
+		instance.windowScaleMultiplier = 1
 		return instance
 	end,
 
@@ -48,7 +51,8 @@ local RightHand = {
 		else
 			self.targetPosition = { x = love.mouse.getX(), y = love.mouse.getY() }
 		end
-
+		self.targetPosition.x = Common:Clamp(self.targetPosition.x, 0, love.graphics.getWidth())
+		self.targetPosition.y = Common:Clamp(self.targetPosition.y, 0, love.graphics.getHeight())
         self.activeTween = Flux.to(self.position, 0.3, { x = self.targetPosition.x, y = self.targetPosition.y})
     end,
 
@@ -84,15 +88,19 @@ local RightHand = {
 			self:DrawHand(self.spritePalmDownTableSpread)
 		elseif self.state == GameConstants.RightHandStates.PalmDownNatural then
 			self:DrawHand(self.spritePalmDownNatural)
+		elseif self.state == GameConstants.RightHandStates.PalmDownGrabOpen then
+			self:DrawHand(self.spritePalmDownGrabOpen)
+		elseif self.state == GameConstants.RightHandStates.PalmDownGrabClose then
+			self:DrawHand(self.spritePalmDownGrabClose)
 		end
 		--love.graphics.setColor(1, 1, 1, 1)
     end,
 
     DrawHand = function(self, sprite)
-		love.graphics.draw(sprite, self.position.x, self.position.y, math.rad(self.angle), 5, 5, self.halfWidth, self.halfHeight)
+		love.graphics.draw(sprite, self.position.x, self.position.y, math.rad(self.angle), GameSettings.WindowResolutionScale * self.windowScaleMultiplier, GameSettings.WindowResolutionScale * self.windowScaleMultiplier, self.halfWidth, self.halfHeight)
     end,
 
-	ChangeState = function(self, newState)
+	SetState = function(self, newState)
 		self.state = newState
 	end,
 

@@ -1,3 +1,5 @@
+
+
 local Common = {
 	DistanceSquared = function(self, x1, y1, x2, y2)
 		return (x2-x1)^2 + (y2-y1)^2
@@ -17,16 +19,6 @@ local Common = {
 
 	AngleBetweenVectors = function(self, a, b)
 		return math.deg(math.atan2(b.y - a.y, b.x - a.x))
-		-- local dot = self:DotProduct(a, b)
-		-- local det = self:Determinant(a, b)
-
-		-- return math.deg(math.atan2(det, dot))
-		-- local a = math.deg(math.atan2(y2 - y1, x2 - x1))
-		-- if a < 0 then
-		-- 	return a + 360
-		-- else
-		-- 	return a
-		-- end
 	end,
 
 	DotProduct = function(self, a, b)

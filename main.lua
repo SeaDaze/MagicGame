@@ -10,5 +10,4 @@ end
 
 function love.draw()
     game:Draw()
-	game:LateDraw()
 end

@@ -6,9 +6,10 @@ Timer = require("Scripts.Timer")
 HUD = require("Scripts.UI.HUD")
 Common = require("Scripts.Common")
 
+
 -- External Libraries
 Flux = require("Scripts.libraries.flux")
-local moonshine = require ("Scripts.libraries.moonshine")
+Moonshine = require ("Scripts.libraries.moonshine")
 
 -- Modals
 SettingsMenu = require("Scripts.UI.SettingsMenu")
@@ -17,6 +18,7 @@ SettingsMenu = require("Scripts.UI.SettingsMenu")
 local PerformScene = require("Scripts.PerformScene")
 local MainMenu = require("Scripts.UI.MainMenu")
 local ShopScene = require("Scripts.Scenes.ShopScene")
+local RoutineBuilderScene = require("Scripts.Scenes.RoutineBuilderScene")
 
 local PlayerStats = require("Scripts.PlayerStats")
 local Logger = require("Scripts.Debug.Log")
@@ -35,19 +37,28 @@ local game = {
         Timer:Load()
         MainMenu:Load()
 		PerformScene:Load()
+        RoutineBuilderScene:Load()
 
         self.gameScenes =
         {
             [GameConstants.GameStates.MainMenu] = MainMenu,
             [GameConstants.GameStates.Perform] = PerformScene,
+            [GameConstants.GameStates.Build] = RoutineBuilderScene,
             [GameConstants.GameStates.Shop] = ShopScene,
         }
 
-        self:SetGameState(GameConstants.GameStates.Perform)
+        self:SetGameState(GameConstants.GameStates.Build)
 
 		self.nextFixedUpdate = 0
 		self.lastFixedUpdate = 0
 		self.fixedUpdateStep = 1/60
+
+        self.timerNotificationId = Timer:AddListener(self, "OnTimerFinished")
+
+        self.vignetteEffect = Moonshine(Moonshine.effects.vignette)
+        self.vignetteRadius = 0
+        self.vignetteOpacity = 1
+        self:FadeToScene(1)
     end,
 
     Update = function(self, dt)
@@ -73,6 +84,10 @@ local game = {
 			self.nextFixedUpdate = currentTime + self.fixedUpdateStep
 		end
 
+        self.vignetteEffect.vignette.radius = self.vignetteRadius
+        self.vignetteEffect.vignette.opacity = self.vignetteOpacity
+        -- self.vignetteEffect.pixelate.size = self.vignettePixelateSize
+        -- self.vignetteEffect.pixelate.size = self.vignettePixelateFeedback
     end,
 
 	FixedUpdate = function(self, dt)
@@ -83,18 +98,32 @@ local game = {
 	end,
 
     Draw = function(self)
-		self.gameScenes[self.gameState]:Draw()
+        self.vignetteEffect(
+            function()
+                self.gameScenes[self.gameState]:Draw()
+                if self.gameScenes[self.gameState].LateDraw then
+                    self.gameScenes[self.gameState]:LateDraw()
+                end
+            end
+        )
+        SettingsMenu:Draw()
     end,
 
-	LateDraw = function(self)
-        if self.gameState == GameConstants.GameStates.Perform then
-            PerformScene:LateDraw()
+    OnTimerFinished = function(self, timerId)
+        if timerId == "RequestGameStateChange" then
+            self:SetGameState(self.nextState)
+            self:FadeToScene(1)
         end
-        SettingsMenu:Draw()
 	end,
 
     GetCurrentGameScene = function(self)
         return self.gameScenes[self.gameState]
+    end,
+
+    RequestGameStateChange = function(self, gameState)
+        self.nextState = gameState
+        Timer:Start("RequestGameStateChange", 1)
+        self:FadeToBlack(1)
     end,
 
     SetGameState = function(self, newState)
@@ -108,11 +137,12 @@ local game = {
         end
 
         self.gameScenes[newState]:OnStart()
+
         self.gameStateChangeHookId = Common.HookFunction(
             self.gameScenes[newState],
             "OnRequestGameStateChange",
             function(params)
-                self:SetGameState(params.newState)
+                self:RequestGameStateChange(params.newState)
             end
         )
         self.gameState = newState
@@ -121,5 +151,16 @@ local game = {
     ExitGame = function(self)
         love.window.close()
     end,
+
+    FadeToScene = function(self, fadeDuration)
+        Flux.to(self, fadeDuration, { vignetteRadius = 0.9 })
+        Flux.to(self, fadeDuration, { vignetteOpacity = 0.5 })
+    end,
+
+    FadeToBlack = function(self, fadeDuration)
+        Flux.to(self, fadeDuration, { vignetteRadius = 0 })
+        Flux.to(self, fadeDuration, { vignetteOpacity = 1 })
+    end,
+
 }
 return game

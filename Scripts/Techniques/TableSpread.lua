@@ -19,7 +19,7 @@ local TableSpread = {
 		end
 		local targetCard = self.deck:GetCard(self.targetPickUpCardIndex)
 		if Common:DistanceSquared(targetCard.position.x, targetCard.position.y, self.leftHand.position.x, self.leftHand.position.y) < 50 then
-			targetCard:ChangeState(GameConstants.CardStates.InLeftHand)
+			targetCard:SetState(GameConstants.CardStates.InLeftHand)
 
 			local nextCard = self:FindNextPickupCard()
 			if not nextCard then
@@ -46,11 +46,11 @@ local TableSpread = {
 
     OnStart = function(self)
 		self.timerNotificationId = Timer:AddListener(self, "OnTimerFinished")
-		self.leftHand:ChangeState(GameConstants.LeftHandStates.MechanicsGrip)
+		self.leftHand:SetState(GameConstants.LeftHandStates.MechanicsGrip)
 		self.deck:TableSpread()
 		Input:AddMouseListener(1, self.deck, "SetLeftMouseButtonDown", "SetLeftMouseButtonUp")
 		self.stopFanSpreadNotificationId = self.deck:AddListener("OnStopTableSpread", self, "OnStopTableSpread")
-		self.rightHand:ChangeState(GameConstants.RightHandStates.PalmDownTableSpread)
+		self.rightHand:SetState(GameConstants.RightHandStates.PalmDownTableSpread)
 
 		Input:AddKeyListener("space", self, "SwapHands")
     end,

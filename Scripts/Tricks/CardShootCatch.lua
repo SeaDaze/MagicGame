@@ -18,10 +18,10 @@ local CardShootCatch = {
 
     OnStart = function(self)
 		self.timerNotificationId = Timer:AddListener(self, "OnTimerFinished")
-		self.leftHand:ChangeState(GameConstants.LeftHandStates.MechanicsGrip)
+		self.leftHand:SetState(GameConstants.LeftHandStates.MechanicsGrip)
         Input:AddKeyListener("f", self.deck, nil, "StartSpin")
 		Input:AddMouseListener(1, self.deck, "CatchCard")
-		self.rightHand:ChangeState(GameConstants.RightHandStates.PalmDown)
+		self.rightHand:SetState(GameConstants.RightHandStates.PalmDown)
 		self.catchCardNotificationId = self.deck:AddListener("CatchCard", self, "OnCatchCard")
 		self.dropCardNotificationId = self.deck:AddListener("OnCardDropped", self, "OnCardDropped")
     end,
@@ -37,14 +37,14 @@ local CardShootCatch = {
 
 	OnTimerFinished = function(self, timerId)
 		if timerId == "TurnOverCard" then
-			self.rightHand:ChangeState(GameConstants.RightHandStates.PalmUpPinch)
-			self.deck.cards[52]:ChangeState(GameConstants.CardStates.InRightHandPinchPalmUp)
+			self.rightHand:SetState(GameConstants.RightHandStates.PalmUpPinch)
+			self.deck.cards[52]:SetState(GameConstants.CardStates.InRightHandPinchPalmUp)
 		end
 	end,
 
 	OnCatchCard = function(self)
 		print("OnCatchCard:")
-		self.rightHand:ChangeState(GameConstants.RightHandStates.PalmDownPinch)
+		self.rightHand:SetState(GameConstants.RightHandStates.PalmDownPinch)
 		Timer:Start("TurnOverCard", 1)
 	end,
 	

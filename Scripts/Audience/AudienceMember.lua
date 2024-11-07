@@ -1,6 +1,6 @@
 local Common = require "Scripts.Common"
 
-local GameConstants = 
+local Constants = 
 {
     Left = -1,
     Right = 1,
@@ -19,25 +19,35 @@ local AudienceMember =
             y = love.math.random(80),
         }
         local randomDirection = love.math.random(2)
-        instance.direction = randomDirection == 1 and GameConstants.Left or GameConstants.Right
+        instance.direction = randomDirection == 1 and Constants.Left or Constants.Right
+
+        instance.maxHealth = 30
+        instance.health = instance.maxHealth
 
         return instance
     end,
 
     FixedUpdate = function(self, dt)
+        if self.health == 0 then
+            return
+        end
         if self.position.x <= self.lower then
-            self.direction = GameConstants.Right
+            self.direction = Constants.Right
         elseif self.position.x >= self.upper then
-            self.direction = GameConstants.Left
+            self.direction = Constants.Left
         end
 
         self.position.x = self.position.x + (dt * self.speed * self.direction)
     end,
 
     Draw = function(self)
+        if self.health == 0 then
+            return
+        end
         love.graphics.draw(self.spriteData.head.spritesheet, self.spriteData.head.quad, self.position.x, self.position.y, 0, 3, 3)
         love.graphics.draw(self.spriteData.face.spritesheet, self.spriteData.face.quad, self.position.x, self.position.y, 0, 3, 3)
         love.graphics.draw(self.spriteData.hair.spritesheet, self.spriteData.hair.quad, self.position.x, self.position.y, 0, 3, 3)
+        --love.graphics.print(self.health, GameConstants.UI.Font, self.position.x, self.position.y)
     end,
 
     GenerateRandomAudienceMember = function(self, allSpriteData)
@@ -84,6 +94,18 @@ local AudienceMember =
 
     SetFaceAwe = function(self)
         self.spriteData.face.quad = self.spriteData.face.expressionQuads.Awe
+    end,
+
+    GetMaxHealth = function(self)
+        return self.maxHealth
+    end,
+
+    GetHealth = function(self)
+        return self.health
+    end,
+
+    SetHealth = function(self, health)
+        self.health = health
     end,
 }
 

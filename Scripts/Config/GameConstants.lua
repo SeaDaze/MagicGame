@@ -57,6 +57,7 @@ local GameConstants =
         MainMenu = 0,
         Perform = 1,
         Shop = 2,
+        Build = 3,
     },
 
 	CardStates = 
@@ -74,19 +75,24 @@ local GameConstants =
 
 	LeftHandStates = 
 	{
-		MechanicsGrip = 0,
-		Fan = 1,
+		MechanicsGrip = 1,
+		Fan = 2,
+        PalmDownNatural = 3,
+        PalmDownGrabOpen = 4,
+        PalmDownGrabClose = 5,
 	},
 
 	RightHandStates = 
 	{
-		PalmDown = 0,
-		PalmDownPinch = 1,
-		PalmDownIndexOut = 2,
-		PalmUp = 3,
-		PalmUpPinch = 4,
-		PalmDownTableSpread = 5,
-        PalmDownNatural = 6,
+		PalmDown = 1,
+		PalmDownPinch = 2,
+		PalmDownIndexOut = 3,
+		PalmUp = 4,
+		PalmUpPinch = 5,
+		PalmDownTableSpread = 6,
+        PalmDownNatural = 7,
+        PalmDownGrabOpen = 8,
+        PalmDownGrabClose = 9,
 	},
 
 	CardSuits = 
@@ -123,14 +129,20 @@ local GameConstants =
     {
         Left = 
         {
-            X = 0,
-            Y = 1,
+            X = 1,
+            Y = 2,
         },
         Right =
         {
-            X = 2,
-            Y = 3,
+            X = 3,
+            Y = 4,
         }
+    },
+
+    InputActions = 
+    {
+        Left = 1,
+        Right = 2,
     },
 
     JoystickInputDeadzone = 0.2,

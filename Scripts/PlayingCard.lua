@@ -69,7 +69,7 @@ local PlayingCard = {
 		end
 
 		if self.state ~= GameConstants.CardStates.Dropped and self.position.x > love.graphics.getWidth() then
-			self:ChangeState(GameConstants.CardStates.Dropped)
+			self:SetState(GameConstants.CardStates.Dropped)
 		end
 	end,
 
@@ -104,9 +104,9 @@ local PlayingCard = {
 	-- State change functions
 	-----------------------------------------------------------------------------------------------------------
 
-	ChangeState = function(self, newState)
+	SetState = function(self, newState)
 		if self.state == newState then
-			print("ChangeState: cannot change state, newState == old state. state=", self.state)
+			print("SetState: cannot change state, newState == old state. state=", self.state)
 			return
 		end
 		self.StateChangeFunctions[newState](self)

@@ -45,6 +45,27 @@ local Audience =
         end
     end,
 
+    Draw = function(self)
+        for _, audienceMember in pairs(self.audience) do
+            audienceMember:Draw()
+        end
+    end,
+
+    GetTableOfQuads = function(self, spritesheet, spriteWidth, spriteHeight)
+        local quads = {}
+        local spritesheetWidth = spritesheet:getWidth()
+        local spritesheetHeight = spritesheet:getHeight()
+        local count = spritesheetWidth / spriteWidth
+        local x = 0
+        for i = 1, count do
+            local quad = love.graphics.newQuad(x, 0, spriteWidth, spriteHeight, spritesheetWidth, spritesheetHeight)
+            table.insert(quads, quad)
+            x = x + spriteWidth
+        end
+        return quads
+    end,
+
+    
     SetAudienceAwe = function(self, score)
         if not score then
             return
@@ -66,27 +87,40 @@ local Audience =
                 audienceMember:SetFaceAwe()
             end
         end
-        
     end,
 
-    Draw = function(self)
+    GetTotalHealth = function(self)
+        local total = 0
         for _, audienceMember in pairs(self.audience) do
-            audienceMember:Draw()
+            total = total + audienceMember:GetHealth()
         end
+        return total
     end,
 
-    GetTableOfQuads = function(self, spritesheet, spriteWidth, spriteHeight)
-        local quads = {}
-        local spritesheetWidth = spritesheet:getWidth()
-        local spritesheetHeight = spritesheet:getHeight()
-        local count = spritesheetWidth / spriteWidth
-        local x = 0
-        for i = 1, count do
-            local quad = love.graphics.newQuad(x, 0, spriteWidth, spriteHeight, spritesheetWidth, spritesheetHeight)
-            table.insert(quads, quad)
-            x = x + spriteWidth
+    HandleDamage = function(self, damage)
+        print("damage=", damage)
+        local remainingDamage = damage
+        local damageDealt = 0
+        for _, audienceMember in pairs(self.audience) do
+            if remainingDamage == 0 then
+                return
+            end
+            local currentHealth = audienceMember:GetHealth()
+            print("currentHealth=", currentHealth)
+            if currentHealth > 0 then
+                if remainingDamage > currentHealth then
+                    audienceMember:SetHealth(0)
+                    damageDealt = currentHealth
+                else
+                    local newHealth = currentHealth - remainingDamage
+                    audienceMember:SetHealth(newHealth)
+                    damageDealt = remainingDamage
+                    print("damageDealt=", damageDealt)
+                end
+                remainingDamage = remainingDamage - damageDealt
+                print("remainingDamage=", remainingDamage)
+            end
         end
-        return quads
     end,
 }
 Audience.__index = Audience

@@ -26,10 +26,10 @@ local PerformScene =
 		self.routine = {
 			--TableSpread:New(self.deck, self.leftHand, self.rightHand),
 			Fan:New(self.deck, self.leftHand, self.rightHand),
-			FalseCut:New(self.deck, self.leftHand, self.rightHand),
+			--FalseCut:New(self.deck, self.leftHand, self.rightHand),
 			--DoubleLift:New(self.deck, self.leftHand, self.rightHand),
 			-- CardiniChange:New(self.deck, self.leftHand, self.rightHand),
-			CardShootCatch:New(self.deck, self.leftHand, self.rightHand),
+			--CardShootCatch:New(self.deck, self.leftHand, self.rightHand),
 		}
 		
 		local routineHudText = {}
@@ -38,20 +38,15 @@ local PerformScene =
 		end
 		HUD:SetRoutineText(routineHudText)
 
-
 		self:EquipRoutineIndex(1)
 
+		self.backgroundVFX = 
+		{
+			self:CreateBackgroundVFX(love.graphics.newImage("Images/Cards/heart_01.png")),
+			self:CreateBackgroundVFX(love.graphics.newImage("Images/Cards/spade_01.png")),
+		}
 
-		local img = love.graphics.newImage("Images/Cards/heart_01.png")
-
-		self.psystem = love.graphics.newParticleSystem(img, 1000)
-		self.psystem:setParticleLifetime(2, 5) -- Particles live at least 2s and at most 5s.
-		self.psystem:setEmissionRate(100)
-		self.psystem:setLinearAcceleration(0, -20, 0, -20) -- Random movement in all directions.
-		self.psystem:setColors(1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0) -- Fade to transparency.
-		self.psystem:setSizes(1, 0)
-		--self.psystem:setSpeed(20, 20)
-		self.psystemPosition = { x = 0, y = 0 }
+		self.blurEffect = Moonshine(Moonshine.effects.boxblur).chain(Moonshine.effects.pixelate)
     end,
 
 	OnStart = function(self)
@@ -60,7 +55,6 @@ local PerformScene =
 		Input:AddKeyListener("3", self, "EquipThree")
 		Input:AddKeyListener("4", self, "EquipFour")
 		Input:AddKeyListener("5", self, "EquipFive")
-		Input:AddKeyListener("space", self, "MoveParticle")
 		love.mouse.setVisible(true)
 	end,
 
@@ -74,17 +68,30 @@ local PerformScene =
 		if self.routine[self.routineIndex].Update then
 			self.routine[self.routineIndex]:Update(dt)
 		end
-		self.psystem:update(dt)
-		self.psystem:moveTo(self.psystemPosition.x, self.psystemPosition.y)
+		for _, vfx in pairs(self.backgroundVFX) do
+			vfx:update(dt)
+		end
     end,
 
 	FixedUpdate = function(self, dt)
 		self.deck:FixedUpdate(dt)
 		self.audience:FixedUpdate(dt)
+		if self.routine[self.routineIndex].FixedUpdate then
+			self.routine[self.routineIndex]:FixedUpdate(dt)
+		end
 	end,
 
     Draw = function(self)
+		self.blurEffect(
+			function()
+				for _, vfx in pairs(self.backgroundVFX) do
+					love.graphics.draw(vfx)
+				end
+			end
+		)
+
 		love.graphics.setBackgroundColor(0.128, 0.128, 0.136, 1)
+
 		Mat:Draw()
 
 		self.audience:Draw()
@@ -95,7 +102,8 @@ local PerformScene =
 			self.routine[self.routineIndex]:Draw()
 		end
 
-		love.graphics.draw(self.psystem)
+		love.graphics.printf("Perform", GameConstants.UI.Font, 0, 0, love.graphics.getWidth(), "center")
+		love.graphics.printf(self.audience:GetTotalHealth(), GameConstants.UI.Font, 0, 180, love.graphics.getWidth(), "center")
     end,
 
 	LateDraw = function(self)
@@ -104,13 +112,14 @@ local PerformScene =
 		HUD:Draw()
 	end,
 
-	MoveParticle = function(self)
-		Flux.to(self.psystemPosition, 0.5, { x = love.mouse.getX(), y = love.mouse.getY() } ):ease("cubicinout")
-	end,
-
 	OnTechniqueEvaluated = function(self, score)
+		if not score then
+			return
+		end
+		HUD:SetScoreText(math.floor(score))
 		self.audience:SetAudienceAwe(score)
 		print("OnTechniqueEvaluated: score=", score)
+		self.audience:HandleDamage(math.floor(score))
 	end,
 
 	EquipRoutineIndex = function(self, index)
@@ -150,6 +159,17 @@ local PerformScene =
 
 	EquipFive = function(self)
 		self:EquipRoutineIndex(5)
+	end,
+
+	CreateBackgroundVFX = function(self, image)
+		local psystem = love.graphics.newParticleSystem(image, 1000)
+		psystem:setParticleLifetime(10, 10) -- Particles live at least 2s and at most 5s.
+		psystem:setEmissionRate(10)
+		psystem:setLinearAcceleration(-100, -100, 100, 100) -- Random movement in all directions.
+		psystem:setColors(1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0) -- Fade to transparency.
+		psystem:setSizes(0, GameSettings.WindowResolutionScale)
+		psystem:moveTo(love.graphics.getWidth() / 2, love.graphics.getHeight() / 2)
+		return psystem
 	end,
 }
 return PerformScene

@@ -15,6 +15,20 @@ local Input =
 		}
 
 		self.rightAxisJoystickActive = false
+
+		if not self.actionListeners then
+			self.actionListeners = {}
+		end
+		self.actionDown = {}
+		for _, action in ipairs(GameConstants.InputActions) do
+			self.actionDown[action] = false
+		end
+		self.actionQueries = 
+		{
+			[GameConstants.InputActions.Left] = self.GetLeftActionDown,
+			[GameConstants.InputActions.Right] = self.GetRightActionDown
+		}
+		self.actionListenerId = 0
 	end,
 
     Update = function(self)
@@ -55,6 +69,27 @@ local Input =
 					mouseData.down = false
 					if mouseData.upCallback then
 						mouseData.tableInstance[mouseData.upCallback](mouseData.tableInstance)
+					end
+				end
+			end
+		end
+
+		for action, queryActionFunction in pairs(self.actionQueries) do
+			local actionDown = queryActionFunction(self)
+			if self.actionListeners[action] then
+				if actionDown and not self.actionDown[action] then
+					self.actionDown[action] = true
+					for _, listenerTable in pairs(self.actionListeners[action]) do
+						if listenerTable.downCallback then
+							listenerTable:downCallback()
+						end
+					end
+				elseif not actionDown and self.actionDown[action] then
+					self.actionDown[action] = false
+					for _, listenerTable in pairs(self.actionListeners[action]) do
+						if listenerTable.upCallback then
+							listenerTable:upCallback()
+						end
 					end
 				end
 			end
@@ -101,6 +136,35 @@ local Input =
 	RemoveKeyListener = function(self, key)
 		self.keyListeners[key] = nil
 		print("RemoveKeyListener: Removed listener for key=", key)
+	end,
+
+	AddActionListener = function(self, action, downCallback, upCallback)
+		if not self.actionListeners[action] then
+			self.actionListeners[action] = {}
+		end
+		self.actionListenerId = self.actionListenerId + 1
+		if not self.listenerIdToAction then
+			self.listenerIdToAction = {}
+		end
+		self.listenerIdToAction[self.actionListenerId] = action
+
+		self.actionListeners[action][self.actionListenerId] =
+		{
+			downCallback = downCallback,
+			upCallback = upCallback,
+		}
+		print("AddActionListener: Added action listener for action=", action, ", listenerId=",self.actionListenerId )
+	end,
+
+	RemoveActionListener = function(self, listenerId)
+		local action = self.listenerIdToAction[listenerId]
+		if not action then
+			print("RemoveActionListener: No action found with listenerId=", listenerId)
+			return
+		end
+		if self.actionListeners[action][listenerId] then
+			self.actionListeners[action][listenerId] = nil
+		end
 	end,
 
 	--==========================================================================================================
@@ -178,6 +242,10 @@ local Input =
 		local leftAxis = love.keyboard.isDown(negative) and -1 or 0
 		local rightAxis = love.keyboard.isDown(positive) and 1 or 0
 		return (leftAxis + rightAxis)
+	end,
+
+	GetLeftActionDown = function(self)
+		return love.keyboard.isDown("space") or self:GetJoystickAxis(GameConstants.JoystickAxis.LeftTrigger) > 0.5
 	end,
 
 	GetRightActionDown = function(self)
