@@ -5,7 +5,7 @@ local Input =
 	Load = function(self)
 		self.enabled = true
 		local joysticks = love.joystick.getJoysticks()
-		print("joysticks=", Common:TableCount(joysticks))
+		print("joysticks=", table.count(joysticks))
 		self.joystick = joysticks[1]
 
 		self.lastMousePosition = 
@@ -153,7 +153,9 @@ local Input =
 			downCallback = downCallback,
 			upCallback = upCallback,
 		}
+
 		print("AddActionListener: Added action listener for action=", action, ", listenerId=",self.actionListenerId )
+		return self.actionListenerId
 	end,
 
 	RemoveActionListener = function(self, listenerId)
@@ -165,6 +167,8 @@ local Input =
 		if self.actionListeners[action][listenerId] then
 			self.actionListeners[action][listenerId] = nil
 		end
+
+		print("RemoveActionListener: Removed action listener for action=", action, ", listenerId=", listenerId)
 	end,
 
 	--==========================================================================================================

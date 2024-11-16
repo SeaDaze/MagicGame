@@ -1,5 +1,7 @@
 
-local LeftHand = {
+local Hand = require("Scripts.Player.Hand")
+
+local LeftHand = setmetatable({
 	New = function(self)
 		local instance = setmetatable({}, self)
 
@@ -9,8 +11,10 @@ local LeftHand = {
 		instance.spritePalmDownNatural = love.graphics.newImage("Images/Hands/left_palmDown_Natural.png")
 		instance.spritePalmDownGrabOpen = love.graphics.newImage("Images/Hands/left_palmDown_GrabOpen.png")
 		instance.spritePalmDownGrabClose = love.graphics.newImage("Images/Hands/left_palmDown_GrabClose.png")
+		instance.spritePalmDownRelaxed = love.graphics.newImage("Images/Hands/left_palmDown_Relaxed.png")
+		instance.spritePalmDownRelaxedIndexOut = love.graphics.newImage("Images/Hands/left_palmDown_RelaxedIndexOut.png")
 
-		instance.state = GameConstants.LeftHandStates.PalmDownGrabOpen
+		instance.state = GameConstants.HandStates.PalmDownGrabOpen
 		instance.position = { x = love.graphics.getWidth() / 2, y = love.graphics.getHeight() / 2 }
 		instance.targetPosition = { x = love.graphics.getWidth() / 2, y = love.graphics.getHeight() / 2 }
 		instance.moveSpeed = 500
@@ -19,7 +23,9 @@ local LeftHand = {
 		instance.angle = 0
 		instance.visible = true
 		instance.active = true
+		instance.nearbyPickups = {}
 
+		instance.actionListenTarget = GameConstants.InputActions.Left
 		return instance
 	end,
 
@@ -39,20 +45,27 @@ local LeftHand = {
         self.activeTween = Flux.to(self.position, 0.3, { x = self.targetPosition.x, y = self.targetPosition.y })
     end,
 
+	FixedUpdate = function(self, dt)
+	end,
+
     Draw = function(self)
 		if not self.visible then
 			return
 		end
-		if self.state == GameConstants.LeftHandStates.MechanicsGrip then
+		if self.state == GameConstants.HandStates.MechanicsGrip then
 			self:DrawHand(self.spriteMechanicsGrip)
-		elseif self.state == GameConstants.LeftHandStates.Fan then
+		elseif self.state == GameConstants.HandStates.Fan then
 			self:DrawHand(self.spriteFanNoThumb)
-		elseif self.state == GameConstants.LeftHandStates.PalmDownNatural then
+		elseif self.state == GameConstants.HandStates.PalmDownNatural then
 			self:DrawHand(self.spritePalmDownNatural)
-		elseif self.state == GameConstants.LeftHandStates.PalmDownGrabOpen then
+		elseif self.state == GameConstants.HandStates.PalmDownGrabOpen then
 			self:DrawHand(self.spritePalmDownGrabOpen)
-		elseif self.state == GameConstants.LeftHandStates.PalmDownGrabClose then
+		elseif self.state == GameConstants.HandStates.PalmDownGrabClose then
 			self:DrawHand(self.spritePalmDownGrabClose)
+		elseif self.state == GameConstants.HandStates.PalmDownRelaxed then
+			self:DrawHand(self.spritePalmDownRelaxed)
+		elseif self.state == GameConstants.HandStates.PalmDownRelaxedIndexOut then
+			self:DrawHand(self.spritePalmDownRelaxedIndexOut)
 		end
     end,
 
@@ -60,7 +73,7 @@ local LeftHand = {
 		if not self.visible then
 			return
 		end
-		if self.state == GameConstants.LeftHandStates.Fan then
+		if self.state == GameConstants.HandStates.Fan then
 			self:DrawHand(self.spriteFanThumbOnly)
 		end
     end,
@@ -69,27 +82,8 @@ local LeftHand = {
 		love.graphics.draw(sprite, self.position.x, self.position.y, math.rad(self.angle), 5, 5, (self.width / 2), self.height / 2)
 	end,
 
-	SetState = function(self, newState)
-		self.state = newState
-	end,
+}, Hand)
 
-	GetState = function(self)
-		return self.state
-	end,
-
-	GetPosition = function(self)
-		return self.position
-	end,
-
-	Disable = function(self)
-		self.active = false
-		self.activeTween:stop()
-	end,
-
-	Enable = function(self)
-		self.active = true
-	end,
-}
 LeftHand.__index = LeftHand
 
 return LeftHand

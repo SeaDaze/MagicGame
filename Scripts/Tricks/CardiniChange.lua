@@ -18,9 +18,9 @@ local CardiniChange = {
 
     OnStart = function(self)
 		self.timerNotificationId = Timer:AddListener(self, "OnTimerFinished")
-		self.leftHand:SetState(GameConstants.LeftHandStates.MechanicsGrip)
+		self.leftHand:SetState(GameConstants.HandStates.MechanicsGrip)
         Input:AddKeyListener("f", self, nil, "HandleChange")
-		self.rightHand:SetState(GameConstants.RightHandStates.PalmDown)
+		self.rightHand:SetState(GameConstants.HandStates.PalmDown)
     end,
 
     Update = function(self, dt)
@@ -66,7 +66,7 @@ local CardiniChange = {
 	end,
 
 	EvaluateScore = function(self)
-		local numberOfScores = Common:TableCount(self.scores)
+		local numberOfScores = table.count(self.scores)
 		if numberOfScores == 0 then
 			return 0
 		end

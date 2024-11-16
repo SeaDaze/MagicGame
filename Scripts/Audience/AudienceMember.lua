@@ -56,11 +56,11 @@ local AudienceMember =
         -- Generate head shape
         spriteData.head = {}
         spriteData.head.spritesheet = allSpriteData.head.spritesheet
-        spriteData.head.quad = allSpriteData.head.quads[love.math.random(Common:TableCount(allSpriteData.head.quads))]
+        spriteData.head.quad = allSpriteData.head.quads[love.math.random(table.count(allSpriteData.head.quads))]
         -- Generate hair
         spriteData.hair = {}
         spriteData.hair.spritesheet = allSpriteData.hair.spritesheet
-        spriteData.hair.quad = allSpriteData.hair.quads[love.math.random(Common:TableCount(allSpriteData.hair.quads))]
+        spriteData.hair.quad = allSpriteData.hair.quads[love.math.random(table.count(allSpriteData.hair.quads))]
 
         -- Store all facial expressions
         spriteData.face = {}

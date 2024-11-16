@@ -16,9 +16,9 @@ local DoubleLift = {
 
     OnStart = function(self)
 		self.timerNotificationId = Timer:AddListener(self, "OnTimerFinished")
-		self.leftHand:SetState(GameConstants.LeftHandStates.MechanicsGrip)
+		self.leftHand:SetState(GameConstants.HandStates.MechanicsGrip)
         Input:AddKeyListener("f", self.deck, "DoubleLift")
-		self.rightHand:SetState(GameConstants.RightHandStates.PalmDown)
+		self.rightHand:SetState(GameConstants.HandStates.PalmDown)
     end,
 
     OnStop = function(self)

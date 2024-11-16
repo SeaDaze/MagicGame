@@ -10,6 +10,7 @@ local Deck = {
 		instance.leftHand = leftHand
 		instance.rightHand = rightHand
 		instance.visible = true
+		instance.active = true
 		instance.cards = {}
         instance.clubs = {}
         instance.hearts = {}
@@ -89,6 +90,9 @@ local Deck = {
 	end,
 
 	Update = function(self, dt)
+		if not self.active then
+			return
+		end
 		for _, card in ipairs(self.cards) do
 			card:Update(dt)
 			if not card:GetDropped() and (card:GetPosition().x < 0 or card:GetPosition().x > love.graphics.getWidth() or card:GetPosition().y < 0 or card:GetPosition().y > love.graphics.getHeight()) then
@@ -99,6 +103,9 @@ local Deck = {
 	end,
 
 	FixedUpdate = function(self, dt)
+		if not self.active then
+			return
+		end
 		if self.tableSpreading then
 			self:HandleTableSpreadLines()
 		end
@@ -117,6 +124,9 @@ local Deck = {
         end
     end,
 
+	LateDraw = function(self)
+	end,
+
 	HandleTableSpreadLines = function(self)
 		if self.startedTableSpread and not self.leftMouseDown then
 			if self.originPoint then
@@ -133,7 +143,7 @@ local Deck = {
 
 		if self.leftMouseDown then
 			if not self.lines[self.lineIndex] then
-				if Common:TableCount(self.lines) == 0 then
+				if table.isEmpty(self.lines) then
 					self.startedTableSpread = true
 					self:OnStartTableSpread()
 				end
@@ -204,7 +214,7 @@ local Deck = {
 	Shuffle = function(self)
 		local shuffledDeck = {}
 		for cardNumber = 1, 52 do
-			local cardCount = Common:TableCount(self.cards)
+			local cardCount = table.count(self.cards)
 			local randomIndex = math.random(1, cardCount)
 			table.insert(shuffledDeck, self.cards[randomIndex])
 			table.remove(self.cards, randomIndex)
@@ -250,7 +260,7 @@ local Deck = {
 	end,
 
 	EvaluateTableSpreadQuality = function(self)
-		local numberOfCardsInSpread = Common:TableCount(self.cardsInSpread)
+		local numberOfCardsInSpread = table.count(self.cardsInSpread)
 
 		local totalDistance = 0
 		local distances = {}
@@ -275,7 +285,7 @@ local Deck = {
 			distanceDiffScore = distanceDiffScore + calculatedDistanceDistribution
 		end
 
-		distanceDiffScore = distanceDiffScore / Common:TableCount(distances)
+		distanceDiffScore = distanceDiffScore / table.count(distances)
 
 		local cardNumberQuality = (numberOfCardsInSpread / 52) * 100
 		local finalScore = (cardNumberQuality + distanceDiffScore) / 2
@@ -404,7 +414,6 @@ local Deck = {
 		if not self.notificationListeners[functionName] then
 			return
 		end
-		--print("BroadcastToListeners: Listener count=", Common:TableCount(self.notificationListeners[functionName]))
 		for _, dataTable in pairs(self.notificationListeners[functionName]) do
 			dataTable.callbackTable[dataTable.callbackFunction](dataTable.callbackTable, params)
 		end
@@ -425,6 +434,14 @@ local Deck = {
 
 	GetCards = function(self)
 		return self.cards
+	end,
+
+	SetActive = function(self, active)
+		self.active = active
+	end,
+
+	SetVisible = function(self, visible)
+		self.visible = visible
 	end,
 
 	-----------------------------------------------------------------------------------------------------------

@@ -19,13 +19,13 @@ local GameConstants =
 		OnTable = 8,
 	},
 
-	LeftHandStates = 
+	HandStates = 
 	{
 		MechanicsGrip = 0,
 		Fan = 1,
 	},
 
-	RightHandStates = 
+	HandStates = 
 	{
 		PalmDown = 0,
 		PalmDownPinch = 1,

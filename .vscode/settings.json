@@ -5,5 +5,12 @@
     },
     "Lua.workspace.library": [
         "${3rd}/love2d/library"
-    ]
+    ],
+
+    "coloredRegions.namedColors": {
+        "CORE": "rgba(50, 50, 0, 0.25)",
+        "EXTERNAL": "rgba(50, 0, 50, 0.25)",
+        "INTERNAL": "rgba(0, 50, 0, 0.25)",
+        "PUBLICHELPERS": "rgba(0, 0, 200, 0.1)"
+    }
 }

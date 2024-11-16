@@ -46,11 +46,11 @@ local TableSpread = {
 
     OnStart = function(self)
 		self.timerNotificationId = Timer:AddListener(self, "OnTimerFinished")
-		self.leftHand:SetState(GameConstants.LeftHandStates.MechanicsGrip)
+		self.leftHand:SetState(GameConstants.HandStates.MechanicsGrip)
 		self.deck:TableSpread()
 		Input:AddMouseListener(1, self.deck, "SetLeftMouseButtonDown", "SetLeftMouseButtonUp")
 		self.stopFanSpreadNotificationId = self.deck:AddListener("OnStopTableSpread", self, "OnStopTableSpread")
-		self.rightHand:SetState(GameConstants.RightHandStates.PalmDownTableSpread)
+		self.rightHand:SetState(GameConstants.HandStates.PalmDownTableSpread)
 
 		Input:AddKeyListener("space", self, "SwapHands")
     end,

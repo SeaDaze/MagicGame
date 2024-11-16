@@ -9,14 +9,6 @@ local Common = {
 		return math.sqrt(self:DistanceSquared(x1, y1, x2, y2))
 	end,
 
-	TableCount = function(self, t)
-		local count = 0
-		for _ in pairs(t) do
-			count = count + 1
-		end
-		return count
-	end,
-
 	AngleBetweenVectors = function(self, a, b)
 		return math.deg(math.atan2(b.y - a.y, b.x - a.x))
 	end,

@@ -29,7 +29,7 @@ local LineDraw =
             if self.originPoint then
                 self.originPoint = nil
             end
-            if Common:TableCount(self.lines) > 0 then
+            if table.count(self.lines) > 0 then
                 self.lines = {}
             end
         end

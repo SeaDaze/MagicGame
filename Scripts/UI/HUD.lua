@@ -19,18 +19,6 @@ local HUD =
 		love.graphics.setColor(1, 1, 0, 1)
 		love.graphics.printf("FPS: " .. tostring(love.timer.getFPS()), self.font, self.position.x, self.position.y, 500, "left")
 		love.graphics.setColor(1, 1, 1, 1)
-        local x = 0
-        local opacity = 1
-        for index, text in pairs(self.routineText) do
-			if index == self.routineIndex then
-				opacity = 1
-			else
-				opacity = 0.25
-			end
-            love.graphics.setColor(1, 1, 1, opacity)
-            love.graphics.printf(text, self.trickFont, (x + self.routineOffset), love.graphics.getHeight() - 60, love.graphics.getWidth(), "center")
-            x = x + self.textOffsetInterval
-        end
         love.graphics.setColor(self.scoreTextRed or 1, self.scoreTextGreen or 1, 0, 1)
 		love.graphics.printf(self.scoreText, self.scoreFont, 0, love.graphics.getHeight() - 150, love.graphics.getWidth(), "center")
         love.graphics.setColor(1, 1, 1, 1)
@@ -39,11 +27,6 @@ local HUD =
     SetRoutineText = function(self, textTable)
         self.routineText = textTable
     end,
-
-	SetRoutineIndex = function(self, index)
-		self.routineIndex = index
-		Flux.to(self, 0.5, { routineOffset = (self.routineIndex - 1) * (-self.textOffsetInterval) })
-	end,
 
 	SetScoreText = function(self, scoreText)
         self.scoreText = scoreText .. "!"

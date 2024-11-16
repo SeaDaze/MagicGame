@@ -5,7 +5,7 @@ Input = require("Scripts.Input")
 Timer = require("Scripts.Timer")
 HUD = require("Scripts.UI.HUD")
 Common = require("Scripts.Common")
-
+Player = require("Scripts.Player.Player")
 
 -- External Libraries
 Flux = require("Scripts.libraries.flux")
@@ -13,6 +13,8 @@ Moonshine = require ("Scripts.libraries.moonshine")
 
 -- Modals
 SettingsMenu = require("Scripts.UI.SettingsMenu")
+
+LuaCommon = require("Scripts.System.LuaCommon")
 
 -- Scenes
 local PerformScene = require("Scripts.PerformScene")
@@ -25,6 +27,9 @@ local Logger = require("Scripts.Debug.Log")
 
 local game = {
 
+    -- ===========================================================================================================
+    -- #region [CORE]
+    -- ===========================================================================================================
     Load = function(self)
         love.math.setRandomSeed(os.time())
         love.graphics.setDefaultFilter("nearest", "nearest")
@@ -35,6 +40,8 @@ local game = {
 		HUD:Load(PlayerStats)
         SettingsMenu:Load()
         Timer:Load()
+
+        Player:Load()
         MainMenu:Load()
 		PerformScene:Load()
         RoutineBuilderScene:Load()
@@ -46,6 +53,8 @@ local game = {
             [GameConstants.GameStates.Build] = RoutineBuilderScene,
             [GameConstants.GameStates.Shop] = ShopScene,
         }
+
+        Input:AddKeyListener("return", self, "ToggleScene")
 
         self:SetGameState(GameConstants.GameStates.Build)
 
@@ -86,8 +95,6 @@ local game = {
 
         self.vignetteEffect.vignette.radius = self.vignetteRadius
         self.vignetteEffect.vignette.opacity = self.vignetteOpacity
-        -- self.vignetteEffect.pixelate.size = self.vignettePixelateSize
-        -- self.vignetteEffect.pixelate.size = self.vignettePixelateFeedback
     end,
 
 	FixedUpdate = function(self, dt)
@@ -109,6 +116,30 @@ local game = {
         SettingsMenu:Draw()
     end,
 
+    -- ===========================================================================================================
+    -- #region [INTERNAL]
+    -- ===========================================================================================================
+
+    -- Scenes
+    ToggleScene = function(self)
+        if self.gameState == GameConstants.GameStates.Perform then
+            self:RequestGameStateChange(GameConstants.GameStates.Build)
+        else
+            self:RequestGameStateChange(GameConstants.GameStates.Perform)
+        end
+    end,
+
+    FadeToScene = function(self, fadeDuration)
+        Flux.to(self, fadeDuration, { vignetteRadius = 0.9 })
+        Flux.to(self, fadeDuration, { vignetteOpacity = 0.5 })
+    end,
+
+    FadeToBlack = function(self, fadeDuration)
+        Flux.to(self, fadeDuration, { vignetteRadius = 0 })
+        Flux.to(self, fadeDuration, { vignetteOpacity = 1 })
+    end,
+
+    -- Game State
     OnTimerFinished = function(self, timerId)
         if timerId == "RequestGameStateChange" then
             self:SetGameState(self.nextState)
@@ -146,20 +177,6 @@ local game = {
             end
         )
         self.gameState = newState
-    end,
-
-    ExitGame = function(self)
-        love.window.close()
-    end,
-
-    FadeToScene = function(self, fadeDuration)
-        Flux.to(self, fadeDuration, { vignetteRadius = 0.9 })
-        Flux.to(self, fadeDuration, { vignetteOpacity = 0.5 })
-    end,
-
-    FadeToBlack = function(self, fadeDuration)
-        Flux.to(self, fadeDuration, { vignetteRadius = 0 })
-        Flux.to(self, fadeDuration, { vignetteOpacity = 1 })
     end,
 
 }

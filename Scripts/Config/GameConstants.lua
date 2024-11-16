@@ -73,16 +73,7 @@ local GameConstants =
 		OnTable = 8,
 	},
 
-	LeftHandStates = 
-	{
-		MechanicsGrip = 1,
-		Fan = 2,
-        PalmDownNatural = 3,
-        PalmDownGrabOpen = 4,
-        PalmDownGrabClose = 5,
-	},
-
-	RightHandStates = 
+	HandStates = 
 	{
 		PalmDown = 1,
 		PalmDownPinch = 2,
@@ -93,6 +84,10 @@ local GameConstants =
         PalmDownNatural = 7,
         PalmDownGrabOpen = 8,
         PalmDownGrabClose = 9,
+        PalmDownRelaxed = 10,
+        PalmDownRelaxedIndexOut = 11,
+        MechanicsGrip = 12,
+        Fan = 13,
 	},
 
 	CardSuits = 

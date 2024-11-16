@@ -8,16 +8,18 @@ local Fan = {
 		instance.leftHand = leftHand
         instance.rightHand = rightHand
 
-		instance.name = "fan"
+		instance.name = "Fan"
 		instance.points = {}
 		instance.pointIndex = 1
-		
+
+		instance.cardSelection = false
+
         return instance
     end,
 
     OnStart = function(self)
 		self.timerNotificationId = Timer:AddListener(self, "OnTimerFinished")
-		self.leftHand:SetState(GameConstants.LeftHandStates.Fan)
+		self.leftHand:SetState(GameConstants.HandStates.Fan)
 		self:InitializeFan()
     end,
 
@@ -27,11 +29,11 @@ local Fan = {
     end,
 
 	Update = function(self, dt)
-		self:EvaluateRightHandState()
 	end,
 
 	FixedUpdate = function(self, dt)
 		if self.fanSpreading then
+			self:EvaluateRightHandState()
 			self:DuringFanSpread()
 			self:HandleFanSpreadPoints()
 		end
@@ -45,13 +47,18 @@ local Fan = {
         end
 	end,
 
-	OnStopFanSpread = function(self)
+	OnCompleteFanSpread = function(self)
+		self.rightHand:SetState(GameConstants.HandStates.PalmDownGrabOpen)
+		self.fanSpreading = false
 		local quality = self:EvaluateFanQuality()
 		self:Technique_OnTechniqueEvaluated(quality)
-		self:UninitializeFan()
-		self:InitializeFan()
-		-- Input:DisableForSeconds(7)
-		-- Timer:Start("SelectCard", 1)
+		if self.cardSelection then
+			Input:DisableForSeconds(7)
+			Timer:Start("SelectCard", 1)
+		else
+			Input:DisableForSeconds(2)
+			Timer:Start("UninitializeFan", 2)
+		end
 	end,
 
 	OnTimerFinished = function(self, timerId)
@@ -62,10 +69,13 @@ local Fan = {
 			self.deck:GiveSelectedCard()
 			Timer:Start("UninitializeFan", 4)
 		elseif timerId == "UninitializeFan" then
-			self.deck:MoveSelectedCardToTop()
+			if self.cardSelection then
+				self.deck:MoveSelectedCardToTop()
+				self.deck:RetrieveSelectedCard()
+				Timer:Start("Reset", 0.35)
+			end
 			self:UninitializeFan()
-			self.deck:RetrieveSelectedCard()
-			Timer:Start("Reset", 0.35)
+			self:Technique_OnFinished()
 		elseif timerId == "Reset" then
 			self.deck:ResetSelectedCard()
 		end
@@ -92,11 +102,10 @@ local Fan = {
 			card.previousOriginOffset = { x = 0, y = 0 }
 			card.targetAngle = 0
 		end
-		self.fanSpreading = false
 	end,
 
 	DuringFanSpread = function(self)
-		local numberOfPoints = Common:TableCount(self.points)
+		local numberOfPoints = table.count(self.points)
 		if numberOfPoints == 0 then
 			return
 		end
@@ -118,14 +127,8 @@ local Fan = {
 
 	HandleFanSpreadPoints = function(self)
 		if not Input:GetRightActionDown() then
-			if Common:TableCount(self.points) > 0 then
-				self.points = {}
-				self.pointIndex = 1
-				self:OnStopFanSpread()
-			end
 			return
 		end
-
 		local leftHandPosition = self.leftHand.position
 		local indexFingerPosition = self.rightHand:GetIndexFingerPosition()
 
@@ -136,13 +139,11 @@ local Fan = {
 		if indexFingerPosition.x < leftHandPosition.x then
 			return
 		end
-		if Input:GetRightActionDown() then
-			self:CreateNewPoint(indexFingerPosition.x, indexFingerPosition.y)
-		end
+		self:CreateNewPoint(indexFingerPosition.x, indexFingerPosition.y)
 	end,
 
 	CreateNewPoint = function(self, x, y)
-		if Common:TableCount(self.points) == 0 then
+		if table.isEmpty(self.points) then
 			self.points[self.pointIndex] = { x = x, y = y }
 			return
 		end
@@ -160,10 +161,15 @@ local Fan = {
 		if removedCard and self.tableSpreading then
 			removedCard:SetState(GameConstants.CardStates.Dropped)
 		end
+		if table.isEmpty(self.spreadingCards) then
+			self.points = {}
+			self.pointIndex = 1
+			self:OnCompleteFanSpread()
+		end
 	end,
 
 	EvaluateFanQuality = function(self)
-		local numberOfCardsInSpread = Common:TableCount(self.cardsInSpread)
+		local numberOfCardsInSpread = table.count(self.cardsInSpread)
 		if numberOfCardsInSpread <= 0 then
 			return
 		end
@@ -177,7 +183,7 @@ local Fan = {
 	end,
 
 	EvaluateCardAngleDistribution = function(self)
-		local targetAngleDiff = 180 / Common:TableCount(self.cardsInSpread)
+		local targetAngleDiff = 180 / table.count(self.cardsInSpread)
 
 		local angleDiffPercentages = {}
 		local cardIndex = 1
@@ -197,7 +203,7 @@ local Fan = {
 			end
 		end
 
-		return totalDiff / Common:TableCount(angleDiffPercentages)
+		return totalDiff / table.count(angleDiffPercentages)
 	end,
 	
 	EvaluateRightHandState = function(self)
@@ -206,10 +212,10 @@ local Fan = {
 	
 		local handsDistance = Common:DistanceSquared(leftHandPosition.x, leftHandPosition.y, indexFingerPosition.x, indexFingerPosition.y)
 
-		if handsDistance > 20000 and self.leftHand:GetState() ~= GameConstants.RightHandStates.PalmDownNatural or indexFingerPosition.x < leftHandPosition.x  then
-			self.rightHand:SetState(GameConstants.RightHandStates.PalmDownGrabOpen)
-		elseif handsDistance <= 20000 and self.leftHand:GetState() ~= GameConstants.RightHandStates.PalmDownIndexOut and indexFingerPosition.x > leftHandPosition.x then
-			self.rightHand:SetState(GameConstants.RightHandStates.PalmDownIndexOut)
+		if handsDistance > 20000 and self.leftHand:GetState() ~= GameConstants.HandStates.PalmDownNatural or indexFingerPosition.x < leftHandPosition.x  then
+			self.rightHand:SetState(GameConstants.HandStates.PalmDownGrabOpen)
+		elseif handsDistance <= 20000 and self.leftHand:GetState() ~= GameConstants.HandStates.PalmDownIndexOut and indexFingerPosition.x > leftHandPosition.x then
+			self.rightHand:SetState(GameConstants.HandStates.PalmDownIndexOut)
 		end
 	end,
 }

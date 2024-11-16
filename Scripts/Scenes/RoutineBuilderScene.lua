@@ -1,21 +1,27 @@
-local RightHand = require("Scripts.RightHand")
-local LeftHand = require("Scripts.LeftHand")
 local TechniqueCard = require("Scripts.Items.Pickup.Cards.TechniqueCard")
-local TechniqueCardSlot = require("Scripts.Items.Pickup.Cards.TechniqueCardSlot")
 
 local RoutineBuilderScene = 
 {
+    -- ===========================================================================================================
+    -- #region [CORE]
+    -- ===========================================================================================================
     Load = function(self)
-		self.leftHand = LeftHand:New()
-        self.rightHand = RightHand:New()
-
-        local cardSlotSprite = love.graphics.newImage("Images/Cards/TechniqueCards/technique_CardSlot.png")
+		self.leftHand = Player:GetLeftHand()
+        self.rightHand = Player:GetRightHand()
 
         self.pickups = {
-            TechniqueCard:New(self.leftHand, self.rightHand),
+            TechniqueCard:New("Fan", self.leftHand, self.rightHand),
+            TechniqueCard:New("FalseCut", self.leftHand, self.rightHand),
         }
-        
+    end,
+
+    OnStart = function(self)
+        Player:OnStartBuild()
+
+        love.mouse.setVisible(false)
+
         for _, pickup in pairs(self.pickups) do
+            pickup:OnStart()
             pickup:AddPickupListener(
                 function(_, card)
                     local attachedSlot = card:GetAttachedSlot()
@@ -26,7 +32,8 @@ local RoutineBuilderScene =
             )
             pickup:AddDroppedListener(
                 function(_, card)
-                    for _, cardSlot in pairs(self.cardSlots) do
+                    local cardSlots = Player:GetCardSlots()
+                    for _, cardSlot in pairs(cardSlots) do
                         if not card:GetAttachedSlot() then
                             if cardSlot:EvaluateWithinRange(card:GetPosition()) then
                                 cardSlot:SetAttachedCard(card)
@@ -36,76 +43,38 @@ local RoutineBuilderScene =
                 end
             )
         end
-
-        self.cardSlots = {
-            TechniqueCardSlot:New(cardSlotSprite, { x = (love.graphics.getWidth() / 2) - (cardSlotSprite:getWidth() * 4), y = love.graphics.getHeight() -  (cardSlotSprite:getHeight() * 2) }),
-            TechniqueCardSlot:New(cardSlotSprite, { x = (love.graphics.getWidth() / 2) - (cardSlotSprite:getWidth() * 2), y = love.graphics.getHeight() -  (cardSlotSprite:getHeight() * 2) }),
-            TechniqueCardSlot:New(cardSlotSprite, { x = (love.graphics.getWidth() / 2), y = love.graphics.getHeight() -  (cardSlotSprite:getHeight() * 2) }),
-            TechniqueCardSlot:New(cardSlotSprite, { x = (love.graphics.getWidth() / 2) + (cardSlotSprite:getWidth() * 2), y = love.graphics.getHeight() -  (cardSlotSprite:getHeight() * 2) }),
-            TechniqueCardSlot:New(cardSlotSprite, { x = (love.graphics.getWidth() / 2) + (cardSlotSprite:getWidth() * 4), y = love.graphics.getHeight() -  (cardSlotSprite:getHeight() * 2) }),
-        }
-    end,
-
-    OnStart = function(self)
-        love.mouse.setVisible(false)
-        self.leftActionInputId = Input:AddActionListener(GameConstants.InputActions.Left,
-            function ()
-                self.leftHand:SetState(GameConstants.LeftHandStates.PalmDownGrabClose)
-            end,
-            function ()
-                self.leftHand:SetState(GameConstants.LeftHandStates.PalmDownGrabOpen)
-            end
-        )
-
-        self.rightActionInputId = Input:AddActionListener(GameConstants.InputActions.Right,
-            function ()
-                self.rightHand:SetState(GameConstants.RightHandStates.PalmDownGrabClose)
-            end,
-            function ()
-                self.rightHand:SetState(GameConstants.RightHandStates.PalmDownGrabOpen)
-            end
-        )
-
-        for _, pickup in pairs(self.pickups) do
-            pickup:OnStart()
-        end
     end,
 
     OnStop = function(self)
-        Input:RemoveActionListener(self.leftActionInputId)
-        Input:RemoveActionListener(self.rightActionInputId)
+        Player:OnStopBuild()
         for _, pickup in pairs(self.pickups) do
             pickup:OnStop()
         end
     end,
 
     Update = function(self, dt)
-        self.leftHand:Update(dt)
-        self.rightHand:Update(dt)
         for _, pickup in pairs(self.pickups) do
             pickup:Update(dt)
         end
+        Player:Update(dt)
     end,
+
+    FixedUpdate = function(self, dt)
+		Player:FixedUpdate(dt)
+	end,
 
     Draw = function(self)
         love.graphics.setBackgroundColor(0.128, 0.128, 0.136, 1)
-
-        for _, cardSlot in pairs(self.cardSlots) do
-            cardSlot:Draw()
-        end
-
         for _, pickup in pairs(self.pickups) do
             pickup:Draw()
         end
+        Player:Draw()
+
         love.graphics.printf("Build", GameConstants.UI.Font, 0, 0, love.graphics.getWidth(), "center")
-        self.leftHand:Draw()
-        self.rightHand:Draw()
-        
     end,
 
-    LateDraw = function(self)
-        self.leftHand:LateDraw()
-        self.rightHand:LateDraw()
-    end,
+	LateDraw = function(self)
+		Player:LateDraw()
+	end,
 }
 return RoutineBuilderScene

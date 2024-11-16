@@ -14,12 +14,12 @@ local Pickup =
         self.leftHand = leftHand
         self.rightHand = rightHand
         self.hoveredRight = false
-        self.attachedToRightHand = false
         self.hoveredLeft = false
-        self.attachedToLeftHand = false
         self.heldOffset = { x = 0, y = 0 }
         self.droppedListenerId = 1
         self.pickupListenerId = 1
+
+        self.pickedUp = false
     end,
 
     OnStart = function(self)
@@ -29,8 +29,8 @@ local Pickup =
     Pickup_OnStart = function(self)
         self.leftActionInputId = Input:AddActionListener(GameConstants.InputActions.Left,
             function ()
-                if self.hoveredLeft and not self.attachedToLeftHand then
-                    self.attachedToLeftHand = true
+                if self.hoveredLeft and not self.leftHand:GetPickup() then
+                    self.leftHand:SetPickup(self)
                     self.heldOffset = 
                     {
                         x = self.position.x - self.leftHand:GetPosition().x,
@@ -39,22 +39,24 @@ local Pickup =
                     for _, pickupListener in pairs(self.pickupListeners) do
                         pickupListener:callback(self)
                     end
+                    self.pickedUp = true
                 end
             end,
             function ()
-                if self.attachedToLeftHand then
-                    self.attachedToLeftHand = false
+                if self.leftHand:GetPickup() == self then
+                    self.leftHand:SetPickup(nil)
                     for _, droppedListener in pairs(self.droppedListeners) do
                         droppedListener:callback(self)
                     end
+                    self.pickedUp = false
                 end
             end
         )
 
         self.rightActionInputId = Input:AddActionListener(GameConstants.InputActions.Right,
             function ()
-                if self.hoveredRight and not self.attachedToRightHand then
-                    self.attachedToRightHand = true
+                if self.hoveredRight and not self.rightHand:GetPickup() then
+                    self.rightHand:SetPickup(self)
                     self.heldOffset = 
                     {
                         x = self.position.x - self.rightHand:GetPosition().x,
@@ -63,19 +65,19 @@ local Pickup =
                     for _, pickupListener in pairs(self.pickupListeners) do
                         pickupListener:callback(self)
                     end
+                    self.pickedUp = true
                 end
             end,
             function ()
-                if self.attachedToRightHand then
-                    self.attachedToRightHand = false
+                if self.rightHand:GetPickup() == self then
+                    self.rightHand:SetPickup(nil)
                     for _, droppedListener in pairs(self.droppedListeners) do
                         droppedListener:callback(self)
                     end
+                    self.pickedUp = false
                 end
             end
         )
-
-        print("Pickup: OnStart")
     end,
 
     OnStop = function(self)
@@ -97,11 +99,13 @@ local Pickup =
         local withinRange = Common:DistanceSquared(self.position.x, self.position.y, rightHandPosition.x, rightHandPosition.y) < self.pickupDistance
         if withinRange and not self.hoveredRight then
             self.hoveredRight = true
+            self.rightHand:AddNearbyPickup(self)
         elseif not withinRange and self.hoveredRight then
             self.hoveredRight = false
+            self.rightHand:RemoveNearbyPickup(self)
         end
 
-        if self.attachedToRightHand then
+        if self.rightHand:GetPickup() == self then
             self:SetPosition(rightHandPosition, self.heldOffset)
         end
     end,
@@ -111,30 +115,32 @@ local Pickup =
         local withinRange = Common:DistanceSquared(self.position.x, self.position.y, handPosition.x, handPosition.y) < self.pickupDistance
         if withinRange and not self.hoveredLeft then
             self.hoveredLeft = true
+            self.leftHand:AddNearbyPickup(self)
         elseif not withinRange and self.hoveredLeft then
             self.hoveredLeft = false
+            self.leftHand:RemoveNearbyPickup(self)
         end
 
-        if self.attachedToLeftHand then
+        if self.leftHand:GetPickup() == self then
             self:SetPosition(handPosition, self.heldOffset)
         end
     end,
 
     Draw = function(self)
-        if self.hoveredLeft or self.hoveredRight then
-            love.graphics.setBlendMode("add", "premultiplied")
+        local scale = GameSettings.WindowResolutionScale / self.windowScaleFraction
+        if self.pickedUp then
+            scale = scale * 1.05
         end
         love.graphics.draw(
             self.sprite,
             self.position.x,
             self.position.y,
             math.rad(self.angle),
-            GameSettings.WindowResolutionScale / self.windowScaleFraction,
-            GameSettings.WindowResolutionScale / self.windowScaleFraction,
+            scale,
+            scale,
             self.spriteWidth / 2,
             self.spriteHeight / 2
         )
-        love.graphics.setBlendMode("alpha")
     end,
 
     SetPosition = function(self, newPosition, offset)

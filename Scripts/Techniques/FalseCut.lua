@@ -20,11 +20,17 @@ local FalseCut = {
 
     OnStart = function(self)
 		self.timerNotificationId = Timer:AddListener(self, "OnTimerFinished")
-		Input:AddKeyListener("f", self, "StartFalseCut")
+
+		self.leftActionInputId = Input:AddActionListener(GameConstants.InputActions.Left, function()
+			Timer:Start("HandsToCentre", 0.5)
+			self.leftHand:Disable()
+			self.rightHand:Disable()
+			Flux.to(self.leftHand.position, 0.5, { x = (love.graphics.getWidth() / 2), y = (love.graphics.getHeight() / 2) } )
+			Flux.to(self.rightHand.position, 0.5, { x = (love.graphics.getWidth() / 2), y = (love.graphics.getHeight() / 2) } )
+		end)
     end,
 
     OnStop = function(self)
-		Input:RemoveKeyListener("f")
 		Timer:RemoveListener(self.timerNotificationId)
 		self.leftHand.visible = true
 		self.rightHand.visible = true
@@ -67,17 +73,8 @@ local FalseCut = {
 			self.rightHand.active = true
 			self.deck.visible = true
 			self.visible = false
+			self:Technique_OnFinished()
 		end
-	end,
-
-	StartFalseCut = function(self)
-		Timer:Start("HandsToCentre", 0.5)
-
-		self.leftHand:Disable()
-		self.rightHand:Disable()
-
-		Flux.to(self.leftHand.position, 0.5, { x = (love.graphics.getWidth() / 2), y = (love.graphics.getHeight() / 2) } )
-		Flux.to(self.rightHand.position, 0.5, { x = (love.graphics.getWidth() / 2), y = (love.graphics.getHeight() / 2) } )
 	end,
 }
 
