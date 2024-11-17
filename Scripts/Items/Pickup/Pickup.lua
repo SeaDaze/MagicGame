@@ -27,57 +27,7 @@ local Pickup =
     end,
 
     Pickup_OnStart = function(self)
-        self.leftActionInputId = Input:AddActionListener(GameConstants.InputActions.Left,
-            function ()
-                if self.hoveredLeft and not self.leftHand:GetPickup() then
-                    self.leftHand:SetPickup(self)
-                    self.heldOffset = 
-                    {
-                        x = self.position.x - self.leftHand:GetPosition().x,
-                        y = self.position.y - self.leftHand:GetPosition().y,
-                    }
-                    for _, pickupListener in pairs(self.pickupListeners) do
-                        pickupListener:callback(self)
-                    end
-                    self.pickedUp = true
-                end
-            end,
-            function ()
-                if self.leftHand:GetPickup() == self then
-                    self.leftHand:SetPickup(nil)
-                    for _, droppedListener in pairs(self.droppedListeners) do
-                        droppedListener:callback(self)
-                    end
-                    self.pickedUp = false
-                end
-            end
-        )
 
-        self.rightActionInputId = Input:AddActionListener(GameConstants.InputActions.Right,
-            function ()
-                if self.hoveredRight and not self.rightHand:GetPickup() then
-                    self.rightHand:SetPickup(self)
-                    self.heldOffset = 
-                    {
-                        x = self.position.x - self.rightHand:GetPosition().x,
-                        y = self.position.y - self.rightHand:GetPosition().y,
-                    }
-                    for _, pickupListener in pairs(self.pickupListeners) do
-                        pickupListener:callback(self)
-                    end
-                    self.pickedUp = true
-                end
-            end,
-            function ()
-                if self.rightHand:GetPickup() == self then
-                    self.rightHand:SetPickup(nil)
-                    for _, droppedListener in pairs(self.droppedListeners) do
-                        droppedListener:callback(self)
-                    end
-                    self.pickedUp = false
-                end
-            end
-        )
     end,
 
     OnStop = function(self)
@@ -183,6 +133,25 @@ local Pickup =
 
     RemoveDroppedListener = function(self, listenerId)
         self.droppedListeners[listenerId] = nil
+    end,
+
+    SetPickedUp = function(self, hand)
+        self.heldOffset = 
+        {
+            x = self.position.x - hand:GetPosition().x,
+            y = self.position.y - hand:GetPosition().y,
+        }
+        for _, pickupListener in pairs(self.pickupListeners) do
+            pickupListener:callback(self)
+        end
+        self.pickedUp = true
+    end,
+
+    SetDropped = function(self)
+        for _, droppedListener in pairs(self.droppedListeners) do
+            droppedListener:callback(self)
+        end
+        self.pickedUp = false
     end,
 }
 Pickup.__index = Pickup

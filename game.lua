@@ -1,7 +1,7 @@
 -- Globals (because I'm lazy and no one can stop me)
 GameSettings = require("Scripts.Config.GameSettings")
 GameConstants = require("Scripts.Config.GameConstants")
-Input = require("Scripts.Input")
+Input = require("Scripts.System.Input")
 Timer = require("Scripts.Timer")
 HUD = require("Scripts.UI.HUD")
 Common = require("Scripts.Common")
@@ -33,7 +33,7 @@ local game = {
     Load = function(self)
         love.math.setRandomSeed(os.time())
         love.graphics.setDefaultFilter("nearest", "nearest")
-		love.mouse.setVisible(true)
+		love.mouse.setVisible(false)
 
         Logger:Load()
 		Input:Load()
@@ -45,6 +45,7 @@ local game = {
         MainMenu:Load()
 		PerformScene:Load()
         RoutineBuilderScene:Load()
+        ShopScene:Load()
 
         self.gameScenes =
         {
@@ -56,7 +57,7 @@ local game = {
 
         Input:AddKeyListener("return", self, "ToggleScene")
 
-        self:SetGameState(GameConstants.GameStates.Build)
+        self:SetGameState(GameConstants.GameStates.Shop)
 
 		self.nextFixedUpdate = 0
 		self.lastFixedUpdate = 0

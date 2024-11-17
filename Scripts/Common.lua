@@ -13,6 +13,14 @@ local Common = {
 		return math.deg(math.atan2(b.y - a.y, b.x - a.x))
 	end,
 
+	ConvertAngleToVectorDirection = function(self, angleDeg)
+		local rad = math.rad(angleDeg)
+		return {
+			x = math.cos(rad),
+			y = math.sin(rad),
+		}
+	end,
+
 	DotProduct = function(self, a, b)
 		local value = 0
 		for i = 1, #a do

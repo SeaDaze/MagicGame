@@ -5,7 +5,6 @@ local Deck = {
 	New = function(self, leftHand, rightHand)
 		local instance = setmetatable({}, self)
 		instance.cards = {}
-		instance.fannedCards = 0
 		instance.offsetCardIndex = nil
 		instance.leftHand = leftHand
 		instance.rightHand = rightHand
@@ -106,9 +105,9 @@ local Deck = {
 		if not self.active then
 			return
 		end
-		if self.tableSpreading then
-			self:HandleTableSpreadLines()
-		end
+		-- if self.tableSpreading then
+		-- 	self:HandleTableSpreadLines()
+		-- end
 	end,
 
 	Draw = function(self)
@@ -127,42 +126,42 @@ local Deck = {
 	LateDraw = function(self)
 	end,
 
-	HandleTableSpreadLines = function(self)
-		if self.startedTableSpread and not self.leftMouseDown then
-			if self.originPoint then
-				self.originPoint = nil
-			end
-			self.lines = {}
-			self.lineIndex = 1
-			self.startedTableSpread = false
-			self:OnStopTableSpread()
-			return
-		end
+	-- HandleTableSpreadLines = function(self)
+	-- 	if self.startedTableSpread and not self.leftMouseDown then
+	-- 		if self.originPoint then
+	-- 			self.originPoint = nil
+	-- 		end
+	-- 		self.lines = {}
+	-- 		self.lineIndex = 1
+	-- 		self.startedTableSpread = false
+	-- 		self:OnStopTableSpread()
+	-- 		return
+	-- 	end
 
-		local rightHandPosition = self.rightHand:GetPosition()
+	-- 	local rightHandPosition = self.rightHand:GetPosition()
 
-		if self.leftMouseDown then
-			if not self.lines[self.lineIndex] then
-				if table.isEmpty(self.lines) then
-					self.startedTableSpread = true
-					self:OnStartTableSpread()
-				end
-				local x = rightHandPosition.x
-				local y = rightHandPosition.y
-				if self.lines[self.lineIndex - 1] then
-					x = self.lines[self.lineIndex - 1].x2
-					y = self.lines[self.lineIndex - 1].y2
-				end
-				self.lines[self.lineIndex] = { x1 = x, y1 = y, x2 = x, y2 = y }
-			end
-			self.lines[self.lineIndex].x2 = rightHandPosition.x
-			self.lines[self.lineIndex].y2 = rightHandPosition.y
-			if Common:DistanceSquared(self.lines[self.lineIndex].x1, self.lines[self.lineIndex].y1, self.lines[self.lineIndex].x2, self.lines[self.lineIndex].y2) > 30 then
-				self.lineIndex = self.lineIndex + 1
-				self:OnNewLineCreated(self.lineIndex)
-			end
-		end
-	end,
+	-- 	if self.leftMouseDown then
+	-- 		if not self.lines[self.lineIndex] then
+	-- 			if table.isEmpty(self.lines) then
+	-- 				self.startedTableSpread = true
+	-- 				self:OnStartTableSpread()
+	-- 			end
+	-- 			local x = rightHandPosition.x
+	-- 			local y = rightHandPosition.y
+	-- 			if self.lines[self.lineIndex - 1] then
+	-- 				x = self.lines[self.lineIndex - 1].x2
+	-- 				y = self.lines[self.lineIndex - 1].y2
+	-- 			end
+	-- 			self.lines[self.lineIndex] = { x1 = x, y1 = y, x2 = x, y2 = y }
+	-- 		end
+	-- 		self.lines[self.lineIndex].x2 = rightHandPosition.x
+	-- 		self.lines[self.lineIndex].y2 = rightHandPosition.y
+	-- 		if Common:DistanceSquared(self.lines[self.lineIndex].x1, self.lines[self.lineIndex].y1, self.lines[self.lineIndex].x2, self.lines[self.lineIndex].y2) > 30 then
+	-- 			self.lineIndex = self.lineIndex + 1
+	-- 			self:OnNewLineCreated(self.lineIndex)
+	-- 		end
+	-- 	end
+	-- end,
 
 	GiveSelectedCard = function(self)
 		if self.offsetCardIndex then
@@ -223,9 +222,6 @@ local Deck = {
 	end,
 
 	OffsetCard = function(self, cardIndex)
-		-- if self.fannedCards == 0 then
-		-- 	return
-		-- end
 		if self.offsetCardIndex then
 			self:UnoffsetCard(self.offsetCardIndex)
 		end
@@ -293,54 +289,39 @@ local Deck = {
 		return finalScore
 	end,
 
-	SwapHands = function(self)
-		for _, card in ipairs(self.cards) do
-			if card:GetState() == GameConstants.CardStates.InLeftHand then
-				card:SetState(GameConstants.CardStates.InRightHandTableSpread)
-			elseif card:GetState() == GameConstants.CardStates.InRightHandTableSpread then
-				card:SetState(GameConstants.CardStates.InLeftHand)
-			end
-		end
-	end,
+	-- SwapHands = function(self)
+	-- 	for _, card in ipairs(self.cards) do
+	-- 		if card:GetState() == GameConstants.CardStates.InLeftHand then
+	-- 			card:SetState(GameConstants.CardStates.InRightHandTableSpread)
+	-- 		elseif card:GetState() == GameConstants.CardStates.InRightHandTableSpread then
+	-- 			card:SetState(GameConstants.CardStates.InLeftHand)
+	-- 		end
+	-- 	end
+	-- end,
 	-----------------------------------------------------------------------------------------------------------
 	-- !SECTION
 	-- SECTION Techniques
 	-----------------------------------------------------------------------------------------------------------
 
-	Fan = function(self)
-		local angleIncrement = 8
-		local angle = 0
-		self.fannedCards = 0
-		for _, card in ipairs(self.cards) do
-			card.targetOriginOffset = { x = 0, y = card.halfHeight }
-			card.previousOriginOffset = { x = 0, y = card.halfHeight }
-			card.targetAngle = angle
-			if angle < 180 then
-				angle = angle + angleIncrement
-				self.fannedCards = self.fannedCards + 1
-			end
-		end
-	end,
+	-- OnStartTableSpread = function(self)
+	-- 	self.tableSpreading = true
+	-- end,
 
-	OnStartTableSpread = function(self)
-		self.tableSpreading = true
-	end,
+	-- OnStopTableSpread = function(self)
+	-- 	self:BroadcastToListeners("OnStopTableSpread", { quality = self:EvaluateTableSpreadQuality() })
+	-- end,
 
-	OnStopTableSpread = function(self)
-		self:BroadcastToListeners("OnStopTableSpread", { quality = self:EvaluateTableSpreadQuality() })
-	end,
-
-	TableSpread = function(self)
-		for _, card in ipairs(self.cards) do
-			card:SetState(GameConstants.CardStates.InRightHandTableSpread)
-		end
-		self.tableSpreading = true
-		self.spreadingCards = {}
-		self.cardsInSpread = {}
-		for index, card in ipairs(self.cards) do
-			self.spreadingCards[index] = card
-		end
-	end,
+	-- TableSpread = function(self)
+	-- 	for _, card in ipairs(self.cards) do
+	-- 		card:SetState(GameConstants.CardStates.InRightHandTableSpread)
+	-- 	end
+	-- 	self.tableSpreading = true
+	-- 	self.spreadingCards = {}
+	-- 	self.cardsInSpread = {}
+	-- 	for index, card in ipairs(self.cards) do
+	-- 		self.spreadingCards[index] = card
+	-- 	end
+	-- end,
 
 	SingleLift = function(self)
 		self.cards[52]:Flip()
@@ -358,24 +339,24 @@ local Deck = {
 		self:MoveToPosition(52, 1)
 	end,
 
-	StartSpin = function(self)
-		self.cards[52]:SetState(GameConstants.CardStates.SpinningOut)
-	end,
+	-- StartSpin = function(self)
+	-- 	self.cards[52]:SetState(GameConstants.CardStates.SpinningOut)
+	-- end,
 
-	CatchCard = function(self)
-		if Common:DistanceSquared(self.cards[52].position.x, self.cards[52].position.y, self.rightHand.position.x, self.rightHand.position.y) < 3000 then
-			self.cards[52]:SetState(GameConstants.CardStates.InRightHandPinchPalmDown)
-			self:BroadcastToListeners("CatchCard")
-		end
-	end,
+	-- CatchCard = function(self)
+	-- 	if Common:DistanceSquared(self.cards[52].position.x, self.cards[52].position.y, self.rightHand.position.x, self.rightHand.position.y) < 3000 then
+	-- 		self.cards[52]:SetState(GameConstants.CardStates.InRightHandPinchPalmDown)
+	-- 		self:BroadcastToListeners("CatchCard")
+	-- 	end
+	-- end,
 
-	ResetSpinCard = function(self)
-		self.cards[26].inRightHand = false
-		self.cards[26].spinning = false
-		self.cards[26].out = false
-		self.cards[26].angle = 0
-		self.cards[26].targetAngle = 0
-	end,
+	-- ResetSpinCard = function(self)
+	-- 	self.cards[26].inRightHand = false
+	-- 	self.cards[26].spinning = false
+	-- 	self.cards[26].out = false
+	-- 	self.cards[26].angle = 0
+	-- 	self.cards[26].targetAngle = 0
+	-- end,
 
 	OnCardDropped = function(self, card)
 		self:BroadcastToListeners("OnCardDropped")

@@ -21,7 +21,7 @@ local RightHand = setmetatable({
 
 		instance.position = { x = love.graphics.getWidth() / 2, y = love.graphics.getHeight() / 2 }
 		instance.targetPosition = { x = love.graphics.getWidth() / 2, y = love.graphics.getHeight() / 2 }
-		instance.indexFingerOffset = { x = -25, y = -35 }
+		instance.indexFingerOffset = { x = -8, y = -12 }
 		instance.palmUpPinchOffset = { x = 25, y = -35 }
 
 		instance.halfWidth = instance.spritePalmDown:getWidth() / 2
@@ -110,7 +110,10 @@ local RightHand = setmetatable({
     end,
 
 	GetIndexFingerPosition = function(self)
-		local pos = { x = self.position.x + self.indexFingerOffset.x, y = self.position.y + self.indexFingerOffset.y }
+		local pos = { 
+			x = self.position.x + (self.indexFingerOffset.x * GameSettings.WindowResolutionScale),
+			y = self.position.y + (self.indexFingerOffset.y * GameSettings.WindowResolutionScale)
+		}
 		return pos
 	end,
 

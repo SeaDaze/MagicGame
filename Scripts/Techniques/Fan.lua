@@ -40,6 +40,9 @@ local Fan = {
 	end,
 
 	Draw = function(self)
+	end,
+
+	LateDraw = function(self)
 		for _, point in pairs(self.points) do
 			love.graphics.setColor(1, 0.5, 0.5, 1)
 			love.graphics.ellipse("fill", point.x, point.y, 3, 3, 6)
@@ -47,6 +50,7 @@ local Fan = {
         end
 	end,
 
+	
 	OnCompleteFanSpread = function(self)
 		self.rightHand:SetState(GameConstants.HandStates.PalmDownGrabOpen)
 		self.fanSpreading = false
@@ -91,6 +95,7 @@ local Fan = {
 		self.spreadingCards = {}
 		self.cardsInSpread = {}
 		for index, card in ipairs(cards) do
+			card:SetAngularSpeed(0.3)
 			self.spreadingCards[index] = card
 		end
 	end,
@@ -213,9 +218,9 @@ local Fan = {
 		local handsDistance = Common:DistanceSquared(leftHandPosition.x, leftHandPosition.y, indexFingerPosition.x, indexFingerPosition.y)
 
 		if handsDistance > 20000 and self.leftHand:GetState() ~= GameConstants.HandStates.PalmDownNatural or indexFingerPosition.x < leftHandPosition.x  then
-			self.rightHand:SetState(GameConstants.HandStates.PalmDownGrabOpen)
+			self.rightHand:SetState(GameConstants.HandStates.PalmDownRelaxed)
 		elseif handsDistance <= 20000 and self.leftHand:GetState() ~= GameConstants.HandStates.PalmDownIndexOut and indexFingerPosition.x > leftHandPosition.x then
-			self.rightHand:SetState(GameConstants.HandStates.PalmDownIndexOut)
+			self.rightHand:SetState(GameConstants.HandStates.PalmDownRelaxedIndexOut)
 		end
 	end,
 }

@@ -1,5 +1,11 @@
 local Hand = 
 {
+    -- ===========================================================================================================
+    -- #region [CORE]
+    -- ===========================================================================================================
+    -- ===========================================================================================================
+    -- #region [EXTERNAL]
+    -- ===========================================================================================================
     OnStartBuild = function(self)
 		self:SetState(GameConstants.HandStates.PalmDownRelaxed)
 
@@ -7,6 +13,11 @@ local Hand =
 			function ()
 				if not table.isEmpty(self.nearbyPickups) then
 					self:SetState(GameConstants.HandStates.PalmDownGrabClose)
+                    local nearestPickup = self:EvaluateNearestPickup()
+                    if nearestPickup then
+                        nearestPickup:SetPickedUp(self)
+                        self:SetPickup(nearestPickup)
+                    end
 				end
 			end,
 			function ()
@@ -14,6 +25,11 @@ local Hand =
 					self:SetState(GameConstants.HandStates.PalmDownRelaxed)
 				else
 					self:SetState(GameConstants.HandStates.PalmDownGrabOpen)
+                    local pickup = self:GetPickup()
+                    if pickup then
+                        pickup:SetDropped()
+                        self:SetPickup(nil)
+                    end
 				end
 			end
 		)
@@ -22,6 +38,36 @@ local Hand =
 	OnStopBuild = function(self)
 		Input:RemoveActionListener(self.buildActionInputId)
 	end,
+    -- ===========================================================================================================
+    -- #region [INTERNAL]
+    -- ===========================================================================================================
+
+    EvaluateNearestPickup = function(self)
+        local nearbyPickupCount = table.count(self.nearbyPickups)
+        if nearbyPickupCount == 0 then
+            return nil
+        elseif nearbyPickupCount == 1 then
+            return self.nearbyPickups[1]
+        else
+            local smallestDistance = 999999999
+            local closestPickup = nil
+            for _, pickup in pairs(self.nearbyPickups) do
+                local distanceToPickup = Common:DistanceSquared(self.position.x, self.position.y, pickup:GetPosition().x, pickup:GetPosition().y)
+                if distanceToPickup < smallestDistance then
+                    smallestDistance = distanceToPickup
+                    closestPickup = pickup
+                end
+            end
+            return closestPickup
+        end
+    end,
+
+    -- ===========================================================================================================
+    -- #region [PUBLICHELPERS]
+    -- ===========================================================================================================
+    GetState = function(self)
+        return self.state
+    end,
 
     SetState = function(self, newState)
 		self.state = newState
@@ -65,6 +111,8 @@ local Hand =
 			self:SetState(GameConstants.HandStates.PalmDownRelaxed)
 		end
 	end,
+    -- ===========================================================================================================
+    -- #endregion
 }
 Hand.__index = Hand
 return Hand

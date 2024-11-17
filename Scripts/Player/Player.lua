@@ -46,6 +46,8 @@ local Player =
             TechniqueCardSlot:New(4, cardSlotSprites, { x = (love.graphics.getWidth() / 2) + (cardSlotWidth * 2), y = love.graphics.getHeight() -  (cardSlotHeight * 2) }),
             TechniqueCardSlot:New(5, cardSlotSprites, { x = (love.graphics.getWidth() / 2) + (cardSlotWidth * 4), y = love.graphics.getHeight() -  (cardSlotHeight * 2) }),
         }
+        
+        self.cardSlotsActive = true
     end,
 
     OnStart = function(self)
@@ -79,13 +81,15 @@ local Player =
 	end,
 
     Draw = function(self)
-        for _, cardSlot in pairs(self.cardSlots) do
-            cardSlot:Draw()
-            local attachedCard = cardSlot:GetAttachedCard()
-			if attachedCard then
-				attachedCard:Draw()
-			end
-            cardSlot:DrawTag()
+        if self.cardSlotsActive then
+            for _, cardSlot in pairs(self.cardSlots) do
+                cardSlot:Draw()
+                local attachedCard = cardSlot:GetAttachedCard()
+                if attachedCard then
+                    attachedCard:Draw()
+                end
+                cardSlot:DrawTag()
+            end
         end
 
         self.leftHand:Draw()
@@ -103,6 +107,11 @@ local Player =
         self.deck:LateDraw()
         self.leftHand:LateDraw()
         self.rightHand:LateDraw()
+        if self.routineIndex and self.routine[self.routineIndex] then
+            if self.routine[self.routineIndex].LateDraw then
+                self.routine[self.routineIndex]:LateDraw()
+            end
+        end
     end,
 
     -- ===========================================================================================================
@@ -130,11 +139,22 @@ local Player =
 
         self.leftHand:OnStartBuild()
         self.rightHand:OnStartBuild()
+        self.cardSlotsActive = true
     end,
 
     OnStopBuild = function(self)
         self.leftHand:OnStopBuild()
         self.rightHand:OnStopBuild()
+    end,
+
+    OnStartShop = function(self)
+        self.deck:SetActive(false)
+        self.deck:SetVisible(false)
+        self.cardSlotsActive = false
+    end,
+
+    OnStopShop = function(self)
+
     end,
 
     AddActionListener = function(self, action, callback)

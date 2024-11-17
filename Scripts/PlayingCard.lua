@@ -24,6 +24,14 @@ local PlayingCard = {
 		instance.previousOriginOffset = { x = 0, y = 0 }
 		instance.scale = { x = 5, y = 5 }
 
+		instance.sockets = 
+		{
+			bottomCenter = {
+				x = 0,
+				y = 0,
+			}
+		}
+		
 		-- GameObject references
 		instance.leftHand = leftHand
 		instance.rightHand = rightHand
@@ -38,7 +46,7 @@ local PlayingCard = {
 		instance.value = value
 		instance.suit = suit
 		instance.spinningSpeed = 500
-
+		instance.angularSpeed = 1
 		return instance
 	end,
 
@@ -46,11 +54,8 @@ local PlayingCard = {
 		if self.state == GameConstants.CardStates.SpinningOut then
 			self:Spin(dt)
 		else
-			-- if self.state ~= GameConstants.CardStates.InRightHand then
-				
-			-- end
 			if self.angle ~= self.targetAngle then
-				Flux.to(self, 0.3, { angle = self.targetAngle })
+				Flux.to(self, self.angularSpeed, { angle = self.targetAngle })
 			end
 		end
 
@@ -71,6 +76,8 @@ local PlayingCard = {
 		if self.state ~= GameConstants.CardStates.Dropped and self.position.x > love.graphics.getWidth() then
 			self:SetState(GameConstants.CardStates.Dropped)
 		end
+
+		self:UpdateSockets()
 	end,
 
     Draw = function(self)
@@ -98,7 +105,32 @@ local PlayingCard = {
 				self.halfHeight + self.originOffset.y
 			)
 		end
+
+		-- love.graphics.setColor(0, 1, 0, 1)
+		-- for key, socket in pairs(self.sockets) do
+		-- 	love.graphics.ellipse("fill", socket.x, socket.y, 4, 4, 6)
+		-- end
+		-- love.graphics.setColor(1, 1, 1, 1)
     end,
+
+
+	UpdateSockets = function(self)
+		local positionOffsetVector = Common:ConvertAngleToVectorDirection(self.angle + 90)
+        local positionOffsetDirection = Common:Normalize(positionOffsetVector)
+
+		local offsetDistance = ((self.halfHeight - self.originOffset.y) * GameSettings.WindowResolutionScale)
+
+		local offset = 
+		{
+			x = positionOffsetDirection.x * offsetDistance,
+			y = positionOffsetDirection.y * offsetDistance,
+		}
+		self.sockets.bottomCenter = 
+		{
+			x = self.position.x + offset.x,
+			y = self.position.y + offset.y,
+		}
+	end,
 
 	-----------------------------------------------------------------------------------------------------------
 	-- State change functions
@@ -197,6 +229,14 @@ local PlayingCard = {
 
 	SetDropped = function(self, isDropped)
 		self.dropped = isDropped
+	end,
+
+	GetBottomCenterSocket = function(self)
+		return self.sockets.bottomCenter
+	end,
+
+	SetAngularSpeed = function(self, speed)
+		self.angularSpeed = speed
 	end,
 }
 
