@@ -4,6 +4,7 @@ local RightHand = require("Scripts.Player.RightHand")
 local LeftHand = require("Scripts.Player.LeftHand")
 local Deck = require("Scripts.Deck")
 local TechniqueCardSlot = require("Scripts.Items.Pickup.Cards.TechniqueCardSlot")
+local Briefcase = require("Scripts.Player.Briefcase")
 
 local Techniques = 
 {
@@ -24,7 +25,7 @@ local Player =
         self.leftHand = LeftHand:New()
         self.rightHand = RightHand:New()
 		self.deck = Deck:New(self.leftHand, self.rightHand)
-
+        Briefcase:Load()
         self.techniques = {}
         self.routine = {}
         self.actionListeners = {}
@@ -46,7 +47,8 @@ local Player =
             TechniqueCardSlot:New(4, cardSlotSprites, { x = (love.graphics.getWidth() / 2) + (cardSlotWidth * 2), y = love.graphics.getHeight() -  (cardSlotHeight * 2) }),
             TechniqueCardSlot:New(5, cardSlotSprites, { x = (love.graphics.getWidth() / 2) + (cardSlotWidth * 4), y = love.graphics.getHeight() -  (cardSlotHeight * 2) }),
         }
-        
+
+
         self.cardSlotsActive = true
     end,
 
@@ -60,6 +62,7 @@ local Player =
         self.deck:Update(dt)
         self.leftHand:Update(dt)
         self.rightHand:Update(dt)
+        Briefcase:Update(dt)
 
         if self.routineIndex and self.routine[self.routineIndex] then
             if self.routine[self.routineIndex].Update then
@@ -81,6 +84,8 @@ local Player =
 	end,
 
     Draw = function(self)
+        --Briefcase:Draw()
+
         if self.cardSlotsActive then
             for _, cardSlot in pairs(self.cardSlots) do
                 cardSlot:Draw()
@@ -151,10 +156,13 @@ local Player =
         self.deck:SetActive(false)
         self.deck:SetVisible(false)
         self.cardSlotsActive = false
+        self.leftHand:OnStartShop()
+        self.rightHand:OnStartShop()
     end,
 
     OnStopShop = function(self)
-
+        self.leftHand:OnStopShop()
+        self.rightHand:OnStopShop()
     end,
 
     AddActionListener = function(self, action, callback)

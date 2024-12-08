@@ -7,37 +7,21 @@ local Hand =
     -- #region [EXTERNAL]
     -- ===========================================================================================================
     OnStartBuild = function(self)
-		self:SetState(GameConstants.HandStates.PalmDownRelaxed)
-
-		self.buildActionInputId = Input:AddActionListener(self.actionListenTarget,
-			function ()
-				if not table.isEmpty(self.nearbyPickups) then
-					self:SetState(GameConstants.HandStates.PalmDownGrabClose)
-                    local nearestPickup = self:EvaluateNearestPickup()
-                    if nearestPickup then
-                        nearestPickup:SetPickedUp(self)
-                        self:SetPickup(nearestPickup)
-                    end
-				end
-			end,
-			function ()
-				if table.isEmpty(self.nearbyPickups) then
-					self:SetState(GameConstants.HandStates.PalmDownRelaxed)
-				else
-					self:SetState(GameConstants.HandStates.PalmDownGrabOpen)
-                    local pickup = self:GetPickup()
-                    if pickup then
-                        pickup:SetDropped()
-                        self:SetPickup(nil)
-                    end
-				end
-			end
-		)
+        self:ConnectPickupFunctions()
 	end,
 
 	OnStopBuild = function(self)
-		Input:RemoveActionListener(self.buildActionInputId)
+		self:DisconnectPickupFunctions()
 	end,
+
+    OnStartShop = function(self)
+        self:ConnectPickupFunctions()
+	end,
+
+	OnStopShop = function(self)
+		self:DisconnectPickupFunctions()
+	end,
+
     -- ===========================================================================================================
     -- #region [INTERNAL]
     -- ===========================================================================================================
@@ -60,6 +44,37 @@ local Hand =
             end
             return closestPickup
         end
+    end,
+
+    ConnectPickupFunctions = function(self)
+		self:SetState(GameConstants.HandStates.PalmDownRelaxed)
+
+		self.buildActionInputId = Input:AddActionListener(self.actionListenTarget,
+			function ()
+				if not table.isEmpty(self.nearbyPickups) then
+					self:SetState(GameConstants.HandStates.PalmDownGrabClose)
+                    local nearestPickup = self:EvaluateNearestPickup()
+                    if nearestPickup then
+                        nearestPickup:SetPickedUp(self)
+                    end
+				end
+			end,
+			function ()
+				if table.isEmpty(self.nearbyPickups) then
+					self:SetState(GameConstants.HandStates.PalmDownRelaxed)
+				else
+					self:SetState(GameConstants.HandStates.PalmDownGrabOpen)
+                    local pickup = self:GetPickup()
+                    if pickup then
+                        pickup:SetDropped(self)
+                    end
+				end
+			end
+		)
+    end,
+
+    DisconnectPickupFunctions = function(self)
+        Input:RemoveActionListener(self.buildActionInputId)
     end,
 
     -- ===========================================================================================================
@@ -111,6 +126,18 @@ local Hand =
 			self:SetState(GameConstants.HandStates.PalmDownRelaxed)
 		end
 	end,
+
+    AddNearbyBriefcase = function(self, briefcase)
+        if not self.nearbyBriefcases then
+            self.nearbyBriefcases = {}
+        end
+        table.insert(self.nearbyBriefcases, briefcase)
+    end,
+
+    RemoveNearbyBriefcase = function(self, briefcase)
+        table.removeByValue(self.nearbyBriefcases, briefcase)
+    end,
+
     -- ===========================================================================================================
     -- #endregion
 }

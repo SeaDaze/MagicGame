@@ -7,6 +7,8 @@ local GameSettings =
     Controls =
     {
         
-    }
+    },
+
+    ShowColliders = true,
 }
 return GameSettings

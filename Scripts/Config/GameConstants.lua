@@ -141,5 +141,11 @@ local GameConstants =
     },
 
     JoystickInputDeadzone = 0.2,
+
+    ItemOwners = 
+    {
+        ShopKeeper = 1,
+        Player = 2,
+    },
 }
 return GameConstants

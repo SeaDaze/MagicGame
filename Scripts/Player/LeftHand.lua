@@ -20,12 +20,16 @@ local LeftHand = setmetatable({
 		instance.moveSpeed = 500
 		instance.width = instance.spriteMechanicsGrip:getWidth()
 		instance.height = instance.spriteMechanicsGrip:getHeight()
+		instance.centerOffset = { x = instance.width / 2, y = instance.height / 2}
 		instance.angle = 0
 		instance.visible = true
 		instance.active = true
 		instance.nearbyPickups = {}
 
 		instance.actionListenTarget = GameConstants.InputActions.Left
+
+		instance.collider = require("Scripts.Physics.BoxCollider")
+        --instance.collider:BoxCollider_Initialize(instance.position, instance.width * GameSettings.WindowResolutionScale, instance.height * GameSettings.WindowResolutionScale, instance.centerOffset)
 		return instance
 	end,
 
@@ -43,6 +47,7 @@ local LeftHand = setmetatable({
 		self.targetPosition.y = Common:Clamp(self.targetPosition.y, 0, love.graphics.getHeight())
 		
         self.activeTween = Flux.to(self.position, 0.3, { x = self.targetPosition.x, y = self.targetPosition.y })
+		--self.collider:BoxCollider_Update()
     end,
 
 	FixedUpdate = function(self, dt)
@@ -67,6 +72,7 @@ local LeftHand = setmetatable({
 		elseif self.state == GameConstants.HandStates.PalmDownRelaxedIndexOut then
 			self:DrawHand(self.spritePalmDownRelaxedIndexOut)
 		end
+		--self.collider:BoxCollider_DebugDraw()
     end,
 
 	LateDraw = function(self)
@@ -79,7 +85,7 @@ local LeftHand = setmetatable({
     end,
 
 	DrawHand = function(self, sprite)
-		love.graphics.draw(sprite, self.position.x, self.position.y, math.rad(self.angle), 5, 5, (self.width / 2), self.height / 2)
+		love.graphics.draw(sprite, self.position.x, self.position.y, math.rad(self.angle), GameSettings.WindowResolutionScale, GameSettings.WindowResolutionScale, self.centerOffset.x, self.centerOffset.y)
 	end,
 
 }, Hand)

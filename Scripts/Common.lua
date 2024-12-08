@@ -1,6 +1,31 @@
 
 
 local Common = {
+	AABB = function(self, objA, objB)
+		local error = false
+		if not objA.position.x or not objA.position.y or not objA.width or not objA.height then
+			print("Common:AABB - objA setup is missing a parameter")
+			error = true
+		end
+		if not objB.position.x or not objB.position.y or not objB.width or not objB.height then
+			print("Common:AABB - objB setup is missing a parameter")
+			error = true
+		end
+		if error then
+			return nil
+		end
+		if objA.position.x > (objB.position.x + objB.width) then
+			return false
+		elseif (objA.position.x + objA.width) < objB.position.x then
+			return false
+		elseif objA.position.y > (objB.position.y + objB.height) then
+			return false
+		elseif (objA.position.y + objA.height) < objB.position.y then
+			return false
+		end
+		return true
+	end,
+
 	DistanceSquared = function(self, x1, y1, x2, y2)
 		return (x2-x1)^2 + (y2-y1)^2
 	end,

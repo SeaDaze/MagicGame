@@ -1,4 +1,4 @@
-
+local BoxCollider = require("Scripts.Physics.BoxCollider")
 
 local Pickup = 
 {
@@ -6,9 +6,12 @@ local Pickup =
         self.position = { x = love.graphics.getWidth() / 2, y = love.graphics.getHeight() / 2 }
         self.spriteWidth = self.sprite:getWidth()
 		self.spriteHeight = self.sprite:getHeight()
+        self.width = self.spriteWidth * GameSettings.WindowResolutionScale
+        self.height = self.spriteHeight * GameSettings.WindowResolutionScale
+        self.centerOffset = { x = self.spriteWidth / 2, y = self.spriteHeight / 2 }
         self.angle = 0
         local longestEdge = math.max(self.spriteWidth, self.spriteHeight)
-        self.pickupDistance = longestEdge * longestEdge
+        self.pickupDistance = longestEdge * longestEdge * GameSettings.WindowResolutionScale
 
         self.windowScaleFraction = 1
         self.leftHand = leftHand
@@ -20,6 +23,8 @@ local Pickup =
         self.pickupListenerId = 1
 
         self.pickedUp = false
+
+        self.collider = BoxCollider:BoxCollider_New(self.position, self.width, self.height, self.centerOffset)
     end,
 
     OnStart = function(self)
@@ -27,7 +32,6 @@ local Pickup =
     end,
 
     Pickup_OnStart = function(self)
-
     end,
 
     OnStop = function(self)
@@ -35,13 +39,13 @@ local Pickup =
     end,
 
     Pickup_OnStop = function(self)
-        Input:RemoveActionListener(self.leftActionInputId)
-        Input:RemoveActionListener(self.rightActionInputId)
+        self.collider:BoxCollider_ClearListeners()
     end,
 
     Update = function(self, dt)
         self:HandleRightHand()
         self:HandleLeftHand()
+        self.collider:BoxCollider_Update()
     end,
 
     HandleRightHand = function(self)
@@ -91,6 +95,7 @@ local Pickup =
             self.spriteWidth / 2,
             self.spriteHeight / 2
         )
+        self.collider:BoxCollider_DebugDraw()
     end,
 
     SetPosition = function(self, newPosition, offset)
@@ -136,6 +141,9 @@ local Pickup =
     end,
 
     SetPickedUp = function(self, hand)
+        if self.pickedUp then
+            return
+        end
         self.heldOffset = 
         {
             x = self.position.x - hand:GetPosition().x,
@@ -145,13 +153,22 @@ local Pickup =
             pickupListener:callback(self)
         end
         self.pickedUp = true
+        hand:SetPickup(self)
     end,
 
-    SetDropped = function(self)
+    SetDropped = function(self, hand)
+        if not self.pickedUp then
+            return
+        end
         for _, droppedListener in pairs(self.droppedListeners) do
             droppedListener:callback(self)
         end
         self.pickedUp = false
+        hand:SetPickup(nil)
+    end,
+
+    GetCollider = function(self)
+        return self.collider
     end,
 }
 Pickup.__index = Pickup

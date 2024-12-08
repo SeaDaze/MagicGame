@@ -56,6 +56,7 @@ local game = {
         }
 
         Input:AddKeyListener("return", self, "ToggleScene")
+        Input:AddKeyListener("f1", self, "ToggleColliders")
 
         self:SetGameState(GameConstants.GameStates.Shop)
 
@@ -127,6 +128,14 @@ local game = {
             self:RequestGameStateChange(GameConstants.GameStates.Build)
         else
             self:RequestGameStateChange(GameConstants.GameStates.Perform)
+        end
+    end,
+
+    ToggleColliders = function(self)
+        if GameSettings.ShowColliders then
+            GameSettings.ShowColliders = false
+        else
+            GameSettings.ShowColliders = true
         end
     end,
 
