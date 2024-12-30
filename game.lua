@@ -1,11 +1,16 @@
 -- Globals (because I'm lazy and no one can stop me)
 GameSettings = require("Scripts.Config.GameSettings")
 GameConstants = require("Scripts.Config.GameConstants")
+DrawLayers = require("Scripts.Config.DrawLayers")
+
 Input = require("Scripts.System.Input")
 Timer = require("Scripts.Timer")
 HUD = require("Scripts.UI.HUD")
 Common = require("Scripts.Common")
 Player = require("Scripts.Player.Player")
+DrawSystem = require("Scripts.System.DrawSystem")
+Sprite = require("Scripts.System.Sprite")
+Text = require("Scripts.System.Text")
 
 -- External Libraries
 Flux = require("Scripts.libraries.flux")
@@ -35,6 +40,7 @@ local game = {
         love.graphics.setDefaultFilter("nearest", "nearest")
 		love.mouse.setVisible(false)
 
+        DrawSystem:Load()
         Logger:Load()
 		Input:Load()
 		HUD:Load(PlayerStats)
@@ -58,7 +64,7 @@ local game = {
         Input:AddKeyListener("return", self, "ToggleScene")
         Input:AddKeyListener("f1", self, "ToggleColliders")
 
-        self:SetGameState(GameConstants.GameStates.Shop)
+        self:SetGameState(GameConstants.GameStates.Perform)
 
 		self.nextFixedUpdate = 0
 		self.lastFixedUpdate = 0
@@ -107,14 +113,13 @@ local game = {
 	end,
 
     Draw = function(self)
-        self.vignetteEffect(
-            function()
-                self.gameScenes[self.gameState]:Draw()
-                if self.gameScenes[self.gameState].LateDraw then
-                    self.gameScenes[self.gameState]:LateDraw()
-                end
-            end
-        )
+        love.graphics.setBackgroundColor(0.128, 0.128, 0.136, 1)
+        -- self.vignetteEffect(
+        --     function()
+        --         DrawSystem:DrawAll()
+        --     end
+        -- )
+        DrawSystem:DrawAll()
         SettingsMenu:Draw()
     end,
 
@@ -132,10 +137,10 @@ local game = {
     end,
 
     ToggleColliders = function(self)
-        if GameSettings.ShowColliders then
-            GameSettings.ShowColliders = false
+        if GameSettings.Debug_Show then
+            GameSettings.Debug_Show = false
         else
-            GameSettings.ShowColliders = true
+            GameSettings.Debug_Show = true
         end
     end,
 

@@ -1,28 +1,21 @@
 
 local PlayingCard = {
-	New = function(self, value, suit, spritesheet, quad, position, faceDownSprite, leftHand, rightHand)
+	New = function(self, value, suit, sprite, faceDownDrawable, leftHand, rightHand)
 		local instance = setmetatable({}, self)
 
 		-- Sprites
-		instance.spritesheet = spritesheet
-		instance.quad = quad
-		instance.faceDownSprite = faceDownSprite
-		local width, height = quad:getTextureDimensions()
-		instance.width = (width / 13)
-		instance.height = (height / 4)
-		instance.halfWidth = instance.width / 2
-		instance.halfHeight = instance.height / 2
+		instance.sprite = sprite
+		instance.faceUpDrawable = sprite:GetDrawable()
+		instance.faceDownDrawable = faceDownDrawable
+		instance.sprite:SetDrawable(instance.faceDownDrawable)
 
 		-- Position/rotation/scale
-		instance.position = position or { x = 0, y = 0 }
-		instance.positionOffset = { x = 0, y = 0 }
-		instance.angle = 0
 		instance.targetAngle = 0
 		instance.previousTargetAngle = 0
-		instance.originOffset = { x = 0, y = 0 }
-		instance.targetOriginOffset =  { x = 0, y = 0 }
-		instance.previousOriginOffset = { x = 0, y = 0 }
-		instance.scale = { x = 5, y = 5 }
+		instance.targetOriginOffsetRatio =  { x = 0.5, y = 0.5 }
+
+		instance.scaleModifier = 1
+		instance.scale = { x = GameSettings.WindowResolutionScale * instance.scaleModifier, y = GameSettings.WindowResolutionScale * instance.scaleModifier }
 
 		instance.sockets = 
 		{
@@ -31,7 +24,7 @@ local PlayingCard = {
 				y = 0,
 			}
 		}
-		
+
 		-- GameObject references
 		instance.leftHand = leftHand
 		instance.rightHand = rightHand
@@ -41,95 +34,78 @@ local PlayingCard = {
 		instance.facingUp = false
 		instance.spinning = false
 		instance.dropped = false
-		
+
 		-- Variables
 		instance.value = value
 		instance.suit = suit
 		instance.spinningSpeed = 500
 		instance.angularSpeed = 1
+
 		return instance
 	end,
 
 	Update = function(self, dt)
-		if self.state == GameConstants.CardStates.SpinningOut then
-			self:Spin(dt)
-		else
-			if self.angle ~= self.targetAngle then
-				Flux.to(self, self.angularSpeed, { angle = self.targetAngle })
-			end
-		end
+		self:UpdateSpriteOriginOffsetRatio()
 
-		if self.originOffset ~= self.targetOriginOffset then
-			Flux.to(self.originOffset, 0.3, { x = self.targetOriginOffset.x, y = self.targetOriginOffset.y })
+		-- if self.state == GameConstants.CardStates.SpinningOut then
+		-- 	self:Spin(dt)
+		-- else
+		if self.angle ~= self.targetAngle then
+			Flux.to(self.sprite, self.angularSpeed, { angle = self.targetAngle })
 		end
+		-- end
 
 		if self.state == GameConstants.CardStates.InLeftHand then
-			self:SetPosition({x = self.leftHand.position.x, y = self.leftHand.position.y })
-		elseif self.state == GameConstants.CardStates.InRightHandPinchPalmDown then
-			self:SetPosition(self.rightHand:GetIndexFingerPosition())
-		elseif self.state == GameConstants.CardStates.InRightHandPinchPalmUp then
-			self:SetPosition(self.rightHand:GetPalmUpPinchFingerPosition())
-		elseif self.state == GameConstants.CardStates.InRightHandTableSpread then
-			self:SetPosition({x = self.rightHand.position.x, y = self.rightHand.position.y })
+			self:SetPosition({x = self.leftHand.position.x, y = self.leftHand.position.y, z = self.leftHand.position.z })
+		-- elseif self.state == GameConstants.CardStates.InRightHandPinchPalmDown then
+		-- 	self:SetPosition(self.rightHand:GetIndexFingerPosition())
+		-- elseif self.state == GameConstants.CardStates.InRightHandPinchPalmUp then
+		-- 	self:SetPosition(self.rightHand:GetPalmUpPinchFingerPosition())
+		-- elseif self.state == GameConstants.CardStates.InRightHandTableSpread then
+		-- 	self:SetPosition({x = self.rightHand.position.x, y = self.rightHand.position.y })
 		end
 
-		if self.state ~= GameConstants.CardStates.Dropped and self.position.x > love.graphics.getWidth() then
-			self:SetState(GameConstants.CardStates.Dropped)
-		end
+		-- if self.state ~= GameConstants.CardStates.Dropped and self.sprite.position.x > love.graphics.getWidth() then
+		-- 	self:SetState(GameConstants.CardStates.Dropped)
+		-- end
 
 		self:UpdateSockets()
 	end,
 
-    Draw = function(self)
-		if self.facingUp then
-			love.graphics.draw(
-				self.spritesheet,
-				self.quad,
-				self.position.x + self.positionOffset.x,
-				self.position.y + self.positionOffset.y,
-				math.rad(self.angle),
-				self.scale.x,
-				self.scale.y,
-				self.halfWidth + self.originOffset.x,
-				self.halfHeight + self.originOffset.y
-			)
-        else
-			love.graphics.draw(
-				self.faceDownSprite,
-				self.position.x + self.positionOffset.x,
-				self.position.y + self.positionOffset.y,
-				math.rad(self.angle),
-				self.scale.x,
-				self.scale.y,
-				self.halfWidth + self.originOffset.x,
-				self.halfHeight + self.originOffset.y
-			)
-		end
-
-		-- love.graphics.setColor(0, 1, 0, 1)
-		-- for key, socket in pairs(self.sockets) do
-		-- 	love.graphics.ellipse("fill", socket.x, socket.y, 4, 4, 6)
-		-- end
-		-- love.graphics.setColor(1, 1, 1, 1)
-    end,
-
+	UpdateSpriteOriginOffsetRatio = function(self)
+		Flux.to(self.sprite.originOffsetRatio, 0.3, { x = self.targetOriginOffsetRatio.x, y = self.targetOriginOffsetRatio.y })
+	end,
 
 	UpdateSockets = function(self)
-		local positionOffsetVector = Common:ConvertAngleToVectorDirection(self.angle + 90)
+		-- Down
+		local verticalOffsetDistance = self.sprite.height * GameSettings.WindowResolutionScale / 2 --((self.sprite.height - (self.sprite.originOffsetRatio.y * self.sprite.height)) * GameSettings.WindowResolutionScale)
+		local horizontalOffsetDistance = self.sprite.width * GameSettings.WindowResolutionScale / 2 --((self.sprite.width - (self.sprite.originOffsetRatio.y * self.sprite.width)) * GameSettings.WindowResolutionScale)
+	
+		local positionOffsetVector = Common:ConvertAngleToVectorDirection(self.sprite.angle + 90)
         local positionOffsetDirection = Common:Normalize(positionOffsetVector)
 
-		local offsetDistance = ((self.halfHeight - self.originOffset.y) * GameSettings.WindowResolutionScale)
+		local halfWidth = self.sprite.width * GameSettings.WindowResolutionScale * 0.5
+		local halfHeight = self.sprite.height * GameSettings.WindowResolutionScale * 0.5
 
-		local offset = 
+		self.sockets.center = 
 		{
-			x = positionOffsetDirection.x * offsetDistance,
-			y = positionOffsetDirection.y * offsetDistance,
+			x = self.sprite.position.x + halfWidth,
+			y = self.sprite.position.y + halfHeight,
 		}
-		self.sockets.bottomCenter = 
-		{
-			x = self.position.x + offset.x,
-			y = self.position.y + offset.y,
-		}
+
+		-- self.sockets.bottomCenter = 
+		-- {
+		-- 	x = self.sprite.position.x + (positionOffsetDirection.x * verticalOffsetDistance),
+		-- 	y = self.sprite.position.y + (positionOffsetDirection.y * verticalOffsetDistance),
+		-- }
+
+		-- positionOffsetVector = Common:ConvertAngleToVectorDirection(self.sprite.angle + 270)
+        -- positionOffsetDirection = Common:Normalize(positionOffsetVector)
+		-- self.sockets.topCenter = 
+		-- {
+		-- 	x = self.sprite.position.x + (positionOffsetDirection.x * verticalOffsetDistance),
+		-- 	y = self.sprite.position.y + (positionOffsetDirection.y * verticalOffsetDistance),
+		-- }
 	end,
 
 	-----------------------------------------------------------------------------------------------------------
@@ -212,15 +188,25 @@ local PlayingCard = {
 	end,
 
 	SetFacingUp = function(self, facingUp)
+		if facingUp then
+			self.sprite:SetDrawable(self.faceUpDrawable)
+		else
+			self.sprite:SetDrawable(self.faceDownDrawable)
+		end
 		self.facingUp = facingUp
 	end,
 
     SetPosition = function(self, newPosition)
-        self.position = newPosition
+        self.sprite.position = 
+		{
+			x = newPosition.x,
+			y = newPosition.y,
+			z = newPosition.z or 0
+		}
     end,
 
     GetPosition = function(self)
-        return self.position
+        return self.sprite.position
     end,
 
 	GetDropped = function(self)
@@ -237,6 +223,18 @@ local PlayingCard = {
 
 	SetAngularSpeed = function(self, speed)
 		self.angularSpeed = speed
+	end,
+
+	GetSprite = function(self)
+		return self.sprite
+	end,
+
+	SetTargetOriginOffsetRatio = function(self, newOffsetRatio)
+		self.targetOriginOffsetRatio = 
+		{
+			x = newOffsetRatio.x,
+			y = newOffsetRatio.y,
+		}
 	end,
 }
 

@@ -23,6 +23,7 @@ local PerformScene =
 
 	OnStart = function(self)
 		Player:OnStartPerform()
+		Mat:OnStartPerform()
 		self.techniqueEvaluatedListenerId = Player:AddActionListener("OnTechniqueEvaluated",
 			function(score)
 				if not score then
@@ -38,6 +39,7 @@ local PerformScene =
 	OnStop = function(self)
 		Player:OnStopPerform()
 		Player:RemoveActionListener(self.techniqueEvaluatedListenerId)
+		Mat:OnStopPerform()
 	end,
 
     Update = function(self, dt)

@@ -49,7 +49,8 @@ local GameConstants =
             Rectangle = 0,
             Square = 1,
         },
-        Font = love.graphics.newFont("Fonts/VCR.ttf", 22)
+        Font = love.graphics.newFont("Fonts/VCR.ttf", 22),
+        FontAlt = love.graphics.newFont("Fonts/pixelifySans.ttf", 30),
     },
 
     GameStates = 
@@ -144,8 +145,16 @@ local GameConstants =
 
     ItemOwners = 
     {
-        ShopKeeper = 1,
-        Player = 2,
+        None = 1,
+        ShopKeeper = 2,
+        Player = 3,
     },
+
+    DrawableTypes = 
+    {
+        Sprite = 1,
+        Text = 2,
+        SpritesheetQuad = 3,
+    }
 }
 return GameConstants

@@ -10,8 +10,8 @@ local RoutineBuilderScene =
         self.rightHand = Player:GetRightHand()
 
         self.pickups = {
-            TechniqueCard:New("Fan", self.leftHand, self.rightHand),
-            TechniqueCard:New("FalseCut", self.leftHand, self.rightHand),
+            --TechniqueCard:New("Fan", self.leftHand, self.rightHand),
+            --TechniqueCard:New("FalseCut", self.leftHand, self.rightHand),
         }
     end,
 

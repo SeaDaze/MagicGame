@@ -3,36 +3,32 @@ local BoxCollider = require("Scripts.Physics.BoxCollider")
 local BuyZone = 
 {
     Load = function(self)
-        self.sprite = love.graphics.newImage("Images/UI/BuyZone.png")
-        self.width = self.sprite:getWidth() * GameSettings.WindowResolutionScale
-        self.height = self.sprite:getHeight() * GameSettings.WindowResolutionScale
-        self.position = 
-        {
-            x = (love.graphics.getWidth() / 2),
-            y = (love.graphics.getHeight() * 0.75),
-        }
-        self.centerOffset = { x = self.sprite:getWidth() / 2, y = self.sprite:getHeight() / 2 }
+        self.drawable = love.graphics.newImage("Images/UI/BuyZone.png")
 
-        self.collider = BoxCollider:BoxCollider_New(self.position, self.width, self.height, self.centerOffset)
+        self.sprite = Sprite:New(
+			self.drawable,
+			{ x = love.graphics.getWidth() / 2, y = love.graphics.getHeight() * 0.75, z = 0 },
+			0,
+			1,
+			DrawLayers.PickupDefault,
+			true,
+			{ x = 0.5, y = 0.5 }
+		)
+
+        self.collider = BoxCollider:BoxCollider_New(self, self.sprite.position, self.sprite.width, self.sprite.height, { x = 0.5, y = 0.5 })
     end,
+
+    OnStart = function(self)
+        DrawSystem:AddDrawable(self.sprite)
+        self.collider:BoxCollider_OnStart()
+	end,
+
+	OnStop = function(self)
+        DrawSystem:RemoveDrawable(self.sprite)
+	end,
 
     Update = function(self, dt)
         self.collider:BoxCollider_Update()
-    end,
-
-    Draw = function(self)
-		love.graphics.draw(
-            self.sprite,
-            self.position.x,
-            self.position.y,
-            0,
-            GameSettings.WindowResolutionScale,
-            GameSettings.WindowResolutionScale,
-            self.centerOffset.x,
-            self.centerOffset.y
-        )
-
-        self.collider:BoxCollider_DebugDraw()
     end,
 
     GetCollider = function(self)

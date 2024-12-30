@@ -8,75 +8,68 @@ local AILeftHand = setmetatable({
     New = function(self)
 		local instance = setmetatable({}, self)
 
-		instance.spriteFanNoThumb = love.graphics.newImage("Images/Hands/AI/ai_left_fan_NoThumb.png")
-		instance.spriteFanThumbOnly = love.graphics.newImage("Images/Hands/AI/ai_left_fan_ThumbOnly.png")
+		instance.drawables = 
+		{
+			[GameConstants.HandStates.PalmDown] = nil,
+			[GameConstants.HandStates.PalmDownPinch] = nil,
+			[GameConstants.HandStates.PalmDownIndexOut] = nil,
+			[GameConstants.HandStates.PalmUp] = nil,
+			[GameConstants.HandStates.PalmUpPinch] = nil,
+			[GameConstants.HandStates.PalmDownTableSpread] = nil,
+			[GameConstants.HandStates.PalmDownNatural] = nil,
+			[GameConstants.HandStates.PalmDownGrabOpen] = nil,
+			[GameConstants.HandStates.PalmDownGrabClose] = nil,
+			[GameConstants.HandStates.PalmDownRelaxed] = love.graphics.newImage("Images/Hands/AI/ai_left_palmDown_Relaxed.png"),
+			[GameConstants.HandStates.PalmDownRelaxedIndexOut] = love.graphics.newImage("Images/Hands/AI/ai_left_palmDown_RelaxedIndexOut.png"),
+			[GameConstants.HandStates.MechanicsGrip] = nil,
+			[GameConstants.HandStates.Fan] = love.graphics.newImage("Images/Hands/AI/ai_left_fan_NoThumb.png"),
+		}
 
-		instance.spritePalmDownRelaxed = love.graphics.newImage("Images/Hands/AI/ai_left_palmDown_Relaxed.png")
-		instance.spritePalmDownRelaxedIndexOut = love.graphics.newImage("Images/Hands/AI/ai_left_palmDown_RelaxedIndexOut.png")
+		-- instance.spriteFanNoThumb = love.graphics.newImage("Images/Hands/AI/ai_left_fan_NoThumb.png")
+		-- instance.spriteFanThumbOnly = love.graphics.newImage("Images/Hands/AI/ai_left_fan_ThumbOnly.png")
+		-- instance.spritePalmDownRelaxed = love.graphics.newImage("Images/Hands/AI/ai_left_palmDown_Relaxed.png")
+		-- instance.spritePalmDownRelaxedIndexOut = love.graphics.newImage("Images/Hands/AI/ai_left_palmDown_RelaxedIndexOut.png")
 
-		instance.state = GameConstants.HandStates.Fan
-
-		instance.position = { x = (love.graphics.getWidth()/2) + 200, y = 100 }
+		instance.state = GameConstants.HandStates.PalmDownRelaxed
 		instance.targetPosition = { x = (love.graphics.getWidth()/2) + 200, y = 100 }
 		instance.moveInterval = 0.5
-		instance.width = instance.spritePalmDownRelaxed:getWidth()
-		instance.height = instance.spritePalmDownRelaxed:getHeight()
-		instance.angle = 0
-		instance.visible = true
 		instance.active = true
-    
+
+		instance.sprite = Sprite:New(
+			instance.drawables[instance.state],
+			{ x = love.graphics.getWidth() / 2, y = love.graphics.getHeight() / 2, z = 10 },
+			0,
+			2,
+			DrawLayers.AIHand,
+			true,
+			{ x = 0.5, y = 0.5 }
+		)
+
 		return instance
 	end,
 
     Update = function(self, dt)
-        self.activeTween = Flux.to(self.position, self.moveInterval, { x = self.targetPosition.x, y = self.targetPosition.y})
+        self.activeTween = Flux.to(self.sprite.position, self.moveInterval, { x = self.targetPosition.x, y = self.targetPosition.y})
     end,
 
     FixedUpdate = function(self, dt)
-
-    end,
-
-    Draw = function(self)
-		if not self.visible then
-			return
-		end
-		if self.state == GameConstants.HandStates.MechanicsGrip then
-			self:DrawHand(self.spriteMechanicsGrip)
-		elseif self.state == GameConstants.HandStates.Fan then
-			self:DrawHand(self.spriteFanNoThumb)
-		elseif self.state == GameConstants.HandStates.PalmDownNatural then
-			self:DrawHand(self.spritePalmDownNatural)
-		elseif self.state == GameConstants.HandStates.PalmDownGrabOpen then
-			self:DrawHand(self.spritePalmDownGrabOpen)
-		elseif self.state == GameConstants.HandStates.PalmDownGrabClose then
-			self:DrawHand(self.spritePalmDownGrabClose)
-		elseif self.state == GameConstants.HandStates.PalmDownRelaxed then
-			self:DrawHand(self.spritePalmDownRelaxed)
-		elseif self.state == GameConstants.HandStates.PalmDownRelaxedIndexOut then
-			self:DrawHand(self.spritePalmDownRelaxedIndexOut)
-		end
-    end,
-
-	LateDraw = function(self)
-		if not self.visible then
-			return
-		end
-		if self.state == GameConstants.HandStates.Fan then
-			self:DrawHand(self.spriteFanThumbOnly)
-		end
     end,
 
     -- ===========================================================================================================
     -- #region [EXTERNAL]
     -- ===========================================================================================================
+
+	OnStartShop = function(self)
+		DrawSystem:AddDrawable(self.sprite)
+    end,
+
+    OnStopShop = function(self)
+		DrawSystem:RemoveDrawable(self.sprite)
+    end,
+
     -- ===========================================================================================================
     -- #region [INTERNAL]
     -- ===========================================================================================================
-
-    DrawHand = function(self, sprite)
-		love.graphics.draw(sprite, self.position.x, self.position.y, math.rad(self.angle), 5, 5, (self.width / 2), self.height / 2)
-	end,
-
     -- ===========================================================================================================
     -- #region [PUBLICHELPERS]
     -- ===========================================================================================================
@@ -85,9 +78,13 @@ local AILeftHand = setmetatable({
 		self.state = newState
 	end,
 
+	GetPosition = function(self)
+		return self.sprite.position
+	end,
+
     SetPosition = function(self, position)
-        self.position.x = position.x
-        self.position.y = position.y
+        self.sprite.position.x = position.x
+        self.sprite.position.y = position.y
     end,
 
     SetTargetPosition = function(self, position)
@@ -95,8 +92,16 @@ local AILeftHand = setmetatable({
         self.targetPosition.y = position.y
     end,
 
+	SetTargetPositionOffScreen = function(self)
+        self.targetPosition = { x = (love.graphics.getWidth()/2) + 200, y = 2 * -self.sprite.height * GameSettings.WindowResolutionScale }
+    end,
+
+	SetTargetPositionOffScreenOppositeSide = function(self)
+        self.targetPosition = { x = (love.graphics.getWidth()/2) - 200, y =  2 * -self.sprite.height * GameSettings.WindowResolutionScale }
+    end,
+
     ResetPosition = function(self)
-        self.position = { x = (love.graphics.getWidth()/2) + 200, y = 100 }
+        self.sprite.position = { x = (love.graphics.getWidth()/2) + 200, y = 100 }
     end,
 
     ResetTargetPosition = function(self)

@@ -31,6 +31,15 @@ local Timer = {
 		print("Start: Started timer with id=", id, ", forr duration=", duration)
 	end,
 
+	Stop = function(self, id)
+		if not self.runningTimers[id] then
+			print("Stop: No running time with id=", id)
+			return
+		end
+
+		self.runningTimers[id] = nil
+	end,
+
 	AddListener = function(self, listenTarget, functionName)
 		self.callbackId = self.callbackId + 1
 		self.callbackTargets[self.callbackId] = {

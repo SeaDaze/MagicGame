@@ -14,6 +14,8 @@ local Fan = {
 
 		instance.cardSelection = false
 
+		instance.distanceThreshold = 400 * 400 * GameSettings.WindowResolutionScale
+		instance.distanceBetweenPoints = 8 * GameSettings.WindowResolutionScale
         return instance
     end,
 
@@ -38,18 +40,6 @@ local Fan = {
 			self:HandleFanSpreadPoints()
 		end
 	end,
-
-	Draw = function(self)
-	end,
-
-	LateDraw = function(self)
-		for _, point in pairs(self.points) do
-			love.graphics.setColor(1, 0.5, 0.5, 1)
-			love.graphics.ellipse("fill", point.x, point.y, 3, 3, 6)
-			love.graphics.setColor(1, 1, 1, 1)
-        end
-	end,
-
 	
 	OnCompleteFanSpread = function(self)
 		self.rightHand:SetState(GameConstants.HandStates.PalmDownGrabOpen)
@@ -88,8 +78,7 @@ local Fan = {
 	InitializeFan = function(self)
 		local cards = self.deck:GetCards()
 		for _, card in ipairs(cards) do
-			card.targetOriginOffset = { x = 0, y = card.halfHeight }
-			card.previousOriginOffset = { x = 0, y = card.halfHeight }
+			card:SetTargetOriginOffsetRatio({ x = 0.5, y = 1 })
 		end
 		self.fanSpreading = true
 		self.spreadingCards = {}
@@ -103,8 +92,7 @@ local Fan = {
 	UninitializeFan = function(self)
 		local cards = self.deck:GetCards()
 		for _, card in ipairs(cards) do
-			card.targetOriginOffset = { x = 0, y = 0 }
-			card.previousOriginOffset = { x = 0, y = 0 }
+			card:SetTargetOriginOffsetRatio({ x = 0.5, y = 0.5 })
 			card.targetAngle = 0
 		end
 	end,
@@ -122,7 +110,8 @@ local Fan = {
 			return
 		end
 		for _, card in ipairs(self.spreadingCards) do
-			local v2 = Common:Normalize({ x = targetPoint.x - card.position.x, y = targetPoint.y - card.position.y })
+			local cardSprite = card:GetSprite()
+			local v2 = Common:Normalize({ x = targetPoint.x - cardSprite.position.x, y = targetPoint.y - cardSprite.position.y })
 			local v1 = { x = 0, y = -1 }
 			local newAngle = Common:AngleBetweenVectors(v1, v2)
 			local angleDelta = (newAngle - card.targetAngle)
@@ -138,7 +127,7 @@ local Fan = {
 		local indexFingerPosition = self.rightHand:GetIndexFingerPosition()
 
 		local handsDistance = Common:DistanceSquared(leftHandPosition.x, leftHandPosition.y, indexFingerPosition.x, indexFingerPosition.y)
-		if handsDistance > 20000 then
+		if handsDistance > self.distanceThreshold then
 			return
 		end
 		if indexFingerPosition.x < leftHandPosition.x then
@@ -153,7 +142,7 @@ local Fan = {
 			return
 		end
 		local lastPoint = self.points[self.pointIndex]
-		if Common:DistanceSquared(lastPoint.x, lastPoint.y, x, y) > 30 then
+		if Common:DistanceSquared(lastPoint.x, lastPoint.y, x, y) > self.distanceBetweenPoints then
 			self.pointIndex = self.pointIndex + 1
 			self.points[self.pointIndex] = { x = x, y = y }
 			self:OnNewPointCreated()
@@ -180,7 +169,9 @@ local Fan = {
 		end
 		local angleDistributionQuality = self:EvaluateCardAngleDistribution()
 		local cardNumberQuality = (numberOfCardsInSpread / 52) * 100
-		local fullAngleQuality = (self.cardsInSpread[numberOfCardsInSpread].angle - self.cardsInSpread[1].angle) / 180 * 100
+		local firstCardSprite = self.cardsInSpread[1]:GetSprite()
+		local lastCardSprite = self.cardsInSpread[numberOfCardsInSpread]:GetSprite()
+		local fullAngleQuality = (lastCardSprite.angle - firstCardSprite.angle) / 180 * 100
 		local finalEvaluation = (angleDistributionQuality + cardNumberQuality + fullAngleQuality) / 3
 		finalEvaluation = finalEvaluation + 5
 		finalEvaluation = (finalEvaluation * finalEvaluation) / 100
@@ -195,8 +186,11 @@ local Fan = {
 		local totalDiff = 0
 
 		for _, card in ipairs(self.cardsInSpread) do
-			if self.cardsInSpread[cardIndex + 1] then
-				local angleDiff = self.cardsInSpread[cardIndex + 1].angle - card.angle
+			local nextCard = self.cardsInSpread[cardIndex + 1]
+			if nextCard then
+				local cardSprite = card:GetSprite()
+				local nextCardSprite = nextCard:GetSprite()
+				local angleDiff = nextCardSprite.angle - cardSprite.angle
 				local calculatedAngleDistribution = (angleDiff / targetAngleDiff) * 100
 				if calculatedAngleDistribution > 100 then
 					local overEstimation = calculatedAngleDistribution - 100
@@ -217,9 +211,9 @@ local Fan = {
 	
 		local handsDistance = Common:DistanceSquared(leftHandPosition.x, leftHandPosition.y, indexFingerPosition.x, indexFingerPosition.y)
 
-		if handsDistance > 20000 and self.leftHand:GetState() ~= GameConstants.HandStates.PalmDownNatural or indexFingerPosition.x < leftHandPosition.x  then
+		if handsDistance > self.distanceThreshold and self.leftHand:GetState() ~= GameConstants.HandStates.PalmDownNatural or indexFingerPosition.x < leftHandPosition.x  then
 			self.rightHand:SetState(GameConstants.HandStates.PalmDownRelaxed)
-		elseif handsDistance <= 20000 and self.leftHand:GetState() ~= GameConstants.HandStates.PalmDownIndexOut and indexFingerPosition.x > leftHandPosition.x then
+		elseif handsDistance <= self.distanceThreshold and self.leftHand:GetState() ~= GameConstants.HandStates.PalmDownIndexOut and indexFingerPosition.x > leftHandPosition.x then
 			self.rightHand:SetState(GameConstants.HandStates.PalmDownRelaxedIndexOut)
 		end
 	end,

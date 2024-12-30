@@ -1,35 +1,97 @@
-
 local Hand = require("Scripts.Player.Hand")
+local BoxCollider = require("Scripts.Physics.BoxCollider")
+
+local LeftHandDrawables = 
+{
+	[GameConstants.HandStates.PalmDown] = nil,
+	[GameConstants.HandStates.PalmDownPinch] = nil,
+	[GameConstants.HandStates.PalmDownIndexOut] = nil,
+	[GameConstants.HandStates.PalmUp] = nil,
+	[GameConstants.HandStates.PalmUpPinch] = nil,
+	[GameConstants.HandStates.PalmDownTableSpread] = nil,
+	[GameConstants.HandStates.PalmDownNatural] = love.graphics.newImage("Images/Hands/left_palmDown_Natural.png"),
+	[GameConstants.HandStates.PalmDownGrabOpen] = love.graphics.newImage("Images/Hands/left_palmDown_GrabOpen.png"),
+	[GameConstants.HandStates.PalmDownGrabClose] = love.graphics.newImage("Images/Hands/left_palmDown_GrabClose.png"),
+	[GameConstants.HandStates.PalmDownRelaxed] = love.graphics.newImage("Images/Hands/left_palmDown_Relaxed.png"),
+	[GameConstants.HandStates.PalmDownRelaxedIndexOut] = love.graphics.newImage("Images/Hands/left_palmDown_RelaxedIndexOut.png"),
+	[GameConstants.HandStates.MechanicsGrip] = love.graphics.newImage("Images/Hands/left_dealerGrip.png"),
+	[GameConstants.HandStates.Fan] = love.graphics.newImage("Images/Hands/left_fan_NoThumb.png"),
+}
+
+local LeftHandLateDrawables = 
+{
+	[GameConstants.HandStates.PalmDown] = nil,
+	[GameConstants.HandStates.PalmDownPinch] = nil,
+	[GameConstants.HandStates.PalmDownIndexOut] = nil,
+	[GameConstants.HandStates.PalmUp] = nil,
+	[GameConstants.HandStates.PalmUpPinch] = nil,
+	[GameConstants.HandStates.PalmDownTableSpread] = nil,
+	[GameConstants.HandStates.PalmDownNatural] = nil,
+	[GameConstants.HandStates.PalmDownGrabOpen] = nil,
+	[GameConstants.HandStates.PalmDownGrabClose] = nil,
+	[GameConstants.HandStates.PalmDownRelaxed] = nil,
+	[GameConstants.HandStates.PalmDownRelaxedIndexOut] = nil,
+	[GameConstants.HandStates.MechanicsGrip] = love.graphics.newImage("Images/Hands/left_dealerGrip.png"),
+	[GameConstants.HandStates.Fan] = love.graphics.newImage("Images/Hands/left_fan_ThumbOnly.png"),
+}
 
 local LeftHand = setmetatable({
 	New = function(self)
 		local instance = setmetatable({}, self)
 
-		instance.spriteMechanicsGrip = love.graphics.newImage("Images/Hands/left_dealerGrip.png")
-		instance.spriteFanNoThumb = love.graphics.newImage("Images/Hands/left_fan_NoThumb.png")
-		instance.spriteFanThumbOnly = love.graphics.newImage("Images/Hands/left_fan_ThumbOnly.png")
-		instance.spritePalmDownNatural = love.graphics.newImage("Images/Hands/left_palmDown_Natural.png")
-		instance.spritePalmDownGrabOpen = love.graphics.newImage("Images/Hands/left_palmDown_GrabOpen.png")
-		instance.spritePalmDownGrabClose = love.graphics.newImage("Images/Hands/left_palmDown_GrabClose.png")
-		instance.spritePalmDownRelaxed = love.graphics.newImage("Images/Hands/left_palmDown_Relaxed.png")
-		instance.spritePalmDownRelaxedIndexOut = love.graphics.newImage("Images/Hands/left_palmDown_RelaxedIndexOut.png")
+		instance.drawables = 
+		{
+			[GameConstants.HandStates.PalmDown] = nil,
+			[GameConstants.HandStates.PalmDownPinch] = nil,
+			[GameConstants.HandStates.PalmDownIndexOut] = nil,
+			[GameConstants.HandStates.PalmUp] = nil,
+			[GameConstants.HandStates.PalmUpPinch] = nil,
+			[GameConstants.HandStates.PalmDownTableSpread] = nil,
+			[GameConstants.HandStates.PalmDownNatural] = love.graphics.newImage("Images/Hands/left_palmDown_Natural.png"),
+			[GameConstants.HandStates.PalmDownGrabOpen] = love.graphics.newImage("Images/Hands/left_palmDown_GrabOpen.png"),
+			[GameConstants.HandStates.PalmDownGrabClose] = love.graphics.newImage("Images/Hands/left_palmDown_GrabClose.png"),
+			[GameConstants.HandStates.PalmDownRelaxed] = love.graphics.newImage("Images/Hands/left_palmDown_Relaxed.png"),
+			[GameConstants.HandStates.PalmDownRelaxedIndexOut] = love.graphics.newImage("Images/Hands/left_palmDown_RelaxedIndexOut.png"),
+			[GameConstants.HandStates.MechanicsGrip] = love.graphics.newImage("Images/Hands/left_dealerGrip.png"),
+			[GameConstants.HandStates.Fan] = love.graphics.newImage("Images/Hands/left_fan_NoThumb.png"),
+		}
 
-		instance.state = GameConstants.HandStates.PalmDownGrabOpen
-		instance.position = { x = love.graphics.getWidth() / 2, y = love.graphics.getHeight() / 2 }
+		instance.lateDrawables =
+		{
+			[GameConstants.HandStates.Fan] = love.graphics.newImage("Images/Hands/left_fan_ThumbOnly.png"),
+		}
+
+		instance.state = GameConstants.HandStates.PalmDownRelaxed
+		
 		instance.targetPosition = { x = love.graphics.getWidth() / 2, y = love.graphics.getHeight() / 2 }
 		instance.moveSpeed = 500
-		instance.width = instance.spriteMechanicsGrip:getWidth()
-		instance.height = instance.spriteMechanicsGrip:getHeight()
-		instance.centerOffset = { x = instance.width / 2, y = instance.height / 2}
-		instance.angle = 0
-		instance.visible = true
 		instance.active = true
 		instance.nearbyPickups = {}
 
 		instance.actionListenTarget = GameConstants.InputActions.Left
+		instance.scaleModifier = 2
 
-		instance.collider = require("Scripts.Physics.BoxCollider")
-        --instance.collider:BoxCollider_Initialize(instance.position, instance.width * GameSettings.WindowResolutionScale, instance.height * GameSettings.WindowResolutionScale, instance.centerOffset)
+		instance.sprite = Sprite:New(
+			instance.drawables[instance.state],
+			{ x = love.graphics.getWidth() / 2, y = love.graphics.getHeight() / 2, z = 10 },
+			0,
+			2,
+			DrawLayers.LeftHandDefault,
+			true,
+			{ x = 0.5, y = 0.5 }
+		)
+
+		instance.lateSprite = Sprite:New(
+			instance.lateDrawables[GameConstants.HandStates.Fan],
+			{ x = love.graphics.getWidth() / 2, y = love.graphics.getHeight() / 2, z = 10 },
+			0,
+			2,
+			DrawLayers.LeftHandAboveDeck,
+			true,
+			{ x = 0.5, y = 0.5 }
+		)
+		instance.position = instance.sprite.position
+
 		return instance
 	end,
 
@@ -45,47 +107,12 @@ local LeftHand = setmetatable({
 
 		self.targetPosition.x = Common:Clamp(self.targetPosition.x, 0, love.graphics.getWidth())
 		self.targetPosition.y = Common:Clamp(self.targetPosition.y, 0, love.graphics.getHeight())
-		
-        self.activeTween = Flux.to(self.position, 0.3, { x = self.targetPosition.x, y = self.targetPosition.y })
-		--self.collider:BoxCollider_Update()
+
+        self.activeTween = Flux.to(self.sprite.position, 0.3, { x = self.targetPosition.x, y = self.targetPosition.y })
+		self.lateSprite:SetPosition(self.sprite.position)
     end,
 
 	FixedUpdate = function(self, dt)
-	end,
-
-    Draw = function(self)
-		if not self.visible then
-			return
-		end
-		if self.state == GameConstants.HandStates.MechanicsGrip then
-			self:DrawHand(self.spriteMechanicsGrip)
-		elseif self.state == GameConstants.HandStates.Fan then
-			self:DrawHand(self.spriteFanNoThumb)
-		elseif self.state == GameConstants.HandStates.PalmDownNatural then
-			self:DrawHand(self.spritePalmDownNatural)
-		elseif self.state == GameConstants.HandStates.PalmDownGrabOpen then
-			self:DrawHand(self.spritePalmDownGrabOpen)
-		elseif self.state == GameConstants.HandStates.PalmDownGrabClose then
-			self:DrawHand(self.spritePalmDownGrabClose)
-		elseif self.state == GameConstants.HandStates.PalmDownRelaxed then
-			self:DrawHand(self.spritePalmDownRelaxed)
-		elseif self.state == GameConstants.HandStates.PalmDownRelaxedIndexOut then
-			self:DrawHand(self.spritePalmDownRelaxedIndexOut)
-		end
-		--self.collider:BoxCollider_DebugDraw()
-    end,
-
-	LateDraw = function(self)
-		if not self.visible then
-			return
-		end
-		if self.state == GameConstants.HandStates.Fan then
-			self:DrawHand(self.spriteFanThumbOnly)
-		end
-    end,
-
-	DrawHand = function(self, sprite)
-		love.graphics.draw(sprite, self.position.x, self.position.y, math.rad(self.angle), GameSettings.WindowResolutionScale, GameSettings.WindowResolutionScale, self.centerOffset.x, self.centerOffset.y)
 	end,
 
 }, Hand)

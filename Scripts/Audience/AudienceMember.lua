@@ -44,9 +44,9 @@ local AudienceMember =
         if self.health == 0 then
             return
         end
-        love.graphics.draw(self.spriteData.head.spritesheet, self.spriteData.head.quad, self.position.x, self.position.y, 0, 3, 3)
-        love.graphics.draw(self.spriteData.face.spritesheet, self.spriteData.face.quad, self.position.x, self.position.y, 0, 3, 3)
-        love.graphics.draw(self.spriteData.hair.spritesheet, self.spriteData.hair.quad, self.position.x, self.position.y, 0, 3, 3)
+        love.graphics.draw(self.spriteData.head.spritesheet, self.spriteData.head.quad, self.position.x, self.position.y, 0, GameSettings.WindowResolutionScale, GameSettings.WindowResolutionScale)
+        love.graphics.draw(self.spriteData.face.spritesheet, self.spriteData.face.quad, self.position.x, self.position.y, 0, GameSettings.WindowResolutionScale, GameSettings.WindowResolutionScale)
+        love.graphics.draw(self.spriteData.hair.spritesheet, self.spriteData.hair.quad, self.position.x, self.position.y, 0, GameSettings.WindowResolutionScale, GameSettings.WindowResolutionScale)
         --love.graphics.print(self.health, GameConstants.UI.Font, self.position.x, self.position.y)
     end,
 

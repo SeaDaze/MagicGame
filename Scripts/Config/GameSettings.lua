@@ -1,14 +1,10 @@
 local GameSettings = 
 {
-    WindowResolutionScale = 5,
+    WindowResolutionScale = 3,
     UIScaleOffset = -1,
     UIScale = 1,
 
-    Controls =
-    {
-        
-    },
-
-    ShowColliders = true,
+    Debug_Show = true,
+    Debug_DrawSpriteOrigins = true,
 }
 return GameSettings

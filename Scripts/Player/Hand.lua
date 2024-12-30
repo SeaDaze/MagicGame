@@ -14,12 +14,30 @@ local Hand =
 		self:DisconnectPickupFunctions()
 	end,
 
+    OnStartPerform = function(self)
+        self:ConnectPickupFunctions()
+        DrawSystem:AddDrawable(self.sprite)
+        if self.lateSprite then
+            DrawSystem:AddDrawable(self.lateSprite)
+        end
+	end,
+
+	OnStopPerform = function(self)
+		self:DisconnectPickupFunctions()
+        DrawSystem:RemoveDrawable(self.sprite)
+        if self.lateSprite then
+            DrawSystem:RemoveDrawable(self.lateSprite)
+        end
+	end,
+
     OnStartShop = function(self)
         self:ConnectPickupFunctions()
+        DrawSystem:AddDrawable(self.sprite)
 	end,
 
 	OnStopShop = function(self)
 		self:DisconnectPickupFunctions()
+        DrawSystem:RemoveDrawable(self.sprite)
 	end,
 
     -- ===========================================================================================================
@@ -85,11 +103,20 @@ local Hand =
     end,
 
     SetState = function(self, newState)
+        self.sprite:SetDrawable(self.drawables[newState])
+        if self.sprite.lateDrawables then
+            if self.sprite.lateDrawables[newState] then
+                self.lateSprite:SetDrawable(self.drawables[newState])
+                self.lateSprite:SetVisible(true)
+            else
+                self.lateSprite:SetVisible(false)
+            end
+        end
 		self.state = newState
 	end,
 
 	SetPosition = function(self, newPosition)
-        self.position = newPosition
+        self.sprite.position = newPosition
     end,
 
 	GetPickup = function(self)
@@ -101,7 +128,7 @@ local Hand =
 	end,
 
     GetPosition = function(self)
-		return self.position
+		return self.sprite.position
 	end,
 	
 	Disable = function(self)
@@ -114,6 +141,7 @@ local Hand =
 	end,
 
 	AddNearbyPickup = function(self, pickup)
+        print("AddNearbyPickup")
 		if table.isEmpty(self.nearbyPickups) then
 			self:SetState(GameConstants.HandStates.PalmDownGrabOpen)
 		end
@@ -121,22 +149,12 @@ local Hand =
 	end,
 
 	RemoveNearbyPickup = function(self, pickup)
+        print("RemoveNearbyPickup")
 		table.removeByValue(self.nearbyPickups, pickup)
 		if table.isEmpty(self.nearbyPickups) then
 			self:SetState(GameConstants.HandStates.PalmDownRelaxed)
 		end
 	end,
-
-    AddNearbyBriefcase = function(self, briefcase)
-        if not self.nearbyBriefcases then
-            self.nearbyBriefcases = {}
-        end
-        table.insert(self.nearbyBriefcases, briefcase)
-    end,
-
-    RemoveNearbyBriefcase = function(self, briefcase)
-        table.removeByValue(self.nearbyBriefcases, briefcase)
-    end,
 
     -- ===========================================================================================================
     -- #endregion

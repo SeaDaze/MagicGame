@@ -108,5 +108,23 @@ local Common = {
         target.common_hooks[targetFunction][common_hookId] = nil
     end,
 
+	RotatePointAroundPoint = function(self, point, axisPoint, degrees)
+		local rad = math.rad(degrees)
+		local s = math.sin(rad)
+		local c = math.cos(rad)
+
+		-- Translate point to origin
+		local translatedPoint = {
+			x = point.x - axisPoint.x,
+			y = point.y - axisPoint.y,
+		}
+		-- Rotate point aroud origin and translate back using axis point
+		local rotatedPoint = {
+			x = (translatedPoint.x * c) - (translatedPoint.y * s) + axisPoint.x,
+			y = (translatedPoint.x * s) + (translatedPoint.y * c) + axisPoint.y,
+		}
+		
+		return rotatedPoint
+	end,
 }
 return Common

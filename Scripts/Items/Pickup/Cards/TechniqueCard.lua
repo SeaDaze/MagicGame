@@ -13,8 +13,7 @@ local TechniqueCard = setmetatable(
         instance.typeId = typeId
         instance.sprite = love.graphics.newImage(TechniqueCardSprites[typeId])
 
-        instance:Pickup_Initialize(leftHand, rightHand)
-        instance.windowScaleFraction = 3
+        instance:Pickup_Initialize(leftHand, rightHand, 1)
         return instance
     end,
 

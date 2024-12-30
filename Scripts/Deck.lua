@@ -1,91 +1,70 @@
 local Common = require("Scripts.Common")
 local PlayingCard = require ("Scripts.PlayingCard")
 
+local CardImageNames = {
+	[1] = "Ace.png",
+	[2] = "Two.png",
+	[3] = "Three.png",
+	[4] = "Four.png",
+	[5] = "Five.png",
+	[6] = "Six.png",
+	[7] = "Seven.png",
+	[8] = "Eight.png",
+	[9] = "Nine.png",
+	[10] = "Ten.png",
+	[11] = "Jack.png",
+	[12] = "Queen.png",
+	[13] = "King.png",
+}
+
 local Deck = {
+
+	-- ===========================================================================================================
+	-- #region [CORE]
+	-- ===========================================================================================================
+
 	New = function(self, leftHand, rightHand)
 		local instance = setmetatable({}, self)
-		instance.cards = {}
+
 		instance.offsetCardIndex = nil
 		instance.leftHand = leftHand
 		instance.rightHand = rightHand
 		instance.visible = true
 		instance.active = true
 		instance.cards = {}
-        instance.clubs = {}
-        instance.hearts = {}
-        instance.diamonds = {}
-        instance.spades = {}
-
 		instance.lines = {}
         instance.lineIndex = 1
 
-		local cardSpritesheet = love.graphics.newImage("Images/Cards/cardSpritesheet.png")
-		local cardWidth = 18
-		local cardHeight = 24
-		local spritesheetWidth = cardSpritesheet:getWidth()
-        local spritesheetHeight = cardSpritesheet:getHeight()
-		local faceDownSprite = love.graphics.newImage("Images/Cards/cardBack_01.png")
+		local faceDownDrawable = love.graphics.newImage("Images/Cards/cardBack_03.png")
 
-		local x = 0
-        for cardValue = 1, 13 do
-            local clubQuad = love.graphics.newQuad(x, 0, cardWidth, cardHeight, spritesheetWidth, spritesheetHeight)
-			instance.clubs[cardValue] = PlayingCard:New(
-				cardValue,
-				GameConstants.CardSuits.Clubs,
-				cardSpritesheet,
-				clubQuad,
-				nil,
-				faceDownSprite,
-				leftHand,
-				rightHand
-			)
-			instance.cards[cardValue] = instance.clubs[cardValue]
+		local pathPrefixes = 
+		{
+			["Images/Cards/Clubs/"] = GameConstants.CardSuits.Clubs,
+			["Images/Cards/Spades/"] = GameConstants.CardSuits.Spades,
+			["Images/Cards/Hearts/"] = GameConstants.CardSuits.Hearts,
+			["Images/Cards/Diamonds/"] = GameConstants.CardSuits.Diamonds,
+		}
 
-			local diamondQuad = love.graphics.newQuad(x, cardHeight, cardWidth, cardHeight, spritesheetWidth, spritesheetHeight)
-			instance.diamonds[cardValue] = PlayingCard:New(
-				cardValue,
-				GameConstants.CardSuits.Diamonds,
-				cardSpritesheet,
-				diamondQuad,
-				nil,
-				faceDownSprite,
-				leftHand,
-				rightHand
-			)
-			instance.cards[cardValue + 13] = instance.diamonds[cardValue]
-
-			local heartQuad = love.graphics.newQuad(x, cardHeight * 2, cardWidth, cardHeight, spritesheetWidth, spritesheetHeight)
-			instance.hearts[cardValue] = PlayingCard:New(
-				cardValue,
-				GameConstants.CardSuits.Hearts,
-				cardSpritesheet,
-				heartQuad,
-				nil,
-				faceDownSprite,
-				leftHand,
-				rightHand
-			)
-			instance.cards[cardValue + 26] = instance.hearts[cardValue]
-
-			local spadeQuad = love.graphics.newQuad(x, cardHeight * 3, cardWidth, cardHeight, spritesheetWidth, spritesheetHeight)
-			instance.spades[cardValue] = PlayingCard:New(
-				cardValue,
-				GameConstants.CardSuits.Spades,
-				cardSpritesheet,
-				spadeQuad,
-				nil,
-				faceDownSprite,
-				leftHand,
-				rightHand
-			)
-			instance.cards[cardValue + 39] = instance.spades[cardValue]
-			
-            x = x + cardWidth
-        end
+		local cardIndex = 1
+		for pathPrefix, suit in pairs(pathPrefixes) do
+			for cardValue = 1, 13 do
+				instance.cards[cardIndex] = self.CreatePlayingCard(instance, pathPrefix, cardValue, suit, cardIndex, faceDownDrawable)
+				cardIndex = cardIndex + 1
+			end
+		end
 
 		instance.notificationListeners = {}
 		instance.listenerId = 0
 		return instance
+	end,
+
+	OnStart = function(self)
+		for _, card in ipairs(self.cards) do
+			DrawSystem:AddDrawable(card.sprite)
+		end
+	end,
+
+	OnStop = function(self)
 	end,
 
 	Update = function(self, dt)
@@ -94,10 +73,10 @@ local Deck = {
 		end
 		for _, card in ipairs(self.cards) do
 			card:Update(dt)
-			if not card:GetDropped() and (card:GetPosition().x < 0 or card:GetPosition().x > love.graphics.getWidth() or card:GetPosition().y < 0 or card:GetPosition().y > love.graphics.getHeight()) then
-				card:SetDropped(true)
-				self:OnCardDropped(card)
-			end
+			-- if not card:GetDropped() and (card:GetPosition().x < 0 or card:GetPosition().x > love.graphics.getWidth() or card:GetPosition().y < 0 or card:GetPosition().y > love.graphics.getHeight()) then
+			-- 	card:SetDropped(true)
+			-- 	self:OnCardDropped(card)
+			-- end
 		end
 	end,
 
@@ -110,58 +89,40 @@ local Deck = {
 		-- end
 	end,
 
-	Draw = function(self)
-		if not self.visible then
-			return
-		end
+	-- ===========================================================================================================
+	-- #region [EXTERNAL]
+	-- ===========================================================================================================
+
+	SetDeckInLeftHand = function(self)
 		for _, card in ipairs(self.cards) do
-			card:Draw()
+			card:SetState(GameConstants.CardStates.InLeftHand)
 		end
-
-		for _, line in pairs(self.lines) do
-            love.graphics.line(line.x1, line.y1, line.x2, line.y2)
-        end
-    end,
-
-	LateDraw = function(self)
 	end,
 
-	-- HandleTableSpreadLines = function(self)
-	-- 	if self.startedTableSpread and not self.leftMouseDown then
-	-- 		if self.originPoint then
-	-- 			self.originPoint = nil
-	-- 		end
-	-- 		self.lines = {}
-	-- 		self.lineIndex = 1
-	-- 		self.startedTableSpread = false
-	-- 		self:OnStopTableSpread()
-	-- 		return
-	-- 	end
+	-- ===========================================================================================================
+	-- #region [INTERNAL]
+	-- ===========================================================================================================
 
-	-- 	local rightHandPosition = self.rightHand:GetPosition()
-
-	-- 	if self.leftMouseDown then
-	-- 		if not self.lines[self.lineIndex] then
-	-- 			if table.isEmpty(self.lines) then
-	-- 				self.startedTableSpread = true
-	-- 				self:OnStartTableSpread()
-	-- 			end
-	-- 			local x = rightHandPosition.x
-	-- 			local y = rightHandPosition.y
-	-- 			if self.lines[self.lineIndex - 1] then
-	-- 				x = self.lines[self.lineIndex - 1].x2
-	-- 				y = self.lines[self.lineIndex - 1].y2
-	-- 			end
-	-- 			self.lines[self.lineIndex] = { x1 = x, y1 = y, x2 = x, y2 = y }
-	-- 		end
-	-- 		self.lines[self.lineIndex].x2 = rightHandPosition.x
-	-- 		self.lines[self.lineIndex].y2 = rightHandPosition.y
-	-- 		if Common:DistanceSquared(self.lines[self.lineIndex].x1, self.lines[self.lineIndex].y1, self.lines[self.lineIndex].x2, self.lines[self.lineIndex].y2) > 30 then
-	-- 			self.lineIndex = self.lineIndex + 1
-	-- 			self:OnNewLineCreated(self.lineIndex)
-	-- 		end
-	-- 	end
-	-- end,
+	CreatePlayingCard = function(self, pathPrefix, cardValue, cardSuit, cardIndex, faceDownDrawable)
+		local drawable = love.graphics.newImage(pathPrefix .. CardImageNames[cardValue])
+		local sprite = Sprite:New(
+			drawable,
+			{ x = love.graphics.getWidth() / 2, y = love.graphics.getHeight() / 2, z = 0 },
+			0,
+			1,
+			DrawLayers.DeckBottom + cardIndex,
+			true,
+			{ x = 0.5, y = 0.5 }
+		)
+		return PlayingCard:New(
+			cardValue,
+			cardSuit,
+			sprite,
+			faceDownDrawable,
+			self.leftHand,
+			self.rightHand
+		)
+	end,
 
 	GiveSelectedCard = function(self)
 		if self.offsetCardIndex then
@@ -174,6 +135,16 @@ local Deck = {
 			self.cards[self.offsetCardIndex]:SetState(GameConstants.CardStates.ReturningToDeck)
 		end
 	end,
+
+	-- ===========================================================================================================
+	-- #region [PUBLICHELPERS]
+	-- ===========================================================================================================
+	-- ===========================================================================================================
+	-- #endregion
+
+
+
+
 
 	-----------------------------------------------------------------------------------------------------------
 	-- SECTION Helpers

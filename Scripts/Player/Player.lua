@@ -4,7 +4,8 @@ local RightHand = require("Scripts.Player.RightHand")
 local LeftHand = require("Scripts.Player.LeftHand")
 local Deck = require("Scripts.Deck")
 local TechniqueCardSlot = require("Scripts.Items.Pickup.Cards.TechniqueCardSlot")
-local Briefcase = require("Scripts.Player.Briefcase")
+local CreditCard = require("Scripts.Items.Pickup.CreditCard")
+local Inventory = require("Scripts.Player.Inventory")
 
 local Techniques = 
 {
@@ -25,7 +26,9 @@ local Player =
         self.leftHand = LeftHand:New()
         self.rightHand = RightHand:New()
 		self.deck = Deck:New(self.leftHand, self.rightHand)
-        Briefcase:Load()
+        self.creditCard = CreditCard:New(self.leftHand, self.rightHand)
+
+        Inventory:Load()
         self.techniques = {}
         self.routine = {}
         self.actionListeners = {}
@@ -48,7 +51,6 @@ local Player =
             TechniqueCardSlot:New(5, cardSlotSprites, { x = (love.graphics.getWidth() / 2) + (cardSlotWidth * 4), y = love.graphics.getHeight() -  (cardSlotHeight * 2) }),
         }
 
-
         self.cardSlotsActive = true
     end,
 
@@ -62,7 +64,8 @@ local Player =
         self.deck:Update(dt)
         self.leftHand:Update(dt)
         self.rightHand:Update(dt)
-        Briefcase:Update(dt)
+        self.creditCard:Update(dt)
+        Inventory:Update(dt)
 
         if self.routineIndex and self.routine[self.routineIndex] then
             if self.routine[self.routineIndex].Update then
@@ -84,7 +87,7 @@ local Player =
 	end,
 
     Draw = function(self)
-        --Briefcase:Draw()
+        Inventory:Draw()
 
         if self.cardSlotsActive then
             for _, cardSlot in pairs(self.cardSlots) do
@@ -97,8 +100,6 @@ local Player =
             end
         end
 
-        self.leftHand:Draw()
-        self.rightHand:Draw()
         self.deck:Draw()
 
         if self.routineIndex and self.routine[self.routineIndex] then
@@ -110,8 +111,6 @@ local Player =
 
     LateDraw = function(self)
         self.deck:LateDraw()
-        self.leftHand:LateDraw()
-        self.rightHand:LateDraw()
         if self.routineIndex and self.routine[self.routineIndex] then
             if self.routine[self.routineIndex].LateDraw then
                 self.routine[self.routineIndex]:LateDraw()
@@ -129,13 +128,17 @@ local Player =
 		Input:AddKeyListener("4", self, "EquipFour")
 		Input:AddKeyListener("5", self, "EquipFive")
 
-        self.leftHand:SetState(GameConstants.HandStates.MechanicsGrip)
-        self.deck:SetActive(true)
-        self.deck:SetVisible(true)
+        self.leftHand:OnStartPerform()
+        self.rightHand:OnStartPerform()
+        self.deck:OnStart()
+        self:EquipDeckInLeftHand()
+        self:SetRoutineIndex(1, "Fan")
         self:EquipRoutineIndex(self.equippedRoutineIndex)
     end,
 
     OnStopPerform = function(self)
+        self.leftHand:OnStopPerform()
+        self.rightHand:OnStopPerform()
     end,
 
     OnStartBuild = function(self)
@@ -153,11 +156,10 @@ local Player =
     end,
 
     OnStartShop = function(self)
-        self.deck:SetActive(false)
-        self.deck:SetVisible(false)
         self.cardSlotsActive = false
         self.leftHand:OnStartShop()
         self.rightHand:OnStartShop()
+        self.creditCard:OnStart()
     end,
 
     OnStopShop = function(self)
@@ -193,6 +195,12 @@ local Player =
     -- ===========================================================================================================
     -- #region [INTERNAL]
     -- ===========================================================================================================
+
+    EquipDeckInLeftHand = function(self)
+        self.leftHand:SetState(GameConstants.HandStates.MechanicsGrip)
+        self.deck:SetDeckInLeftHand()
+    end,
+
     EquipRoutineIndex = function(self, index)
 		if self.routineIndex == index then
             print("EquipRoutineIndex: routineIndex is already set to: ", index)
@@ -289,6 +297,14 @@ local Player =
 
     GetCardSlots = function(self)
         return self.cardSlots
+    end,
+
+    GetCreditCard = function(self)
+        return self.creditCard
+    end,
+
+    GetInventory = function(self)
+        return Inventory
     end,
 
     -- ===========================================================================================================

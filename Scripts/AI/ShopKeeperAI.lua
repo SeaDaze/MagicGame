@@ -1,6 +1,7 @@
 local AILeftHand = require("Scripts.AI.AILeftHand")
 local AIRightHand = require("Scripts.AI.AIRightHand")
 local Deck = require("Scripts.Deck")
+local CardReader = require("Scripts.Items.CardReader")
 
 local ShopKeeperAI = 
 {
@@ -11,9 +12,7 @@ local ShopKeeperAI =
         self.leftHand = AILeftHand:New()
         self.rightHand = AIRightHand:New()
 		self.deck = Deck:New(self.leftHand, self.rightHand)
-        Input:AddKeyListener("p", self, "StartFan")
-        -- Input:AddKeyListener("i", self, "OnStartFan")
-        -- Input:AddKeyListener("u", self, "UninitializeFan")
+        CardReader:Load()
 
         self.timerNotificationId = Timer:AddListener(self, "OnTimerFinished")
 
@@ -21,6 +20,9 @@ local ShopKeeperAI =
         self.deck:SetVisible(false)
         self.rightHand:SetState(GameConstants.HandStates.PalmDownRelaxed)
         self.leftHand:SetState(GameConstants.HandStates.PalmDownRelaxed)
+
+        self.totalCost = 0
+        self.previousTotalCost = 0
     end,
 
     Update = function(self, dt)
@@ -30,6 +32,9 @@ local ShopKeeperAI =
         if self.fanSpreading then
             self:HandleFan()
         end
+
+        CardReader:Update(dt)
+        CardReader:SetPosition(self.rightHand:GetPosition())
         --
     end,
 
@@ -39,27 +44,61 @@ local ShopKeeperAI =
         self.rightHand:FixedUpdate(dt)
     end,
 
-    Draw = function(self)
-        self.leftHand:Draw()
-        self.rightHand:Draw()
-        self.deck:Draw()
-    end,
-
-    LateDraw = function(self)
-        self.deck:LateDraw()
-        self.leftHand:LateDraw()
-        self.rightHand:LateDraw()
-    end,
-
     -- ===========================================================================================================
     -- #region [EXTERNAL]
     -- ===========================================================================================================
 
+    OnStartShop = function(self)
+        self.leftHand:OnStartShop()
+        self.rightHand:OnStartShop()
+        CardReader:OnStartShop()
+    end,
 
+    OnStopShop = function(self)
+        self.leftHand:OnStopShop()
+        self.rightHand:OnStopShop()
+        CardReader:OnStopShop()
+    end,
+
+    AddToCost = function(self, cost)
+        self.previousTotalCost = self.totalCost
+        self.totalCost = self.totalCost + cost
+        self:OnTotalCostChanged()
+    end,
+
+    RemoveFromCost = function(self, cost)
+        self.previousTotalCost = self.totalCost
+        self.totalCost = self.totalCost - cost
+        self:OnTotalCostChanged()
+    end,
+
+    OnItemsBought = function(self, cost)
+        self.previousTotalCost = self.totalCost
+        self.totalCost = self.totalCost - cost
+        CardReader:SetTotalCost(self.totalCost)
+    end,
 
     -- ===========================================================================================================
     -- #region [INTERNAL]
     -- ===========================================================================================================
+
+    OnTotalCostChanged = function(self)
+        self:ShowCardReader()
+    end,
+
+    ShowCardReader = function(self)
+        Timer:Stop("ShopKeeperAI_HideCardReader")
+        Timer:Start("ShopKeeperAI_ShowCardReader", 0.5)
+        self.rightHand:SetTargetPositionOffScreen()
+        self.leftHand:SetTargetPositionOffScreenOppositeSide()
+    end,
+
+    HideCardReader = function(self)
+        Timer:Stop("ShopKeeperAI_ShowCardReader")
+        Timer:Start("ShopKeeperAI_HideCardReader", 0.5)
+        self.rightHand:SetTargetPositionOffScreen()
+        --self.leftHand:SetTargetPositionOffScreen()
+    end,
 
     StartFan = function(self)
         self.rightHand:SetState(GameConstants.HandStates.PalmDownRelaxed)
@@ -69,29 +108,6 @@ local ShopKeeperAI =
         self.leftHand:SetTargetPosition({ x = (love.graphics.getWidth()/2) + 100, y = love.graphics.getHeight() / 2 })
         Timer:Start("ShopKeeperAI_InitializeFan", 0.8)
     end,
-
-    OnTimerFinished = function(self, timerId)
-        if timerId == "ShopKeeperAI_InitializeFan" then
-            self:InitializeFan()
-            self.fanSpreading = true
-            Timer:Start("ShopKeeperAI_StartFanning", 1)
-            self.rightHand:SetState(GameConstants.HandStates.PalmDownRelaxedIndexOut)
-        elseif timerId == "ShopKeeperAI_StartFanning" then
-            self.rightHand:SetMoveInterval(0)
-            self:Fan()
-            Timer:Start("ShopKeeperAI_OnFanFinished", 2)
-        elseif timerId == "ShopKeeperAI_OnFanFinished" then
-            self.rightHand:SetState(GameConstants.HandStates.PalmDownRelaxed)
-            self.fanSpreading = false
-            self.rightHand:SetMoveInterval(0.5)
-            self.rightHand:SetTargetPosition({ x = (love.graphics.getWidth()/2) - 100, y = love.graphics.getHeight() / 2 })
-            Timer:Start("ShopKeeperAI_OnStopFanDemo", 1)
-        elseif timerId == "ShopKeeperAI_OnStopFanDemo" then
-            self.rightHand:ResetTargetPosition()
-            self.leftHand:ResetTargetPosition()
-            self:UninitializeFan()
-        end
-	end,
 
     HandleFan = function(self)
         local firstCard = self.deck:GetCard(52)
@@ -128,9 +144,76 @@ local ShopKeeperAI =
             card:SetAngularSpeed(0.2)
 		end
 	end,
+
+
+    OnTimerFinished = function(self, timerId)
+        if self.TimerFunctions[timerId] then
+            self.TimerFunctions[timerId](self)
+        end
+	end,
+
+    TimerFunctions = 
+    {
+        -- ===========================================================================================================
+        -- FAN DEMO
+        -- ===========================================================================================================
+        ShopKeeperAI_InitializeFan = function(self)
+            self:InitializeFan()
+            self.fanSpreading = true
+            Timer:Start("ShopKeeperAI_StartFanning", 1)
+            self.rightHand:SetState(GameConstants.HandStates.PalmDownRelaxedIndexOut)
+        end,
+
+        ShopKeeperAI_StartFanning = function(self)
+            self.rightHand:SetMoveInterval(0)
+            self:Fan()
+            Timer:Start("ShopKeeperAI_OnFanFinished", 2)
+        end,
+
+        ShopKeeperAI_OnFanFinished = function(self)
+            self.rightHand:SetState(GameConstants.HandStates.PalmDownRelaxed)
+            self.fanSpreading = false
+            self.rightHand:SetMoveInterval(0.5)
+            self.rightHand:SetTargetPosition({ x = (love.graphics.getWidth()/2) - 100, y = love.graphics.getHeight() / 2 })
+            Timer:Start("ShopKeeperAI_OnStopFanDemo", 1)
+        end,
+
+        ShopKeeperAI_OnStopFanDemo = function(self)
+            self.rightHand:ResetTargetPosition()
+            self.leftHand:ResetTargetPosition()
+            self:UninitializeFan()
+        end,
+
+        -- ===========================================================================================================
+        -- CARD READER
+        -- ===========================================================================================================
+
+        ShopKeeperAI_ShowCardReader = function(self)
+            CardReader:SetVisible(true)
+            CardReader:SetActive(true)
+            self.rightHand:SetState(GameConstants.HandStates.MechanicsGrip)
+            self.rightHand:SetTargetPositionForward()
+            self.leftHand:ResetTargetPosition()
+            CardReader:SetTotalCost(self.totalCost)
+        end,
+
+        ShopKeeperAI_HideCardReader = function(self)
+            CardReader:SetVisible(false)
+            CardReader:SetActive(false)
+            self.rightHand:SetState(GameConstants.HandStates.PalmDownRelaxed)
+            self.rightHand:ResetTargetPosition()
+            self.leftHand:ResetTargetPosition()
+        end,
+
+    },
+
     -- ===========================================================================================================
     -- #region [PUBLICHELPERS]
     -- ===========================================================================================================
+
+    GetCardReader = function(self)
+        return CardReader
+    end,
     -- ===========================================================================================================
     -- #endregion
 

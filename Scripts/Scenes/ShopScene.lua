@@ -10,53 +10,91 @@ local ShopScene =
     -- #region [CORE]
     -- ===========================================================================================================
     Load = function(self)
-        self.leftHand = Player:GetLeftHand()
-        self.rightHand = Player:GetRightHand()
         ShopKeeperAI:Load()
         Mat:Load()
         BuyZone:Load()
-        self.table = love.graphics.newImage("Images/Background/table.png")
         
         self.pickups = {
-            Relic:New("Apple", self.leftHand, self.rightHand),
+            Relic:New("Apple", Player:GetLeftHand(), Player:GetRightHand()),
+            Relic:New("Apple", Player:GetLeftHand(), Player:GetRightHand()),
+            Relic:New("Apple", Player:GetLeftHand(), Player:GetRightHand()),
         }
+
+        for _, relic in pairs(self.pickups) do
+            relic:SetItemOwner(GameConstants.ItemOwners.ShopKeeper)
+        end
+
+        self.pickupsInBuyZone = {}
     end,
 
     OnStart = function(self)
         Player:OnStartShop()
+        ShopKeeperAI:OnStartShop()
+        BuyZone:OnStart()
+
+        -- Handle successfully buying items
+        local cardReader = ShopKeeperAI:GetCardReader()
+        cardReader:AddBuyListener(function ()
+            for _, pickup in pairs(self.pickupsInBuyZone) do
+                if pickup:GetItemOwner() == GameConstants.ItemOwners.ShopKeeper then
+                    ShopKeeperAI:OnItemsBought(pickup:GetValue())
+                    Player:GetInventory():AddRelicToInventory(pickup)
+                end
+            end
+        end)
 
         for _, pickup in pairs(self.pickups) do
             local pickupCollider = pickup:GetCollider()
-            pickupCollider:BoxCollider_AddCollisionListener(BuyZone:GetCollider(), self.OnStartBoxCollision, self.OnStopBoxCollision)
+            pickupCollider:BoxCollider_AddCollisionListener(BuyZone:GetCollider(),
+                function(colliderA, colliderB)
+                    if pickup:GetItemOwner() == GameConstants.ItemOwners.ShopKeeper then
+                        table.insert(self.pickupsInBuyZone, pickup)
+                    end
+                end,
+
+                function(colliderA, colliderB)
+                    if pickup:GetItemOwner() == GameConstants.ItemOwners.ShopKeeper then
+                        table.removeByValue(self.pickupsInBuyZone, pickup)
+                    end
+                end
+            )
+
             pickup:OnStart()
             pickup:AddPickupListener(
-                function(_, card)
-                    -- local attachedSlot = card:GetAttachedSlot()
-                    -- if attachedSlot then
-                    --     attachedSlot:SetAttachedCard(nil)
-                    -- end
+                function(_, p)
+                    if pickup:GetItemOwner() ~= GameConstants.ItemOwners.ShopKeeper then
+                        return
+                    end
+
+                    if table.findKey(self.pickupsInBuyZone, pickup) then
+                        ShopKeeperAI:RemoveFromCost(p:GetValue())
+                    end
                 end
             )
             pickup:AddDroppedListener(
-                function(_, card)
-                    -- local cardSlots = Player:GetCardSlots()
-                    -- for _, cardSlot in pairs(cardSlots) do
-                    --     if not card:GetAttachedSlot() then
-                    --         if cardSlot:EvaluateWithinRange(card:GetPosition()) then
-                    --             cardSlot:SetAttachedCard(card)
-                    --         end
-                    --     end
-                    -- end
+                function(_, p)
+                    if pickup:GetItemOwner() ~= GameConstants.ItemOwners.ShopKeeper then
+                        return
+                    end
+                    if table.findKey(self.pickupsInBuyZone, pickup) then
+                        ShopKeeperAI:AddToCost(p:GetValue())
+                    end
                 end
             )
         end
+
+        self.debug_DrawIndex = DrawSystem:AddDebugDraw(
+            function ()
+                love.graphics.printf("Shop", GameConstants.UI.Font, 0, 0, love.graphics.getWidth(), "center")
+            end
+        )
     end,
 
     OnStop = function(self)
         Player:OnStopShop()
-        for _, pickup in pairs(self.pickups) do
-            pickup:OnStop()
-        end
+        BuyZone:OnStop()
+
+        DrawSystem:RemoveDebugDraw(self.debug_DrawIndex)
     end,
 
     Update = function(self, dt)
@@ -71,31 +109,6 @@ local ShopScene =
 		Player:FixedUpdate(dt)
         ShopKeeperAI:FixedUpdate(dt)
 	end,
-
-    Draw = function(self)
-        love.graphics.setBackgroundColor(0.128, 0.128, 0.136, 1)
-        --Mat:Draw()
-        BuyZone:Draw()
-        for _, pickup in pairs(self.pickups) do
-            pickup:Draw()
-        end
-        Player:Draw()
-        ShopKeeperAI:Draw()
-        love.graphics.printf("Shop", GameConstants.UI.Font, 0, 0, love.graphics.getWidth(), "center")
-    end,
-
-	LateDraw = function(self)
-		Player:LateDraw()
-        ShopKeeperAI:LateDraw()
-	end,
-
-    OnStartBoxCollision = function(self, colliderA, colliderB)
-        print("Start Colliding")
-    end,
-
-    OnStopBoxCollision = function(self, colliderA, colliderB)
-        print("Stop Colliding")
-    end,
 }
 
 return ShopScene
