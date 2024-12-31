@@ -62,12 +62,8 @@ local PerformScene =
 				end
 			end
 		)
-
-		love.graphics.setBackgroundColor(0.128, 0.128, 0.136, 1)
-
-		Mat:Draw()
+		
 		self.audience:Draw()
-		Player:Draw()
 
 		love.graphics.printf("Perform", GameConstants.UI.Font, 0, 0, love.graphics.getWidth(), "center")
 		love.graphics.printf(self.audience:GetTotalHealth(), GameConstants.UI.Font, 0, 180, love.graphics.getWidth(), "center")

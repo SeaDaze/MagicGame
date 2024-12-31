@@ -114,12 +114,11 @@ local game = {
 
     Draw = function(self)
         love.graphics.setBackgroundColor(0.128, 0.128, 0.136, 1)
-        -- self.vignetteEffect(
-        --     function()
-        --         DrawSystem:DrawAll()
-        --     end
-        -- )
-        DrawSystem:DrawAll()
+        self.vignetteEffect(
+            function()
+                DrawSystem:DrawAll()
+            end
+        )
         SettingsMenu:Draw()
     end,
 

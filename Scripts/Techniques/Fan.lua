@@ -14,8 +14,13 @@ local Fan = {
 
 		instance.cardSelection = false
 
-		instance.distanceThreshold = 400 * 400 * GameSettings.WindowResolutionScale
-		instance.distanceBetweenPoints = 8 * GameSettings.WindowResolutionScale
+		instance.distanceThreshold = 30 * 30 * GameSettings.WindowResolutionScale
+		instance.distanceBetweenPoints = 12 * GameSettings.WindowResolutionScale
+		instance.debugPoint = 
+		{
+			x = 0,
+			y = 0,
+		}
         return instance
     end,
 
@@ -23,6 +28,47 @@ local Fan = {
 		self.timerNotificationId = Timer:AddListener(self, "OnTimerFinished")
 		self.leftHand:SetState(GameConstants.HandStates.Fan)
 		self:InitializeFan()
+
+		DrawSystem:AddDebugDraw(
+            function ()
+				love.graphics.setColor(1, 0, 0, 1)
+				local cards = self.deck:GetCards()
+				local sockets = cards[52].sprite:GetAllSockets()
+				for _, socket in pairs(sockets) do
+					love.graphics.ellipse(
+						"fill",
+						socket.x,
+						socket.y,
+						5,
+						5,
+						6
+					)
+				end
+				
+				love.graphics.setColor(1, 0, 1, 1)
+				for _, point in pairs(self.points) do
+					love.graphics.ellipse(
+						"fill",
+						point.x,
+						point.y,
+						3,
+						3,
+						6
+					)
+				end
+
+				love.graphics.ellipse(
+					"fill",
+					self.debugPoint.x,
+					self.debugPoint.y,
+					3,
+					3,
+					6
+				)
+
+				love.graphics.setColor(1, 1, 1, 1)
+            end
+        )
     end,
 
     OnStop = function(self)
@@ -35,9 +81,10 @@ local Fan = {
 
 	FixedUpdate = function(self, dt)
 		if self.fanSpreading then
+			self:HandleFanRotation()
 			self:EvaluateRightHandState()
-			self:DuringFanSpread()
-			self:HandleFanSpreadPoints()
+			-- self:DuringFanSpread()
+			-- self:HandleFanSpreadPoints()
 		end
 	end,
 	
@@ -97,25 +144,38 @@ local Fan = {
 		end
 	end,
 
-	DuringFanSpread = function(self)
-		local numberOfPoints = table.count(self.points)
-		if numberOfPoints == 0 then
+	HandleFanRotation = function(self)
+		if not Input:GetRightActionDown() then
 			return
 		end
-		local targetPoint = self.points[numberOfPoints]
-		if not targetPoint then
+		local cards = self.deck:GetCards()
+		local cardSockets = cards[52].sprite:GetAllSockets()
+		local targetSocket = cardSockets.topLeft
+		local pointSocket = cardSockets.top
+		local indexFingerPosition = self.rightHand:GetIndexFingerPosition()
+		local socketOffset = {
+			x = pointSocket.x - targetSocket.x,
+			y = pointSocket.y - targetSocket.y,
+		}
+
+		local handsDistance = Common:DistanceSquared(targetSocket.x, targetSocket.y, indexFingerPosition.x, indexFingerPosition.y)
+		if handsDistance > self.distanceThreshold then
 			return
 		end
-		if self.rightHand.position.x < self.leftHand.position.x then
+		self.debugPoint = {
+			x = indexFingerPosition.x + socketOffset.x,
+			y = indexFingerPosition.y + socketOffset.y
+		}
+		if self.debugPoint.x < self.leftHand.position.x then
 			return
 		end
 		for _, card in ipairs(self.spreadingCards) do
 			local cardSprite = card:GetSprite()
-			local v2 = Common:Normalize({ x = targetPoint.x - cardSprite.position.x, y = targetPoint.y - cardSprite.position.y })
+			local v2 = Common:Normalize({ x = self.debugPoint.x - cardSprite.position.x, y = self.debugPoint.y - cardSprite.position.y })
 			local v1 = { x = 0, y = -1 }
 			local newAngle = Common:AngleBetweenVectors(v1, v2)
-			local angleDelta = (newAngle - card.targetAngle)
-			card.targetAngle = (card.targetAngle + angleDelta) * 2
+			cardSprite.angle = newAngle
+			card.targetAngle = newAngle
 		end
 	end,
 
@@ -123,17 +183,28 @@ local Fan = {
 		if not Input:GetRightActionDown() then
 			return
 		end
-		local leftHandPosition = self.leftHand.position
+		local cards = self.deck:GetCards()
+		local cardSockets = cards[52].sprite:GetAllSockets()
+		local targetSocket = cardSockets.topLeft
+		local pointSocket = cardSockets.top
 		local indexFingerPosition = self.rightHand:GetIndexFingerPosition()
+		local socketOffset = {
+			x = pointSocket.x - targetSocket.x,
+			y = pointSocket.y - targetSocket.y,
+		}
 
-		local handsDistance = Common:DistanceSquared(leftHandPosition.x, leftHandPosition.y, indexFingerPosition.x, indexFingerPosition.y)
+		local handsDistance = Common:DistanceSquared(targetSocket.x, targetSocket.y, indexFingerPosition.x, indexFingerPosition.y)
 		if handsDistance > self.distanceThreshold then
 			return
 		end
-		if indexFingerPosition.x < leftHandPosition.x then
+		local pointPosition = {
+			x = indexFingerPosition.x + socketOffset.x,
+			y = indexFingerPosition.y + socketOffset.y
+		}
+		if pointPosition.x < self.leftHand.position.x then
 			return
 		end
-		self:CreateNewPoint(indexFingerPosition.x, indexFingerPosition.y)
+		self:CreateNewPoint(pointPosition.x, pointPosition.y)
 	end,
 
 	CreateNewPoint = function(self, x, y)
@@ -161,6 +232,69 @@ local Fan = {
 			self:OnCompleteFanSpread()
 		end
 	end,
+
+	DuringFanSpread = function(self)
+		local numberOfPoints = table.count(self.points)
+		if numberOfPoints == 0 then
+			return
+		end
+		local targetPoint = self.points[numberOfPoints]
+		if not targetPoint then
+			return
+		end
+		if self.rightHand.position.x < self.leftHand.position.x then
+			return
+		end
+		for _, card in ipairs(self.spreadingCards) do
+			local cardSprite = card:GetSprite()
+			local v2 = Common:Normalize({ x = targetPoint.x - cardSprite.position.x, y = targetPoint.y - cardSprite.position.y })
+			local v1 = { x = 0, y = -1 }
+			local newAngle = Common:AngleBetweenVectors(v1, v2)
+			local angleDelta = (newAngle - card.targetAngle)
+			card.targetAngle = (card.targetAngle + angleDelta) * 2
+		end
+	end,
+
+	-- DuringFanSpread = function(self)
+	-- 	local numberOfPoints = table.count(self.points)
+	-- 	if numberOfPoints == 0 then
+	-- 		return
+	-- 	end
+	-- 	local targetPoint = self.points[numberOfPoints]
+	-- 	if not targetPoint then
+	-- 		return
+	-- 	end
+	-- 	if self.rightHand.position.x < self.leftHand.position.x then
+	-- 		return
+	-- 	end
+	-- 	for _, card in ipairs(self.spreadingCards) do
+	-- 		local cardSprite = card:GetSprite()
+	-- 		local v2 = Common:Normalize({ x = targetPoint.x - cardSprite.position.x, y = targetPoint.y - cardSprite.position.y })
+	-- 		local v1 = { x = 0, y = -1 }
+	-- 		local newAngle = Common:AngleBetweenVectors(v1, v2)
+	-- 		local angleDelta = (newAngle - card.targetAngle)
+	-- 		card.targetAngle = (card.targetAngle + angleDelta) * 2
+	-- 	end
+	-- end,
+
+	-- HandleFanSpreadPoints = function(self)
+	-- 	if not Input:GetRightActionDown() then
+	-- 		return
+	-- 	end
+	-- 	local leftHandPosition = self.leftHand.position
+	-- 	local indexFingerPosition = self.rightHand:GetIndexFingerPosition()
+
+	-- 	local handsDistance = Common:DistanceSquared(leftHandPosition.x, leftHandPosition.y, indexFingerPosition.x, indexFingerPosition.y)
+	-- 	if handsDistance > self.distanceThreshold then
+	-- 		return
+	-- 	end
+	-- 	if indexFingerPosition.x < leftHandPosition.x then
+	-- 		return
+	-- 	end
+	-- 	self:CreateNewPoint(indexFingerPosition.x, indexFingerPosition.y)
+	-- end,
+
+
 
 	EvaluateFanQuality = function(self)
 		local numberOfCardsInSpread = table.count(self.cardsInSpread)
@@ -206,17 +340,33 @@ local Fan = {
 	end,
 	
 	EvaluateRightHandState = function(self)
-		local leftHandPosition = self.leftHand.position
+		local cards = self.deck:GetCards()
+		local cardSockets = cards[52].sprite:GetAllSockets()
+		local targetSocket = cardSockets.topLeft
+
 		local indexFingerPosition = self.rightHand:GetIndexFingerPosition()
 	
-		local handsDistance = Common:DistanceSquared(leftHandPosition.x, leftHandPosition.y, indexFingerPosition.x, indexFingerPosition.y)
+		local handsDistance = Common:DistanceSquared(targetSocket.x, targetSocket.y, indexFingerPosition.x, indexFingerPosition.y)
 
-		if handsDistance > self.distanceThreshold and self.leftHand:GetState() ~= GameConstants.HandStates.PalmDownNatural or indexFingerPosition.x < leftHandPosition.x  then
+		if handsDistance > self.distanceThreshold and self.leftHand:GetState() ~= GameConstants.HandStates.PalmDownNatural then
 			self.rightHand:SetState(GameConstants.HandStates.PalmDownRelaxed)
-		elseif handsDistance <= self.distanceThreshold and self.leftHand:GetState() ~= GameConstants.HandStates.PalmDownIndexOut and indexFingerPosition.x > leftHandPosition.x then
+		elseif handsDistance <= self.distanceThreshold and self.leftHand:GetState() ~= GameConstants.HandStates.PalmDownIndexOut then
 			self.rightHand:SetState(GameConstants.HandStates.PalmDownRelaxedIndexOut)
 		end
 	end,
+
+	-- EvaluateRightHandState = function(self)
+	-- 	local leftHandPosition = self.leftHand.position
+	-- 	local indexFingerPosition = self.rightHand:GetIndexFingerPosition()
+	
+	-- 	local handsDistance = Common:DistanceSquared(leftHandPosition.x, leftHandPosition.y, indexFingerPosition.x, indexFingerPosition.y)
+
+	-- 	if handsDistance > self.distanceThreshold and self.leftHand:GetState() ~= GameConstants.HandStates.PalmDownNatural or indexFingerPosition.x < leftHandPosition.x  then
+	-- 		self.rightHand:SetState(GameConstants.HandStates.PalmDownRelaxed)
+	-- 	elseif handsDistance <= self.distanceThreshold and self.leftHand:GetState() ~= GameConstants.HandStates.PalmDownIndexOut and indexFingerPosition.x > leftHandPosition.x then
+	-- 		self.rightHand:SetState(GameConstants.HandStates.PalmDownRelaxedIndexOut)
+	-- 	end
+	-- end,
 }
 
 Fan.__index = Fan

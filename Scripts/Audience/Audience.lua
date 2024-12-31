@@ -65,7 +65,6 @@ local Audience =
         return quads
     end,
 
-    
     SetAudienceAwe = function(self, score)
         if not score then
             return

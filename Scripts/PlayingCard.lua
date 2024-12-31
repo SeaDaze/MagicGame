@@ -39,7 +39,7 @@ local PlayingCard = {
 		instance.value = value
 		instance.suit = suit
 		instance.spinningSpeed = 500
-		instance.angularSpeed = 1
+		instance.angularSpeed = 0.2
 
 		return instance
 	end,
@@ -50,9 +50,9 @@ local PlayingCard = {
 		-- if self.state == GameConstants.CardStates.SpinningOut then
 		-- 	self:Spin(dt)
 		-- else
-		if self.angle ~= self.targetAngle then
-			Flux.to(self.sprite, self.angularSpeed, { angle = self.targetAngle })
-		end
+		-- if self.angle ~= self.targetAngle then
+		-- 	Flux.to(self.sprite, self.angularSpeed, { angle = self.targetAngle })
+		-- end
 		-- end
 
 		if self.state == GameConstants.CardStates.InLeftHand then
