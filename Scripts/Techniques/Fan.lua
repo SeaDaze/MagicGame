@@ -33,7 +33,11 @@ local Fan = {
             function ()
 				love.graphics.setColor(1, 0, 0, 1)
 				local cards = self.deck:GetCards()
-				local sockets = cards[52].sprite:GetAllSockets()
+				local sockets = {
+					cards[52]:GetSprite():GetSocket("TopLeft"),
+					cards[52]:GetSprite():GetSocket("Top"),
+				}
+
 				for _, socket in pairs(sockets) do
 					love.graphics.ellipse(
 						"fill",
@@ -83,8 +87,8 @@ local Fan = {
 		if self.fanSpreading then
 			self:HandleFanRotation()
 			self:EvaluateRightHandState()
-			-- self:DuringFanSpread()
-			-- self:HandleFanSpreadPoints()
+			self:DuringFanSpread()
+			self:HandleFanSpreadPoints()
 		end
 	end,
 	
@@ -126,6 +130,7 @@ local Fan = {
 		local cards = self.deck:GetCards()
 		for _, card in ipairs(cards) do
 			card:SetTargetOriginOffsetRatio({ x = 0.5, y = 1 })
+			card:SetState(GameConstants.CardStates.InLeftHandFanning)
 		end
 		self.fanSpreading = true
 		self.spreadingCards = {}
@@ -139,6 +144,7 @@ local Fan = {
 	UninitializeFan = function(self)
 		local cards = self.deck:GetCards()
 		for _, card in ipairs(cards) do
+			card:SetState(GameConstants.CardStates.InLeftHandDefault)
 			card:SetTargetOriginOffsetRatio({ x = 0.5, y = 0.5 })
 			card.targetAngle = 0
 		end
@@ -149,9 +155,8 @@ local Fan = {
 			return
 		end
 		local cards = self.deck:GetCards()
-		local cardSockets = cards[52].sprite:GetAllSockets()
-		local targetSocket = cardSockets.topLeft
-		local pointSocket = cardSockets.top
+		local targetSocket = cards[52]:GetSprite():GetSocket("TopLeft")
+		local pointSocket = cards[52]:GetSprite():GetSocket("Top")
 		local indexFingerPosition = self.rightHand:GetIndexFingerPosition()
 		local socketOffset = {
 			x = pointSocket.x - targetSocket.x,
@@ -184,9 +189,8 @@ local Fan = {
 			return
 		end
 		local cards = self.deck:GetCards()
-		local cardSockets = cards[52].sprite:GetAllSockets()
-		local targetSocket = cardSockets.topLeft
-		local pointSocket = cardSockets.top
+		local targetSocket = cards[52]:GetSprite():GetSocket("TopLeft")
+		local pointSocket = cards[52]:GetSprite():GetSocket("Top")
 		local indexFingerPosition = self.rightHand:GetIndexFingerPosition()
 		local socketOffset = {
 			x = pointSocket.x - targetSocket.x,
@@ -341,8 +345,7 @@ local Fan = {
 	
 	EvaluateRightHandState = function(self)
 		local cards = self.deck:GetCards()
-		local cardSockets = cards[52].sprite:GetAllSockets()
-		local targetSocket = cardSockets.topLeft
+		local targetSocket = cards[52]:GetSprite():GetSocket("TopLeft")
 
 		local indexFingerPosition = self.rightHand:GetIndexFingerPosition()
 	

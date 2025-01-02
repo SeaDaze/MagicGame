@@ -8,7 +8,7 @@ local GameConstants =
 
 	CardStates = 
 	{
-		InLeftHand = 0,
+		InLeftHandDefault = 0,
 		HeldBySpectator = 1,
 		ReturningToDeck = 2,
 		SpinningOut = 3,

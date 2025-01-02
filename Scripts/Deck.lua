@@ -95,7 +95,7 @@ local Deck = {
 
 	SetDeckInLeftHand = function(self)
 		for _, card in ipairs(self.cards) do
-			card:SetState(GameConstants.CardStates.InLeftHand)
+			card:SetState(GameConstants.CardStates.InLeftHandDefault)
 		end
 	end,
 
@@ -223,7 +223,7 @@ local Deck = {
 		if not self.offsetCardIndex then
 			return
 		end
-		self.cards[self.offsetCardIndex]:SetState(GameConstants.CardStates.InLeftHand)
+		self.cards[self.offsetCardIndex]:SetState(GameConstants.CardStates.InLeftHandDefault)
 	end,
 
 	EvaluateTableSpreadQuality = function(self)
@@ -262,10 +262,10 @@ local Deck = {
 
 	-- SwapHands = function(self)
 	-- 	for _, card in ipairs(self.cards) do
-	-- 		if card:GetState() == GameConstants.CardStates.InLeftHand then
+	-- 		if card:GetState() == GameConstants.CardStates.InLeftHandDefault then
 	-- 			card:SetState(GameConstants.CardStates.InRightHandTableSpread)
 	-- 		elseif card:GetState() == GameConstants.CardStates.InRightHandTableSpread then
-	-- 			card:SetState(GameConstants.CardStates.InLeftHand)
+	-- 			card:SetState(GameConstants.CardStates.InLeftHandDefault)
 	-- 		end
 	-- 	end
 	-- end,

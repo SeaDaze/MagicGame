@@ -1,5 +1,9 @@
 
 local PlayingCard = {
+
+	-- ===========================================================================================================
+	-- #region [CORE]
+	-- ===========================================================================================================
 	New = function(self, value, suit, sprite, faceDownDrawable, leftHand, rightHand)
 		local instance = setmetatable({}, self)
 
@@ -12,6 +16,7 @@ local PlayingCard = {
 		-- Position/rotation/scale
 		instance.targetAngle = 0
 		instance.previousTargetAngle = 0
+		instance.originOffsetRatio = { x = 0.5, y = 0.5 }
 		instance.targetOriginOffsetRatio =  { x = 0.5, y = 0.5 }
 
 		instance.scaleModifier = 1
@@ -30,7 +35,7 @@ local PlayingCard = {
 		instance.rightHand = rightHand
 
 		-- States
-		instance.state = GameConstants.CardStates.InLeftHand
+		instance.state = GameConstants.CardStates.InLeftHandDefault
 		instance.facingUp = false
 		instance.spinning = false
 		instance.dropped = false
@@ -46,84 +51,56 @@ local PlayingCard = {
 
 	Update = function(self, dt)
 		self:UpdateSpriteOriginOffsetRatio()
+		if self.UpdateFunctionsByState[self.state] then
+			self.UpdateFunctionsByState[self.state](self)
+		end
 
 		-- if self.state == GameConstants.CardStates.SpinningOut then
 		-- 	self:Spin(dt)
 		-- else
-		-- if self.angle ~= self.targetAngle then
-		-- 	Flux.to(self.sprite, self.angularSpeed, { angle = self.targetAngle })
-		-- end
+
 		-- end
 
-		if self.state == GameConstants.CardStates.InLeftHand then
-			self:SetPosition({x = self.leftHand.position.x, y = self.leftHand.position.y, z = self.leftHand.position.z })
+		--if self.state == GameConstants.CardStates.InLeftHandDefault then
+		--	self:SetPosition({x = self.leftHand.position.x, y = self.leftHand.position.y, z = self.leftHand.position.z })
 		-- elseif self.state == GameConstants.CardStates.InRightHandPinchPalmDown then
 		-- 	self:SetPosition(self.rightHand:GetIndexFingerPosition())
 		-- elseif self.state == GameConstants.CardStates.InRightHandPinchPalmUp then
 		-- 	self:SetPosition(self.rightHand:GetPalmUpPinchFingerPosition())
 		-- elseif self.state == GameConstants.CardStates.InRightHandTableSpread then
 		-- 	self:SetPosition({x = self.rightHand.position.x, y = self.rightHand.position.y })
-		end
+		--end
 
 		-- if self.state ~= GameConstants.CardStates.Dropped and self.sprite.position.x > love.graphics.getWidth() then
 		-- 	self:SetState(GameConstants.CardStates.Dropped)
 		-- end
-
-		self:UpdateSockets()
 	end,
+
+	-- ===========================================================================================================
+	-- #region [EXTERNAL]
+	-- ===========================================================================================================
+
+	Flip = function(self)
+		self.facingUp = not self.facingUp
+	end,
+
+	-- ===========================================================================================================
+	-- #region [INTERNAL]
+	-- ===========================================================================================================
 
 	UpdateSpriteOriginOffsetRatio = function(self)
-		Flux.to(self.sprite.originOffsetRatio, 0.3, { x = self.targetOriginOffsetRatio.x, y = self.targetOriginOffsetRatio.y })
-	end,
-
-	UpdateSockets = function(self)
-		-- Down
-		local verticalOffsetDistance = self.sprite.height * GameSettings.WindowResolutionScale / 2 --((self.sprite.height - (self.sprite.originOffsetRatio.y * self.sprite.height)) * GameSettings.WindowResolutionScale)
-		local horizontalOffsetDistance = self.sprite.width * GameSettings.WindowResolutionScale / 2 --((self.sprite.width - (self.sprite.originOffsetRatio.y * self.sprite.width)) * GameSettings.WindowResolutionScale)
-	
-		local positionOffsetVector = Common:ConvertAngleToVectorDirection(self.sprite.angle + 90)
-        local positionOffsetDirection = Common:Normalize(positionOffsetVector)
-
-		local halfWidth = self.sprite.width * GameSettings.WindowResolutionScale * 0.5
-		local halfHeight = self.sprite.height * GameSettings.WindowResolutionScale * 0.5
-
-		self.sockets.center = 
-		{
-			x = self.sprite.position.x + halfWidth,
-			y = self.sprite.position.y + halfHeight,
-		}
-
-		-- self.sockets.bottomCenter = 
-		-- {
-		-- 	x = self.sprite.position.x + (positionOffsetDirection.x * verticalOffsetDistance),
-		-- 	y = self.sprite.position.y + (positionOffsetDirection.y * verticalOffsetDistance),
-		-- }
-
-		-- positionOffsetVector = Common:ConvertAngleToVectorDirection(self.sprite.angle + 270)
-        -- positionOffsetDirection = Common:Normalize(positionOffsetVector)
-		-- self.sockets.topCenter = 
-		-- {
-		-- 	x = self.sprite.position.x + (positionOffsetDirection.x * verticalOffsetDistance),
-		-- 	y = self.sprite.position.y + (positionOffsetDirection.y * verticalOffsetDistance),
-		-- }
-	end,
-
-	-----------------------------------------------------------------------------------------------------------
-	-- State change functions
-	-----------------------------------------------------------------------------------------------------------
-
-	SetState = function(self, newState)
-		if self.state == newState then
-			print("SetState: cannot change state, newState == old state. state=", self.state)
-			return
-		end
-		self.StateChangeFunctions[newState](self)
+		Flux.to(self.originOffsetRatio, 0.3, { x = self.targetOriginOffsetRatio.x, y = self.targetOriginOffsetRatio.y })
+		self.sprite:SetOriginOffsetRatio(self.originOffsetRatio)
 	end,
 
 	StateChangeFunctions = 
 	{
-		[GameConstants.CardStates.InLeftHand] = function(self)
-			self.state = GameConstants.CardStates.InLeftHand
+		[GameConstants.CardStates.InLeftHandDefault] = function(self)
+			self.state = GameConstants.CardStates.InLeftHandDefault
+		end,
+
+		[GameConstants.CardStates.InLeftHandFanning] = function(self)
+			self.state = GameConstants.CardStates.InLeftHandFanning
 		end,
 
 		[GameConstants.CardStates.HeldBySpectator] = function(self)
@@ -166,22 +143,64 @@ local PlayingCard = {
 		end,
 	},
 
+	UpdateFunctionsByState = 
+	{
+		[GameConstants.CardStates.InLeftHandDefault] = function(self)
+			self:SetPosition({x = self.leftHand.position.x, y = self.leftHand.position.y, z = self.leftHand.position.z })
+			self:RotateTowardsTargetAngle()
+		end,
 
-	-----------------------------------------------------------------------------------------------------------
-	-- Public functions
-	-----------------------------------------------------------------------------------------------------------
+		[GameConstants.CardStates.InLeftHandFanning] = function(self)
+			self:SetPosition({x = self.leftHand.position.x, y = self.leftHand.position.y, z = self.leftHand.position.z })
+		end,
 
-	Flip = function(self)
-		self.facingUp = not self.facingUp
-	end,
+		[GameConstants.CardStates.HeldBySpectator] = function(self)
+		end,
+
+		[GameConstants.CardStates.ReturningToDeck] = function(self)
+		end,
+
+		[GameConstants.CardStates.SpinningOut] = function(self)
+		end,
+
+		[GameConstants.CardStates.Dropped] = function(self)
+		end,
+
+		[GameConstants.CardStates.InRightHandPinchPalmDown] = function(self)
+		end,
+
+		[GameConstants.CardStates.InRightHandPinchPalmUp] = function(self)
+		end,
+
+		[GameConstants.CardStates.InRightHandTableSpread] = function(self)
+		end,
+	},
 
 	Spin = function(self, dt)
 		self.angle = self.angle + (self.spinningSpeed * dt)
 	end,
 
-	-----------------------------------------------------------------------------------------------------------
-	-- Getters/Setters
-	-----------------------------------------------------------------------------------------------------------
+	RotateTowardsTargetAngle = function(self)
+		if self.angle ~= self.targetAngle then
+			Flux.to(self.sprite, self.angularSpeed, { angle = self.targetAngle })
+		end
+	end,
+
+	-- ===========================================================================================================
+	-- #region [PUBLICHELPERS]
+	-- ===========================================================================================================
+
+	SetState = function(self, newState)
+		if self.state == newState then
+			print("SetState: cannot change state, newState == old state. state=", table.findKey(GameConstants.CardStates, newState))
+			return
+		end
+		if not self.StateChangeFunctions[newState] then
+			print("SetState: state change function not set up for state=", table.findKey(GameConstants.CardStates, newState))
+			return
+		end
+		self.StateChangeFunctions[newState](self)
+	end,
 
 	GetState = function(self)
 		return self.state
@@ -236,6 +255,10 @@ local PlayingCard = {
 			y = newOffsetRatio.y,
 		}
 	end,
+
+	-- ===========================================================================================================
+	-- #endregion
+
 }
 
 PlayingCard.__index = PlayingCard

@@ -63,7 +63,7 @@ local GameConstants =
 
 	CardStates = 
 	{
-		InLeftHand = 0,
+		InLeftHandDefault = 0,
 		HeldBySpectator = 1,
 		ReturningToDeck = 2,
 		SpinningOut = 3,
@@ -72,6 +72,7 @@ local GameConstants =
 		Dropped = 6,
 		InRightHandTableSpread = 7,
 		OnTable = 8,
+		InLeftHandFanning = 9,
 	},
 
 	HandStates = 

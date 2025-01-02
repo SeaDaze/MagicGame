@@ -30,7 +30,10 @@ local Sprite =
         instance.height = drawable:getHeight()
         instance.visible = true
         instance.type = GameConstants.DrawableTypes.Sprite
-
+		instance.originOffset = {
+            x = (instance.originOffsetRatio.x * instance.width * GameSettings.WindowResolutionScale),
+            y = (instance.originOffsetRatio.y * instance.height * GameSettings.WindowResolutionScale),
+        }
         return instance
     end,
 
@@ -61,7 +64,10 @@ local Sprite =
         instance.height = dimensions.height
         instance.visible = true
         instance.type = GameConstants.DrawableTypes.SpritesheetQuad
-
+		instance.originOffset = {
+            x = (instance.originOffsetRatio.x * instance.width * GameSettings.WindowResolutionScale),
+            y = (instance.originOffsetRatio.y * instance.height * GameSettings.WindowResolutionScale),
+        }
         return instance
     end,
 
@@ -86,47 +92,59 @@ local Sprite =
         return love.graphics.newQuad(x, y, spriteWidth, spriteHeight, spritesheet:GetWidth(), spritesheet:GetHeight())
     end,
 
-    GetAllSockets = function(self)
-        local originOffset = 
-        {
-            x = (self.originOffsetRatio.x * self.width * GameSettings.WindowResolutionScale),
-            y = (self.originOffsetRatio.y * self.height * GameSettings.WindowResolutionScale),
-        }
-
-        local sockets = {
-            topLeft = Common:RotatePointAroundPoint(
-            {
-                x = self.position.x - (originOffset.x),
-                y = self.position.y - (originOffset.y),
-            }, self.position, self.angle),
-            top = Common:RotatePointAroundPoint(
-            {
-                x = self.position.x,
-                y = self.position.y - (originOffset.y),
-            }, self.position, self.angle),
-            topRight = Common:RotatePointAroundPoint(
-            {
-                x = self.position.x + (self.width * GameSettings.WindowResolutionScale) - (originOffset.x),
-                y = self.position.y - (originOffset.y),
-            }, self.position, self.angle),
-            bottomLeft = Common:RotatePointAroundPoint(
-            {
-                x = self.position.x - (originOffset.x),
-                y = self.position.y + (self.height * GameSettings.WindowResolutionScale) - (originOffset.y),
-            }, self.position, self.angle),
-            bottomRight = Common:RotatePointAroundPoint(
-            {
-                x = self.position.x + (self.width * GameSettings.WindowResolutionScale) - (originOffset.x),
-                y = self.position.y + (self.height * GameSettings.WindowResolutionScale) - (originOffset.y),
-            }, self.position, self.angle),
-        }
-
-        return sockets
-    end,
+	GetSocket = function(self, socketName)
+		if self.GetSocketFunctions[socketName] then
+			return self.GetSocketFunctions[socketName](self)
+		end
+	end,
 
     -- ===========================================================================================================
     -- #region [INTERNAL]
     -- ===========================================================================================================
+
+	-- Gets the socket position taking into account the rotation relative to the origin and the origin offset
+	GetRelativeSocketPosition = function(self, socket)
+		return Common:RotatePointAroundPoint({
+			x = socket.x - self.originOffset.x,
+			y = socket.y - self.originOffset.y,
+		}, self.position, self.angle)
+	end,
+
+	GetSocketFunctions = 
+	{
+		TopLeft = function(self)
+			return self:GetRelativeSocketPosition(self.position)
+		end,
+
+		Top = function(self)
+			return self:GetRelativeSocketPosition({
+                x = self.position.x + (0.5 * self.width * GameSettings.WindowResolutionScale),
+                y = self.position.y,
+            })
+		end,
+
+		TopRight = function(self)
+			return self:GetRelativeSocketPosition({
+                x = self.position.x + (self.width * GameSettings.WindowResolutionScale),
+                y = self.position.y,
+            })
+		end,
+
+		BottomLeft = function(self)
+			return self:GetRelativeSocketPosition({
+                x = self.position.x,
+                y = self.position.y + (self.height * GameSettings.WindowResolutionScale),
+            })
+		end,
+
+		BottomRight = function(self)
+			return self:GetRelativeSocketPosition({
+                x = self.position.x + (self.width * GameSettings.WindowResolutionScale),
+                y = self.position.y + (self.height * GameSettings.WindowResolutionScale),
+            })
+		end,
+	},
+
     -- ===========================================================================================================
     -- #region [PUBLICHELPERS]
     -- ===========================================================================================================
@@ -172,6 +190,10 @@ local Sprite =
         {
             x = originOffsetRatio.x,
             y = originOffsetRatio.y,
+        }
+		self.originOffset = {
+            x = (self.originOffsetRatio.x * self.width * GameSettings.WindowResolutionScale),
+            y = (self.originOffsetRatio.y * self.height * GameSettings.WindowResolutionScale),
         }
 	end,
 

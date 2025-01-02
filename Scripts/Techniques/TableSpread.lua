@@ -19,7 +19,7 @@ local TableSpread = {
 		end
 		local targetCard = self.deck:GetCard(self.targetPickUpCardIndex)
 		if Common:DistanceSquared(targetCard.position.x, targetCard.position.y, self.leftHand.position.x, self.leftHand.position.y) < 50 then
-			targetCard:SetState(GameConstants.CardStates.InLeftHand)
+			targetCard:SetState(GameConstants.CardStates.InLeftHandDefault)
 
 			local nextCard = self:FindNextPickupCard()
 			if not nextCard then
