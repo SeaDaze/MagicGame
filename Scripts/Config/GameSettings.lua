@@ -4,7 +4,7 @@ local GameSettings =
     UIScaleOffset = -1,
     UIScale = 1,
 
-    Debug_Show = true,
-    Debug_DrawSpriteOrigins = true,
+    Debug_Show = false,
+    Debug_DrawSpriteOrigins = false,
 }
 return GameSettings

@@ -28,3 +28,7 @@ table.findKey = function(t, v)
     end
     return nil
 end
+
+table.findLastElement = function(t)
+    return t[t.count]
+end

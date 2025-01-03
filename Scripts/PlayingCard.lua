@@ -192,7 +192,7 @@ local PlayingCard = {
 
 	SetState = function(self, newState)
 		if self.state == newState then
-			print("SetState: cannot change state, newState == old state. state=", table.findKey(GameConstants.CardStates, newState))
+			--print("SetState: cannot change state, newState == old state. state=", table.findKey(GameConstants.CardStates, newState))
 			return
 		end
 		if not self.StateChangeFunctions[newState] then

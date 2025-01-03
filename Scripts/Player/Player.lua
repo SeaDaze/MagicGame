@@ -233,7 +233,7 @@ local Player =
             end
 		end)
         self.onTechniqueFinishedHookId = self.routine[self.routineIndex]:Technique_AddActionListener("Technique_OnFinished", function(params)
-            self:EquipRoutineIndex(self.routineIndex + 1)
+            --self:EquipRoutineIndex(self.routineIndex + 1)
 		end)
 	end,
 

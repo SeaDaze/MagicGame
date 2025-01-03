@@ -177,6 +177,10 @@ local Sprite =
         return self.width
     end,
 
+    GetAngle = function(self)
+        return self.angle
+    end,
+
     SetVisible = function(self, isVisible)
         self.visible = isVisible
     end,
