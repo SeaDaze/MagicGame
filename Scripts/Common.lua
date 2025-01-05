@@ -36,10 +36,13 @@ local Common = {
 
 	AngleBetweenVectors = function(self, a, b)
 		local dot = (a.x * b.x) + (a.y * b.y)
+
 		local aMagnitude = math.sqrt((a.x * a.x) + (a.y * a.y))
 		local bMagnitude = math.sqrt((b.x * b.x) + (b.y * b.y))
 
-		return math.deg(math.acos(dot / (aMagnitude * bMagnitude)))
+		local angleRad = math.acos(dot / (aMagnitude * bMagnitude))
+
+		return math.deg(angleRad)
 	end,
 
 	ConvertAngleToVectorDirection = function(self, angleDeg)

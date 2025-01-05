@@ -17,6 +17,7 @@ local CreditCard = setmetatable(
 		)
 
         instance:Pickup_Initialize(leftHand, rightHand, 1)
+		instance.itemOwner = GameConstants.ItemOwners.Player
         return instance
     end,
 

@@ -1,39 +1,5 @@
 local Hand = require("Scripts.Player.Hand")
-local BoxCollider = require("Scripts.Physics.BoxCollider")
-
-local LeftHandDrawables = 
-{
-	[GameConstants.HandStates.PalmDown] = nil,
-	[GameConstants.HandStates.PalmDownPinch] = nil,
-	[GameConstants.HandStates.PalmDownIndexOut] = nil,
-	[GameConstants.HandStates.PalmUp] = nil,
-	[GameConstants.HandStates.PalmUpPinch] = nil,
-	[GameConstants.HandStates.PalmDownTableSpread] = nil,
-	[GameConstants.HandStates.PalmDownNatural] = love.graphics.newImage("Images/Hands/left_palmDown_Natural.png"),
-	[GameConstants.HandStates.PalmDownGrabOpen] = love.graphics.newImage("Images/Hands/left_palmDown_GrabOpen.png"),
-	[GameConstants.HandStates.PalmDownGrabClose] = love.graphics.newImage("Images/Hands/left_palmDown_GrabClose.png"),
-	[GameConstants.HandStates.PalmDownRelaxed] = love.graphics.newImage("Images/Hands/left_palmDown_Relaxed.png"),
-	[GameConstants.HandStates.PalmDownRelaxedIndexOut] = love.graphics.newImage("Images/Hands/left_palmDown_RelaxedIndexOut.png"),
-	[GameConstants.HandStates.MechanicsGrip] = love.graphics.newImage("Images/Hands/left_dealerGrip.png"),
-	[GameConstants.HandStates.Fan] = love.graphics.newImage("Images/Hands/left_fan_NoThumb.png"),
-}
-
-local LeftHandLateDrawables = 
-{
-	[GameConstants.HandStates.PalmDown] = nil,
-	[GameConstants.HandStates.PalmDownPinch] = nil,
-	[GameConstants.HandStates.PalmDownIndexOut] = nil,
-	[GameConstants.HandStates.PalmUp] = nil,
-	[GameConstants.HandStates.PalmUpPinch] = nil,
-	[GameConstants.HandStates.PalmDownTableSpread] = nil,
-	[GameConstants.HandStates.PalmDownNatural] = nil,
-	[GameConstants.HandStates.PalmDownGrabOpen] = nil,
-	[GameConstants.HandStates.PalmDownGrabClose] = nil,
-	[GameConstants.HandStates.PalmDownRelaxed] = nil,
-	[GameConstants.HandStates.PalmDownRelaxedIndexOut] = nil,
-	[GameConstants.HandStates.MechanicsGrip] = love.graphics.newImage("Images/Hands/left_dealerGrip.png"),
-	[GameConstants.HandStates.Fan] = love.graphics.newImage("Images/Hands/left_fan_ThumbOnly.png"),
-}
+local EventIds = require("Scripts.System.EventIds")
 
 local LeftHand = setmetatable({
 	New = function(self)
@@ -68,7 +34,8 @@ local LeftHand = setmetatable({
 		instance.active = true
 		instance.nearbyPickups = {}
 
-		instance.actionListenTarget = GameConstants.InputActions.Left
+		instance.actionListenTarget = EventIds.LeftAction
+
 		instance.scaleModifier = 2
 
 		instance.sprite = Sprite:New(

@@ -31,18 +31,6 @@ local Relic = setmetatable(
         self:Pickup_OnStart()
     end,
 
-    SetItemOwner = function(self, newOwner)
-        self.itemOwner = newOwner
-    end,
-
-    GetItemOwner = function(self)
-        return self.itemOwner
-    end,
-
-    GetSprite = function(self)
-        return self.sprite
-    end,
-    
 }, Pickup)
 
 Relic.__index = Relic

@@ -2,6 +2,7 @@ local AILeftHand = require("Scripts.AI.AILeftHand")
 local AIRightHand = require("Scripts.AI.AIRightHand")
 local Deck = require("Scripts.Deck")
 local CardReader = require("Scripts.Items.CardReader")
+local EventIds = require("Scripts.System.EventIds")
 
 local ShopKeeperAI = 
 {
@@ -52,12 +53,17 @@ local ShopKeeperAI =
         self.leftHand:OnStartShop()
         self.rightHand:OnStartShop()
         CardReader:OnStartShop()
+
+		self.itemBoughtNotificationId = EventSystem:ConnectToEvent(EventIds.ItemBought, self, "OnItemBought")
     end,
 
     OnStopShop = function(self)
         self.leftHand:OnStopShop()
         self.rightHand:OnStopShop()
         CardReader:OnStopShop()
+
+		EventSystem:DisconnectFromEvent(self.itemBoughtNotificationId)
+		self.itemBoughtNotificationId = nil
     end,
 
     AddToCost = function(self, cost)
@@ -72,7 +78,8 @@ local ShopKeeperAI =
         self:OnTotalCostChanged()
     end,
 
-    OnItemsBought = function(self, cost)
+    OnItemBought = function(self, item)
+		local cost = item:GetValue()
         self.previousTotalCost = self.totalCost
         self.totalCost = self.totalCost - cost
         CardReader:SetTotalCost(self.totalCost)
@@ -210,10 +217,6 @@ local ShopKeeperAI =
     -- ===========================================================================================================
     -- #region [PUBLICHELPERS]
     -- ===========================================================================================================
-
-    GetCardReader = function(self)
-        return CardReader
-    end,
     -- ===========================================================================================================
     -- #endregion
 

@@ -20,29 +20,29 @@ local RoutineBuilderScene =
 
         love.mouse.setVisible(false)
 
-        for _, pickup in pairs(self.pickups) do
-            pickup:OnStart()
-            pickup:AddPickupListener(
-                function(_, card)
-                    local attachedSlot = card:GetAttachedSlot()
-                    if attachedSlot then
-                        attachedSlot:SetAttachedCard(nil)
-                    end
-                end
-            )
-            pickup:AddDroppedListener(
-                function(_, card)
-                    local cardSlots = Player:GetCardSlots()
-                    for _, cardSlot in pairs(cardSlots) do
-                        if not card:GetAttachedSlot() then
-                            if cardSlot:EvaluateWithinRange(card:GetPosition()) then
-                                cardSlot:SetAttachedCard(card)
-                            end
-                        end
-                    end
-                end
-            )
-        end
+        -- for _, pickup in pairs(self.pickups) do
+        --     pickup:OnStart()
+        --     pickup:AddPickupListener(
+        --         function(_, card)
+        --             local attachedSlot = card:GetAttachedSlot()
+        --             if attachedSlot then
+        --                 attachedSlot:SetAttachedCard(nil)
+        --             end
+        --         end
+        --     )
+        --     pickup:AddDroppedListener(
+        --         function(_, card)
+        --             local cardSlots = Player:GetCardSlots()
+        --             for _, cardSlot in pairs(cardSlots) do
+        --                 if not card:GetAttachedSlot() then
+        --                     if cardSlot:EvaluateWithinRange(card:GetPosition()) then
+        --                         cardSlot:SetAttachedCard(card)
+        --                     end
+        --                 end
+        --             end
+        --         end
+        --     )
+        -- end
     end,
 
     OnStop = function(self)

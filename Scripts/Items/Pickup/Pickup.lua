@@ -1,4 +1,5 @@
 local BoxCollider = require("Scripts.Physics.BoxCollider")
+local EventIds    = require("Scripts.System.EventIds")
 
 local Pickup = 
 {
@@ -99,32 +100,6 @@ local Pickup =
         return self.sprite.position
     end,
 
-    AddPickupListener = function(self, callback)
-		self.pickupListenerId = self.pickupListenerId + 1
-
-		self.pickupListeners[self.pickupListenerId] =
-		{
-			callback = callback,
-		}
-	end,
-
-    RemovePickupListener = function(self, listenerId)
-        self.pickupListeners[listenerId] = nil
-    end,
-
-    AddDroppedListener = function(self, callback)
-		self.droppedListenerId = self.droppedListenerId + 1
-
-		self.droppedListeners[self.droppedListenerId] =
-		{
-			callback = callback,
-		}
-	end,
-
-    RemoveDroppedListener = function(self, listenerId)
-        self.droppedListeners[listenerId] = nil
-    end,
-
     SetPickedUp = function(self, hand)
         if self.pickedUp then
             return
@@ -134,9 +109,9 @@ local Pickup =
             x = self.sprite.position.x - hand:GetPosition().x,
             y = self.sprite.position.y - hand:GetPosition().y,
         }
-        for _, pickupListener in pairs(self.pickupListeners) do
-            pickupListener:callback(self)
-        end
+
+		EventSystem:BroadcastEvent(EventIds.ItemPickedUp, self)
+
         self.pickedUp = true
         hand:SetPickup(self)
     end,
@@ -145,9 +120,9 @@ local Pickup =
         if not self.pickedUp then
             return
         end
-        for _, droppedListener in pairs(self.droppedListeners) do
-            droppedListener:callback(self)
-        end
+
+		EventSystem:BroadcastEvent(EventIds.ItemDropped, self)
+
         self.pickedUp = false
         self.sprite.position.z = 3
         hand:SetPickup(nil)
@@ -165,6 +140,18 @@ local Pickup =
         self.rightHand:RemoveNearbyPickup(self)
         self.leftHand:RemoveNearbyPickup(self)
         self.active = isActive
+    end,
+
+	SetItemOwner = function(self, newOwner)
+        self.itemOwner = newOwner
+    end,
+
+    GetItemOwner = function(self)
+        return self.itemOwner
+    end,
+
+    GetSprite = function(self)
+        return self.sprite
     end,
 }
 Pickup.__index = Pickup

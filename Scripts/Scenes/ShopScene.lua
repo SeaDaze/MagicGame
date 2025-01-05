@@ -3,12 +3,14 @@ local ShopKeeperAI = require("Scripts.AI.ShopKeeperAI")
 local Mat = require("Scripts.Mat")
 local Relic = require("Scripts.Items.Pickup.Relic")
 local BuyZone = require("Scripts.UI.BuyZone")
+local EventIds = require("Scripts.System.EventIds")
 
 local ShopScene = 
 {
-    -- ===========================================================================================================
-    -- #region [CORE]
-    -- ===========================================================================================================
+	-- ===========================================================================================================
+	-- #region [CORE]
+	-- ===========================================================================================================
+
     Load = function(self)
         ShopKeeperAI:Load()
         Mat:Load()
@@ -32,18 +34,7 @@ local ShopScene =
         ShopKeeperAI:OnStartShop()
         BuyZone:OnStart()
 
-        -- Handle successfully buying items
-        local cardReader = ShopKeeperAI:GetCardReader()
-        cardReader:AddBuyListener(function ()
-            for _, pickup in pairs(self.pickupsInBuyZone) do
-                if pickup:GetItemOwner() == GameConstants.ItemOwners.ShopKeeper then
-                    ShopKeeperAI:OnItemsBought(pickup:GetValue())
-                    Player:GetInventory():AddRelicToInventory(pickup)
-                end
-            end
-        end)
-
-        for _, pickup in pairs(self.pickups) do
+		for _, pickup in pairs(self.pickups) do
             local pickupCollider = pickup:GetCollider()
             pickupCollider:BoxCollider_AddCollisionListener(BuyZone:GetCollider(),
                 function(colliderA, colliderB)
@@ -60,28 +51,11 @@ local ShopScene =
             )
 
             pickup:OnStart()
-            pickup:AddPickupListener(
-                function(_, p)
-                    if pickup:GetItemOwner() ~= GameConstants.ItemOwners.ShopKeeper then
-                        return
-                    end
-
-                    if table.findKey(self.pickupsInBuyZone, pickup) then
-                        ShopKeeperAI:RemoveFromCost(p:GetValue())
-                    end
-                end
-            )
-            pickup:AddDroppedListener(
-                function(_, p)
-                    if pickup:GetItemOwner() ~= GameConstants.ItemOwners.ShopKeeper then
-                        return
-                    end
-                    if table.findKey(self.pickupsInBuyZone, pickup) then
-                        ShopKeeperAI:AddToCost(p:GetValue())
-                    end
-                end
-            )
         end
+
+		self.cardReaderSuccessNotificationId = EventSystem:ConnectToEvent(EventIds.CreditCardReadSuccess, self, "OnCreditCardReadSuccess")
+		self.itemPickedUpNotificationId = EventSystem:ConnectToEvent(EventIds.ItemPickedUp, self, "OnItemPickedUp")
+		self.itemDroppedNotificationId = EventSystem:ConnectToEvent(EventIds.ItemDropped, self, "OnItemDropped")
 
         self.debug_DrawIndex = DrawSystem:AddDebugDraw(
             function ()
@@ -95,6 +69,13 @@ local ShopScene =
         BuyZone:OnStop()
 
         DrawSystem:RemoveDebugDraw(self.debug_DrawIndex)
+
+		EventSystem:DisconnectFromEvent(self.cardReaderSuccessNotificationId)
+		self.cardReaderSuccessNotificationId = nil
+		EventSystem:DisconnectFromEvent(self.itemPickedUpNotificationId)
+		self.itemPickedUpNotificationId = nil
+		EventSystem:DisconnectFromEvent(self.itemDroppedNotificationId)
+		self.itemDroppedNotificationId = nil
     end,
 
     Update = function(self, dt)
@@ -109,6 +90,45 @@ local ShopScene =
 		Player:FixedUpdate(dt)
         ShopKeeperAI:FixedUpdate(dt)
 	end,
+
+	-- ===========================================================================================================
+	-- #region [NOTIFICATIONS]
+	-- ===========================================================================================================
+
+	OnItemPickedUp = function(self, pickup)
+		if pickup:GetItemOwner() ~= GameConstants.ItemOwners.ShopKeeper then
+			return
+		end
+		if table.findKey(self.pickupsInBuyZone, pickup) then
+			ShopKeeperAI:RemoveFromCost(pickup:GetValue())
+		end
+	end,
+
+	OnItemDropped = function(self, pickup)
+		if pickup:GetItemOwner() ~= GameConstants.ItemOwners.ShopKeeper then
+			return
+		end
+		if table.findKey(self.pickupsInBuyZone, pickup) then
+			ShopKeeperAI:AddToCost(pickup:GetValue())
+		end
+	end,
+
+	OnCreditCardReadSuccess = function(self)
+		for _, pickup in pairs(self.pickupsInBuyZone) do
+			if pickup:GetItemOwner() == GameConstants.ItemOwners.ShopKeeper then
+				EventSystem:BroadcastEvent(EventIds.ItemBought, pickup)
+			end
+		end
+	end,
+
+	-- ===========================================================================================================
+	-- #region [INTERNAL]
+	-- ===========================================================================================================
+	-- ===========================================================================================================
+	-- #region [PUBLICHELPERS]
+	-- ===========================================================================================================
+	-- ===========================================================================================================
+	-- #endregion
 }
 
 return ShopScene

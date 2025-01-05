@@ -1,5 +1,5 @@
 local Hand = require("Scripts.Player.Hand")
-
+local EventIds = require("Scripts.System.EventIds")
 local RightHand = setmetatable({
 	New = function(self)
 		local instance = setmetatable({}, self)
@@ -52,7 +52,7 @@ local RightHand = setmetatable({
 		instance.moveSpeed = 500
 
 		instance.nearbyPickups = {}
-		instance.actionListenTarget = GameConstants.InputActions.Right
+		instance.actionListenTarget = EventIds.RightAction
 		instance.scaleModifier = 2
 
 		instance.sprite = Sprite:New(

@@ -1,25 +1,25 @@
 -- Globals (because I'm lazy and no one can stop me)
 GameSettings = require("Scripts.Config.GameSettings")
-GameConstants = require("Scripts.Config.GameConstants")
-DrawLayers = require("Scripts.Config.DrawLayers")
+EventSystem = require("Scripts.System.EventSystem")
+DrawSystem = require("Scripts.System.DrawSystem")
 
 Input = require("Scripts.System.Input")
 Timer = require("Scripts.Timer")
-HUD = require("Scripts.UI.HUD")
-Common = require("Scripts.Common")
-Player = require("Scripts.Player.Player")
-DrawSystem = require("Scripts.System.DrawSystem")
-Sprite = require("Scripts.System.Sprite")
-Text = require("Scripts.System.Text")
 
--- External Libraries
+-- TODO: move to required scripts rather than globals
+LuaCommon = require("Scripts.System.LuaCommon")
+DrawLayers = require("Scripts.Config.DrawLayers")
+GameConstants = require("Scripts.Config.GameConstants")
+Sprite = require("Scripts.System.Sprite")
+Common = require("Scripts.Common")
+Text = require("Scripts.System.Text")
 Flux = require("Scripts.libraries.flux")
 Moonshine = require ("Scripts.libraries.moonshine")
 
--- Modals
+-- TODO: Change to injection
+Player = require("Scripts.Player.Player")
 SettingsMenu = require("Scripts.UI.SettingsMenu")
-
-LuaCommon = require("Scripts.System.LuaCommon")
+HUD = require("Scripts.UI.HUD")
 
 -- Scenes
 local PerformScene = require("Scripts.PerformScene")
@@ -41,6 +41,7 @@ local game = {
 		love.mouse.setVisible(false)
 
         DrawSystem:Load()
+		EventSystem:Load()
         Logger:Load()
 		Input:Load()
 		HUD:Load(PlayerStats)
@@ -61,10 +62,10 @@ local game = {
             [GameConstants.GameStates.Shop] = ShopScene,
         }
 
-        Input:AddKeyListener("return", self, "ToggleScene")
-        Input:AddKeyListener("f1", self, "ToggleColliders")
+        --Input:AddKeyListener("return", self, "ToggleScene")
+        --Input:AddKeyListener("f1", self, "ToggleColliders")
 
-        self:SetGameState(GameConstants.GameStates.Perform)
+        self:SetGameState(GameConstants.GameStates.Shop)
 
 		self.nextFixedUpdate = 0
 		self.lastFixedUpdate = 0

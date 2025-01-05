@@ -122,11 +122,11 @@ local Player =
     -- #region [EXTERNAL]
     -- ===========================================================================================================
     OnStartPerform = function(self)
-        Input:AddKeyListener("1", self, "EquipOne")
-		Input:AddKeyListener("2", self, "EquipTwo")
-		Input:AddKeyListener("3", self, "EquipThree")
-		Input:AddKeyListener("4", self, "EquipFour")
-		Input:AddKeyListener("5", self, "EquipFive")
+        -- Input:AddKeyListener("1", self, "EquipOne")
+		-- Input:AddKeyListener("2", self, "EquipTwo")
+		-- Input:AddKeyListener("3", self, "EquipThree")
+		-- Input:AddKeyListener("4", self, "EquipFour")
+		-- Input:AddKeyListener("5", self, "EquipFive")
 
         self.leftHand:OnStartPerform()
         self.rightHand:OnStartPerform()
@@ -166,31 +166,6 @@ local Player =
         self.leftHand:OnStopShop()
         self.rightHand:OnStopShop()
     end,
-
-    AddActionListener = function(self, action, callback)
-		if not self.actionListeners[action] then
-			self.actionListeners[action] = {}
-		end
-		self.actionListenerId = self.actionListenerId + 1
-		if not self.listenerIdToAction then
-			self.listenerIdToAction = {}
-		end
-		self.listenerIdToAction[self.actionListenerId] = action
-
-		self.actionListeners[action][self.actionListenerId] = callback
-        return self.actionListenerId
-	end,
-
-    RemoveActionListener = function(self, listenerId)
-		local action = self.listenerIdToAction[listenerId]
-		if not action then
-			print("RemoveActionListener: No action found with listenerId=", listenerId)
-			return
-		end
-		if self.actionListeners[action][listenerId] then
-			self.actionListeners[action][listenerId] = nil
-		end
-	end,
 
     -- ===========================================================================================================
     -- #region [INTERNAL]

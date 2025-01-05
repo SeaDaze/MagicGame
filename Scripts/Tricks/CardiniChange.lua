@@ -19,7 +19,7 @@ local CardiniChange = {
     OnStart = function(self)
 		self.timerNotificationId = Timer:AddListener(self, "OnTimerFinished")
 		self.leftHand:SetState(GameConstants.HandStates.MechanicsGrip)
-        Input:AddKeyListener("f", self, nil, "HandleChange")
+        --Input:AddKeyListener("f", self, nil, "HandleChange")
 		self.rightHand:SetState(GameConstants.HandStates.PalmDown)
     end,
 

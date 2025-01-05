@@ -34,5 +34,20 @@
 			"-- ===========================================================================================================",
     		"-- #endregion"
 		]
+	},
+
+	"ConnectEvent": {
+		"prefix": "ConnectEvent",
+		"body":[
+			"self.notificationId = EventSystem:ConnectToEvent(EventIds.EventId, self, FunctionString)",
+		]
+	},
+
+	"DisconnectEvent": {
+		"prefix": "DisconnectEvent",
+		"body":[
+			"EventSystem:DisconnectFromEvent(self.notificationId)",
+			"self.notificationId = nil"
+		]
 	}
 }

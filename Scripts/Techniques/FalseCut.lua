@@ -21,13 +21,13 @@ local FalseCut = {
     OnStart = function(self)
 		self.timerNotificationId = Timer:AddListener(self, "OnTimerFinished")
 
-		self.leftActionInputId = Input:AddActionListener(GameConstants.InputActions.Left, function()
-			Timer:Start("HandsToCentre", 0.5)
-			self.leftHand:Disable()
-			self.rightHand:Disable()
-			Flux.to(self.leftHand.position, 0.5, { x = (love.graphics.getWidth() / 2), y = (love.graphics.getHeight() / 2) } )
-			Flux.to(self.rightHand.position, 0.5, { x = (love.graphics.getWidth() / 2), y = (love.graphics.getHeight() / 2) } )
-		end)
+		-- self.leftActionInputId = Input:AddActionListener(GameConstants.InputActions.Left, function()
+		-- 	Timer:Start("HandsToCentre", 0.5)
+		-- 	self.leftHand:Disable()
+		-- 	self.rightHand:Disable()
+		-- 	Flux.to(self.leftHand.position, 0.5, { x = (love.graphics.getWidth() / 2), y = (love.graphics.getHeight() / 2) } )
+		-- 	Flux.to(self.rightHand.position, 0.5, { x = (love.graphics.getWidth() / 2), y = (love.graphics.getHeight() / 2) } )
+		-- end)
     end,
 
     OnStop = function(self)

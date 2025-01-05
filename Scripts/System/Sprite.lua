@@ -137,6 +137,13 @@ local Sprite =
             })
 		end,
 
+		Bottom = function(self)
+			return self:GetRelativeSocketPosition({
+                x = self.position.x + (0.5 * self.width * GameSettings.WindowResolutionScale),
+                y = self.position.y + (self.height * GameSettings.WindowResolutionScale),
+            })
+		end,
+
 		BottomRight = function(self)
 			return self:GetRelativeSocketPosition({
                 x = self.position.x + (self.width * GameSettings.WindowResolutionScale),

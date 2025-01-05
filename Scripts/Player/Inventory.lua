@@ -1,4 +1,4 @@
-
+local EventIds = require("Scripts.System.EventIds")
 
 local Inventory = 
 {
@@ -9,6 +9,8 @@ local Inventory =
     Load = function(self)
         self.relics = {}
         self.inventoryItemScaleModifier = 0.5
+
+		self.itemBoughtNotificationId = EventSystem:ConnectToEvent(EventIds.ItemBought, self, "OnItemBought")
     end,
 
     Update = function(self, dt)
@@ -17,6 +19,10 @@ local Inventory =
     -- ===========================================================================================================
     -- #region [EXTERNAL]
     -- ===========================================================================================================
+
+	OnItemBought = function(self, item)
+		self:AddRelicToInventory(item)
+	end,
 
     AddRelicToInventory = function(self, relic)
         relic:SetItemOwner(GameConstants.ItemOwners.Player)

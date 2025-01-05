@@ -1,11 +1,9 @@
-
+local EventIds = require("Scripts.System.EventIds")
 
 local Input =
 {
 	Load = function(self)
-		self.enabled = true
 		local joysticks = love.joystick.getJoysticks()
-		print("joysticks=", table.count(joysticks))
 		self.joystick = joysticks[1]
 
 		self.lastMousePosition = 
@@ -16,160 +14,37 @@ local Input =
 
 		self.rightAxisJoystickActive = false
 
-		if not self.actionListeners then
-			self.actionListeners = {}
-		end
 		self.actionDown = {}
 		for _, action in ipairs(GameConstants.InputActions) do
 			self.actionDown[action] = false
 		end
+
 		self.actionQueries = 
 		{
 			[GameConstants.InputActions.Left] = self.GetLeftActionDown,
 			[GameConstants.InputActions.Right] = self.GetRightActionDown
 		}
-		self.actionListenerId = 0
+		self.inputActionToEventId = 
+		{
+			[GameConstants.InputActions.Left] = EventIds.LeftAction,
+			[GameConstants.InputActions.Right] = EventIds.RightAction,
+		}
 	end,
 
     Update = function(self)
 		self:EvaluateRightJoystickAxisPriority()
 
-		if not self.enabled then
-			if self.reEnableTime and love.timer.getTime() > self.reEnableTime then
-				self.reEnableTime = nil
-				self.enabled = true
-				print("Update: input re-enabled")
-			else
-				return
-			end
-		end
-
-		if self.keyListeners then
-			for key, keyData in pairs(self.keyListeners) do
-				if not keyData.down and love.keyboard.isDown(key) then
-					keyData.down = true
-					if keyData.downCallback then
-						keyData.tableInstance[keyData.downCallback](keyData.tableInstance)
-					end
-				elseif keyData.down and not love.keyboard.isDown(key) then
-					keyData.down = false
-					if keyData.upCallback then
-						keyData.tableInstance[keyData.upCallback](keyData.tableInstance)
-					end
-				end
-			end
-		end
-
-		if self.mouseListeners then
-			for index, mouseData in pairs(self.mouseListeners) do
-				if not mouseData.down and love.mouse.isDown(index) then
-					mouseData.tableInstance[mouseData.downCallback](mouseData.tableInstance)
-					mouseData.down = true
-				elseif mouseData.down and not love.mouse.isDown(index) then
-					mouseData.down = false
-					if mouseData.upCallback then
-						mouseData.tableInstance[mouseData.upCallback](mouseData.tableInstance)
-					end
-				end
-			end
-		end
-
 		for action, queryActionFunction in pairs(self.actionQueries) do
 			local actionDown = queryActionFunction(self)
-			if self.actionListeners[action] then
-				if actionDown and not self.actionDown[action] then
-					self.actionDown[action] = true
-					for _, listenerTable in pairs(self.actionListeners[action]) do
-						if listenerTable.downCallback then
-							listenerTable:downCallback()
-						end
-					end
-				elseif not actionDown and self.actionDown[action] then
-					self.actionDown[action] = false
-					for _, listenerTable in pairs(self.actionListeners[action]) do
-						if listenerTable.upCallback then
-							listenerTable:upCallback()
-						end
-					end
-				end
+			if actionDown and not self.actionDown[action] then
+				self.actionDown[action] = true
+				EventSystem:BroadcastEvent(self.inputActionToEventId[action], action, true)
+			elseif not actionDown and self.actionDown[action] then
+				self.actionDown[action] = false
+				EventSystem:BroadcastEvent(self.inputActionToEventId[action], action, false)
 			end
 		end
     end,
-
-
-	--==========================================================================================================
-	-- Listeners
-	--==========================================================================================================
-	AddMouseListener = function(self, index, tableInstance, downCallback, upCallback)
-		if not self.mouseListeners then
-			self.mouseListeners = {}
-		end
-		self.mouseListeners[index] =
-		{
-			down = false,
-			tableInstance = tableInstance,
-			downCallback = downCallback,
-			upCallback = upCallback,
-		}
-		print("AddMouseListener: Added listener for index=", index, ", when pressed, will call function=", downCallback)
-	end,
-
-	RemoveMouseListener = function(self, index)
-		self.mouseListeners[index] = nil
-		print("RemoveMouseListener: Removed listener for mouse button=", index)
-	end,
-
-	AddKeyListener = function(self, key, tableInstance, downCallback, upCallback)
-		if not self.keyListeners then
-			self.keyListeners = {}
-		end
-		self.keyListeners[key] =
-		{
-			down = false,
-			tableInstance = tableInstance,
-			downCallback = downCallback,
-			upCallback = upCallback,
-		}
-		print("AddKeyListener: Added listener for key=", key, ", when pressed, will call function=", downCallback)
-	end,
-
-	RemoveKeyListener = function(self, key)
-		self.keyListeners[key] = nil
-		print("RemoveKeyListener: Removed listener for key=", key)
-	end,
-
-	AddActionListener = function(self, action, downCallback, upCallback)
-		if not self.actionListeners[action] then
-			self.actionListeners[action] = {}
-		end
-		self.actionListenerId = self.actionListenerId + 1
-		if not self.listenerIdToAction then
-			self.listenerIdToAction = {}
-		end
-		self.listenerIdToAction[self.actionListenerId] = action
-
-		self.actionListeners[action][self.actionListenerId] =
-		{
-			downCallback = downCallback,
-			upCallback = upCallback,
-		}
-
-		print("AddActionListener: Added action listener for action=", action, ", listenerId=",self.actionListenerId )
-		return self.actionListenerId
-	end,
-
-	RemoveActionListener = function(self, listenerId)
-		local action = self.listenerIdToAction[listenerId]
-		if not action then
-			print("RemoveActionListener: No action found with listenerId=", listenerId)
-			return
-		end
-		if self.actionListeners[action][listenerId] then
-			self.actionListeners[action][listenerId] = nil
-		end
-
-		print("RemoveActionListener: Removed action listener for action=", action, ", listenerId=", listenerId)
-	end,
 
 	--==========================================================================================================
 	-- Global gets
@@ -277,16 +152,6 @@ local Input =
 
 	GetRightJoystickAxisPriority = function(self)
 		return self.rightAxisJoystickActive
-	end,
-
-	SetEnabled = function(self, enabled)
-		self.enabled = enabled
-	end,
-
-	DisableForSeconds = function(self, seconds)
-		self.enabled = false
-		self.reEnableTime = love.timer.getTime() + seconds
-		print("DisableForSeconds: input disable for seconds=", seconds)
 	end,
 }
 

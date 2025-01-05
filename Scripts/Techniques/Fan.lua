@@ -1,4 +1,5 @@
 local Technique = require("Scripts.Techniques.Technique")
+local EventIds  = require("Scripts.System.EventIds")
 
 local Fan = {
     New = function(self, deck, leftHand, rightHand)
@@ -17,7 +18,7 @@ local Fan = {
 		instance.distanceThreshold = 20 * 20 * GameSettings.WindowResolutionScale
 
 		instance.lastRotationAngle = 0
-		instance.fanRotationPoint = 
+		instance.newPoint = 
 		{
 			x = 0,
 			y = 0,
@@ -30,50 +31,61 @@ local Fan = {
 		self.leftHand:SetState(GameConstants.HandStates.Fan)
 		self:InitializeFan()
 
-		DrawSystem:AddDebugDraw(
-            function ()
-				love.graphics.setColor(1, 0, 0, 1)
-				local cards = self.deck:GetCards()
-				local sockets = {
-					cards[52]:GetSprite():GetSocket("TopLeft"),
-					cards[52]:GetSprite():GetSocket("Top"),
-				}
+		self.rightActionNotificationId = EventSystem:ConnectToEvent(EventIds.RightAction, self, "OnInputAction")
 
-				for _, socket in pairs(sockets) do
-					love.graphics.ellipse(
-						"fill",
-						socket.x,
-						socket.y,
-						5,
-						5,
-						6
-					)
-				end
+		-- DrawSystem:AddDebugDraw(
+        --     function ()
+		-- 		love.graphics.setColor(1, 0, 0, 1)
+		-- 		local cards = self.deck:GetCards()
+		-- 		local sockets = {
+		-- 			cards[52]:GetSprite():GetSocket("TopLeft"),
+		-- 			cards[52]:GetSprite():GetSocket("Top"),
+		-- 		}
+
+		-- 		for _, socket in pairs(sockets) do
+		-- 			love.graphics.ellipse(
+		-- 				"fill",
+		-- 				socket.x,
+		-- 				socket.y,
+		-- 				5,
+		-- 				5,
+		-- 				6
+		-- 			)
+		-- 		end
 				
-				love.graphics.setColor(1, 0, 1, 1)
-				for _, point in pairs(self.points) do
-					love.graphics.ellipse(
-						"fill",
-						point.x,
-						point.y,
-						3,
-						3,
-						6
-					)
-				end
+		-- 		love.graphics.setColor(1, 0, 1, 1)
+		-- 		for _, point in pairs(self.points) do
+		-- 			love.graphics.ellipse(
+		-- 				"fill",
+		-- 				point.x,
+		-- 				point.y,
+		-- 				3,
+		-- 				3,
+		-- 				6
+		-- 			)
+		-- 		end
 
-				love.graphics.ellipse(
-					"fill",
-					self.fanRotationPoint.x,
-					self.fanRotationPoint.y,
-					3,
-					3,
-					6
-				)
+		-- 		love.graphics.ellipse(
+		-- 			"fill",
+		-- 			self.newPoint.x,
+		-- 			self.newPoint.y,
+		-- 			3,
+		-- 			3,
+		-- 			6
+		-- 		)
+				
+		-- 		local cards = self.deck:GetCards()
+		-- 		local topCard = cards[52]
+		-- 		local topCardSprite = topCard:GetSprite()
+		-- 		local bottomSocket = topCardSprite:GetSocket("Bottom")
+		-- 		local pointSocket = topCardSprite:GetSocket("Top")
 
-				love.graphics.setColor(1, 1, 1, 1)
-            end
-        )
+		-- 		love.graphics.line(bottomSocket.x, bottomSocket.y, pointSocket.x, pointSocket.y)
+		-- 		love.graphics.line(bottomSocket.x, bottomSocket.y, bottomSocket.x, bottomSocket.y - topCardSprite:GetHeight() * GameSettings.WindowResolutionScale)
+
+		-- 		love.graphics.setColor(1, 1, 1, 1)
+        --     end
+        -- )
     end,
 
     OnStop = function(self)
@@ -153,10 +165,15 @@ local Fan = {
 		self.lastRotationAngle = 0
 	end,
 
+	OnInputAction = function(self, action, pressed)
+		self.rightActionPressed = pressed
+	end,
+
 	HandleFanRotation = function(self)
-		if not Input:GetRightActionDown() then
+		if not self.rightActionPressed then
 			return
 		end
+
 		local cards = self.deck:GetCards()
 		local topCard = cards[52]
 		local topCardSprite = topCard:GetSprite()
@@ -175,17 +192,17 @@ local Fan = {
 		if handsDistance > self.distanceThreshold then
 			return
 		end
-		self.fanRotationPoint = {
+		self.newPoint = {
 			x = indexFingerPosition.x + socketOffset.x,
 			y = indexFingerPosition.y + socketOffset.y
 		}
-		if self.fanRotationPoint.x < self.leftHand:GetPosition().x then
+		if self.newPoint.x < self.leftHand:GetPosition().x then
 			return
 		end
-
+		
 		local topCardPosition = topCardSprite:GetPosition()
 		local v1 = { x = 0, y = -1 }
-		local v2 = Common:Normalize({ x = self.fanRotationPoint.x - topCardPosition.x, y = self.fanRotationPoint.y - topCardPosition.y })
+		local v2 = Common:Normalize({ x = self.newPoint.x - topCardPosition.x, y = self.newPoint.y - topCardPosition.y })
 		local newAngle = Common:AngleBetweenVectors(v1, v2)
 
 		if newAngle < self.lastRotationAngle then
@@ -204,11 +221,11 @@ local Fan = {
 		if lastPoint then
 			local halfCircumference = math.pi * topCardSpriteHeight
 			local distanceBetweenPoints =  halfCircumference / 52
-			if Common:DistanceSquared(lastPoint.x, lastPoint.y, self.fanRotationPoint.x, self.fanRotationPoint.y) > distanceBetweenPoints * distanceBetweenPoints then
-				self:CreateNewPoint(self.fanRotationPoint.x, self.fanRotationPoint.y)
+			if Common:DistanceSquared(lastPoint.x, lastPoint.y, self.newPoint.x, self.newPoint.y) > distanceBetweenPoints * distanceBetweenPoints then
+				self:CreateNewPoint(self.newPoint.x, self.newPoint.y)
 			end
 		else
-			self:CreateNewPoint(self.fanRotationPoint.x, self.fanRotationPoint.y)
+			self:CreateNewPoint(self.newPoint.x, self.newPoint.y)
 		end
 	end,
 

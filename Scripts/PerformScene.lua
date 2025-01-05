@@ -24,21 +24,21 @@ local PerformScene =
 	OnStart = function(self)
 		Player:OnStartPerform()
 		Mat:OnStartPerform()
-		self.techniqueEvaluatedListenerId = Player:AddActionListener("OnTechniqueEvaluated",
-			function(score)
-				if not score then
-					return
-				end
-				HUD:SetScoreText(math.floor(score))
-				self.audience:SetAudienceAwe(score)
-				self.audience:HandleDamage(math.floor(score))
-			end
-		)
+		-- self.techniqueEvaluatedListenerId = Player:AddActionListener("OnTechniqueEvaluated",
+		-- 	function(score)
+		-- 		if not score then
+		-- 			return
+		-- 		end
+		-- 		HUD:SetScoreText(math.floor(score))
+		-- 		self.audience:SetAudienceAwe(score)
+		-- 		self.audience:HandleDamage(math.floor(score))
+		-- 	end
+		-- )
 	end,
 
 	OnStop = function(self)
 		Player:OnStopPerform()
-		Player:RemoveActionListener(self.techniqueEvaluatedListenerId)
+		--Player:RemoveActionListener(self.techniqueEvaluatedListenerId)
 		Mat:OnStopPerform()
 	end,
 
@@ -62,7 +62,7 @@ local PerformScene =
 				end
 			end
 		)
-		
+
 		self.audience:Draw()
 
 		love.graphics.printf("Perform", GameConstants.UI.Font, 0, 0, love.graphics.getWidth(), "center")

@@ -1,3 +1,5 @@
+local EventIds = require("Scripts.System.EventIds")
+
 local Hand = 
 {
     -- ===========================================================================================================
@@ -40,6 +42,28 @@ local Hand =
         DrawSystem:RemoveDrawable(self.sprite)
 	end,
 
+	OnInputAction = function(self, action, pressed)
+		if pressed then
+			if not table.isEmpty(self.nearbyPickups) then
+				self:SetState(GameConstants.HandStates.PalmDownGrabClose)
+				local nearestPickup = self:EvaluateNearestPickup()
+				if nearestPickup then
+					nearestPickup:SetPickedUp(self)
+				end
+			end
+		else
+			if table.isEmpty(self.nearbyPickups) then
+				self:SetState(GameConstants.HandStates.PalmDownRelaxed)
+			else
+				self:SetState(GameConstants.HandStates.PalmDownGrabOpen)
+				local pickup = self:GetPickup()
+				if pickup then
+					pickup:SetDropped(self)
+				end
+			end
+		end
+	end,
+
     -- ===========================================================================================================
     -- #region [INTERNAL]
     -- ===========================================================================================================
@@ -67,32 +91,12 @@ local Hand =
     ConnectPickupFunctions = function(self)
 		self:SetState(GameConstants.HandStates.PalmDownRelaxed)
 
-		self.buildActionInputId = Input:AddActionListener(self.actionListenTarget,
-			function ()
-				if not table.isEmpty(self.nearbyPickups) then
-					self:SetState(GameConstants.HandStates.PalmDownGrabClose)
-                    local nearestPickup = self:EvaluateNearestPickup()
-                    if nearestPickup then
-                        nearestPickup:SetPickedUp(self)
-                    end
-				end
-			end,
-			function ()
-				if table.isEmpty(self.nearbyPickups) then
-					self:SetState(GameConstants.HandStates.PalmDownRelaxed)
-				else
-					self:SetState(GameConstants.HandStates.PalmDownGrabOpen)
-                    local pickup = self:GetPickup()
-                    if pickup then
-                        pickup:SetDropped(self)
-                    end
-				end
-			end
-		)
+		self.actionNotificationId = EventSystem:ConnectToEvent(self.actionListenTarget, self, "OnInputAction")
     end,
 
     DisconnectPickupFunctions = function(self)
-        Input:RemoveActionListener(self.buildActionInputId)
+		EventSystem:DisconnectFromEvent(self.actionNotificationId)
+		self.actionNotificationId = nil
     end,
 
     -- ===========================================================================================================
@@ -155,7 +159,6 @@ local Hand =
 			self:SetState(GameConstants.HandStates.PalmDownRelaxed)
 		end
 	end,
-
     -- ===========================================================================================================
     -- #endregion
 }

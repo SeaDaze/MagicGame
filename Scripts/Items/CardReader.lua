@@ -1,4 +1,5 @@
 local BoxCollider = require("Scripts.Physics.BoxCollider")
+local EventIds    = require("Scripts.System.EventIds")
 
 local CardReaderStates = 
 {
@@ -125,9 +126,7 @@ local CardReader =
     OnTimerFinished = function(self, timerId)
         if timerId == "CardReader_Read" then
             self:SetState(CardReaderStates.Green)
-            for _, listener in pairs(self.buyListeners) do
-                listener.buySuccessCallback()
-            end
+			EventSystem:BroadcastEvent(EventIds.CreditCardReadSuccess)
         end
 	end,
 

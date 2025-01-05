@@ -43,7 +43,7 @@ local SettingsMenu =
 
         self.hooks = {}
         self.hookId = {}
-        Input:AddKeyListener("escape", self, "ToggleActive")
+       -- Input:AddKeyListener("escape", self, "ToggleActive")
     end,
 
     Update = function(self, dt)
