@@ -107,12 +107,10 @@ local Fan = {
 		self.rightHand:SetState(GameConstants.HandStates.PalmDownGrabOpen)
 		self.fanSpreading = false
 		local quality = self:EvaluateFanQuality()
-		self:Technique_OnTechniqueEvaluated(quality)
+		EventSystem:BroadcastEvent(EventIds.TechniqueEvaluated, "fan", quality)
 		if self.cardSelection then
-			Input:DisableForSeconds(7)
 			Timer:Start("SelectCard", 1)
 		else
-			Input:DisableForSeconds(2)
 			Timer:Start("UninitializeFan", 2)
 		end
 	end,
@@ -132,7 +130,6 @@ local Fan = {
 			end
 			self:UninitializeFan()
 			Timer:Start("InitializeFan", 1)
-			
 			--self:Technique_OnFinished()
 		elseif timerId == "InitializeFan" then
 			self:InitializeFan()
@@ -236,6 +233,8 @@ local Fan = {
 		table.insert(self.cardsInSpread, self.spreadingCards[1])
 		local removedCard = table.remove(self.spreadingCards, 1)
 		local lastCardAngle = removedCard:GetSprite():GetAngle()
+		local quality = self:EvaluateFanQuality()
+		EventSystem:BroadcastEvent(EventIds.TechniqueEvaluated, "fan", quality)
 		if lastCardAngle > 175 or table.isEmpty(self.spreadingCards) then
 			self.points = {}
 			self.pointIndex = 1

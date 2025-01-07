@@ -123,7 +123,6 @@ local SettingsMenu =
 
     OnCloseClicked = function(self)
         self:SetActive(false)
-        self:ExecuteHooks("OnCloseClicked")
     end,
 
     GetActive = function(self)
@@ -151,31 +150,6 @@ local SettingsMenu =
         else
             self:SetActive(true)
         end
-    end,
-
-    ExecuteHooks = function(self, functionName)
-        if not self.hooks[functionName] then
-            return
-        end
-        for _, func in pairs(self.hooks[functionName]) do
-            func()
-        end
-    end,
-
-    HookFunction = function(self, targetFunction, hookedFunction)
-        if not self.hookId[targetFunction] then
-            self.hookId[targetFunction] = 0
-        end
-        if not self.hooks[targetFunction] then
-            self.hooks[targetFunction] = {}
-        end
-        self.hookId[targetFunction] = self.hookId[targetFunction] + 1
-        self.hooks[targetFunction][self.hookId[targetFunction]] = hookedFunction
-        return self.hookId[targetFunction]
-    end,
-
-    UnhookFunction = function(self, targetFunction, hookId)
-        self.hooks[targetFunction][hookId] = nil
     end,
 }
 return SettingsMenu

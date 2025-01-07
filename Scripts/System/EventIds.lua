@@ -9,5 +9,7 @@ local EventIds =
 	CreditCardReadSuccess = 5,
 
 	ItemBought = 6,
+
+	TechniqueEvaluated = 7,
 }
 return EventIds

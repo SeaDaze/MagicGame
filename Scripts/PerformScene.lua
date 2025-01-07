@@ -1,6 +1,8 @@
 -- Game objects
 local Audience = require("Scripts.Audience.Audience")
 local Mat = require("Scripts.Mat")
+local Text = require("Scripts.System.Text")
+local EventIds = require("Scripts.System.EventIds")
 
 local PerformScene =
 {
@@ -19,27 +21,31 @@ local PerformScene =
 		}
 
 		self.blurEffect = Moonshine(Moonshine.effects.boxblur).chain(Moonshine.effects.pixelate)
+
+		self.scoreText = Text:New(
+            "0",
+            GameConstants.UI.Font,
+            { x = 0, y = 120, z = 0 },
+            0,
+            DrawLayers.HUD,
+            "center"
+        )
     end,
 
 	OnStart = function(self)
 		Player:OnStartPerform()
 		Mat:OnStartPerform()
-		-- self.techniqueEvaluatedListenerId = Player:AddActionListener("OnTechniqueEvaluated",
-		-- 	function(score)
-		-- 		if not score then
-		-- 			return
-		-- 		end
-		-- 		HUD:SetScoreText(math.floor(score))
-		-- 		self.audience:SetAudienceAwe(score)
-		-- 		self.audience:HandleDamage(math.floor(score))
-		-- 	end
-		-- )
+		DrawSystem:AddDrawable(self.scoreText)
+
+		self.scoreNotificationId = EventSystem:ConnectToEvent(EventIds.TechniqueEvaluated, self, "OnTechniqueEvaluated")
 	end,
 
 	OnStop = function(self)
 		Player:OnStopPerform()
-		--Player:RemoveActionListener(self.techniqueEvaluatedListenerId)
 		Mat:OnStopPerform()
+		DrawSystem:RemoveDrawable(self.scoreText)
+		EventSystem:DisconnectFromEvent(self.scoreNotificationId)
+		self.scoreNotificationId = nil
 	end,
 
     Update = function(self, dt)
@@ -86,6 +92,10 @@ local PerformScene =
 		psystem:setSizes(0, GameSettings.WindowResolutionScale)
 		psystem:moveTo(love.graphics.getWidth() / 2, love.graphics.getHeight() / 2)
 		return psystem
+	end,
+
+	OnTechniqueEvaluated = function(self, techniqueName, score)
+		self.scoreText:SetText(tostring(math.floor(score)))
 	end,
 }
 return PerformScene

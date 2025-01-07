@@ -184,8 +184,6 @@ local Player =
 
 		if self.routineIndex and self.routine[self.routineIndex] then
 			self.routine[self.routineIndex]:OnStop()
-            self.routine[self.routineIndex]:Technique_RemoveActionListener("Technique_OnTechniqueEvaluated", self.onTechniqueEvaluatedHookId)
-            self.routine[self.routineIndex]:Technique_RemoveActionListener("Technique_OnFinished", self.onTechniqueFinishedHookId)
             self.cardSlots[self.routineIndex]:SetCompleted()
             print("EquipRoutineIndex: Completed=", self.routineIndex)
 		end
@@ -199,17 +197,6 @@ local Player =
 		self.routineIndex = index
 		self.routine[self.routineIndex]:OnStart()
         self.cardSlots[self.routineIndex]:SetSelected()
-		self.onTechniqueEvaluatedHookId = self.routine[self.routineIndex]:Technique_AddActionListener("Technique_OnTechniqueEvaluated", function(params)
-            local actionCallbacks = self.actionListeners["OnTechniqueEvaluated"]
-			if actionCallbacks then
-                for _, callback in pairs(actionCallbacks) do
-                    callback(params.score)
-                end
-            end
-		end)
-        self.onTechniqueFinishedHookId = self.routine[self.routineIndex]:Technique_AddActionListener("Technique_OnFinished", function(params)
-            --self:EquipRoutineIndex(self.routineIndex + 1)
-		end)
 	end,
 
     EquipOne = function(self)

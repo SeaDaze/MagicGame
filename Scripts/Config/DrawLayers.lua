@@ -13,5 +13,7 @@ local DrawLayers =
 
     AIHand = 4,
     CardReader = 5,
+
+    HUD = 200,
 }
 return DrawLayers

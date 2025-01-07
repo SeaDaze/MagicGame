@@ -50,10 +50,6 @@ local MainMenu =
         self:OnRequestGameStateChange(GameConstants.GameStates.Perform)
     end,
 
-    OnRequestGameStateChange = function(self, newState)
-        Common.ExecuteHooks(self, "OnRequestGameStateChange", { newState = newState })
-    end,
-
     OnSettingsMenuClicked = function(self)
         self.logicActive = false
         SettingsMenu:SetActive(true)

@@ -84,37 +84,6 @@ local Common = {
 		return num
 	end,
 
-	ExecuteHooks = function(target, functionName, params)
-        for _, func in pairs(target.common_hooks[functionName]) do
-            func(params)
-        end
-    end,
-
-	---@param target table (Table which contains the target function we are hooking)
-	---@param targetFunction string (Name of target function to hook)
-	---@param hookedFunction function (Function to be called)
-    HookFunction = function(target, targetFunction, hookedFunction)
-		if not target.common_hookId then
-			target.common_hookId = {}
-		end
-        if not target.common_hookId[targetFunction] then
-            target.common_hookId[targetFunction] = 0
-        end
-		if not target.common_hooks then
-			target.common_hooks = {}
-		end
-        if not target.common_hooks[targetFunction] then
-            target.common_hooks[targetFunction] = {}
-        end
-        target.common_hookId[targetFunction] = target.common_hookId[targetFunction] + 1
-        target.common_hooks[targetFunction][target.common_hookId[targetFunction]] = hookedFunction
-        return target.common_hookId[targetFunction]
-    end,
-
-    UnhookFunction = function(target, targetFunction, common_hookId)
-        target.common_hooks[targetFunction][common_hookId] = nil
-    end,
-
 	RotatePointAroundPoint = function(self, point, axisPoint, degrees)
 		local rad = math.rad(degrees)
 		local s = math.sin(rad)

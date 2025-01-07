@@ -13,13 +13,13 @@ GameConstants = require("Scripts.Config.GameConstants")
 Sprite = require("Scripts.System.Sprite")
 Common = require("Scripts.Common")
 Text = require("Scripts.System.Text")
-Flux = require("Scripts.libraries.flux")
 Moonshine = require ("Scripts.libraries.moonshine")
 
 -- TODO: Change to injection
 Player = require("Scripts.Player.Player")
 SettingsMenu = require("Scripts.UI.SettingsMenu")
 HUD = require("Scripts.UI.HUD")
+Flux = require("Scripts.libraries.flux")
 
 -- Scenes
 local PerformScene = require("Scripts.PerformScene")
@@ -62,10 +62,7 @@ local game = {
             [GameConstants.GameStates.Shop] = ShopScene,
         }
 
-        --Input:AddKeyListener("return", self, "ToggleScene")
-        --Input:AddKeyListener("f1", self, "ToggleColliders")
-
-        self:SetGameState(GameConstants.GameStates.Shop)
+        self:SetGameState(GameConstants.GameStates.Perform)
 
 		self.nextFixedUpdate = 0
 		self.lastFixedUpdate = 0
@@ -127,23 +124,6 @@ local game = {
     -- #region [INTERNAL]
     -- ===========================================================================================================
 
-    -- Scenes
-    ToggleScene = function(self)
-        if self.gameState == GameConstants.GameStates.Perform then
-            self:RequestGameStateChange(GameConstants.GameStates.Build)
-        else
-            self:RequestGameStateChange(GameConstants.GameStates.Perform)
-        end
-    end,
-
-    ToggleColliders = function(self)
-        if GameSettings.Debug_Show then
-            GameSettings.Debug_Show = false
-        else
-            GameSettings.Debug_Show = true
-        end
-    end,
-
     FadeToScene = function(self, fadeDuration)
         Flux.to(self, fadeDuration, { vignetteRadius = 0.9 })
         Flux.to(self, fadeDuration, { vignetteOpacity = 0.5 })
@@ -175,22 +155,10 @@ local game = {
     SetGameState = function(self, newState)
         if self.gameScenes[self.gameState] then
             self.gameScenes[self.gameState]:OnStop()
-            Common.UnhookFunction(
-                self.gameScenes[self.gameState],
-                "OnRequestGameStateChange",
-                self.gameStateChangeHookId
-            )
         end
 
         self.gameScenes[newState]:OnStart()
 
-        self.gameStateChangeHookId = Common.HookFunction(
-            self.gameScenes[newState],
-            "OnRequestGameStateChange",
-            function(params)
-                self:RequestGameStateChange(params.newState)
-            end
-        )
         self.gameState = newState
     end,
 
