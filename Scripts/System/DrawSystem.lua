@@ -162,7 +162,6 @@ local DrawSystem =
     AddDebugDraw = function(self, func)
         self.debug_DrawIndex = self.debug_DrawIndex + 1
         self.debug_DrawFunctions[self.debug_DrawIndex] = func
-        table.insert(self.debug_DrawFunctions, func)
         return self.debug_DrawIndex
     end,
 
