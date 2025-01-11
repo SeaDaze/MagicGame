@@ -156,6 +156,18 @@ local GameConstants =
         Sprite = 1,
         Text = 2,
         SpritesheetQuad = 3,
-    }
+		ComplexSpritesheetQuad = 4,
+    },
+
+	AudienceFaceIndex = 
+	{
+		Neutral = 1,
+		Suspicious = 2,
+		Awe = 3,
+		Scared = 4,
+		Happy = 5,
+		ScaryHappy = 6,
+		Angry = 7,
+	}
 }
 return GameConstants

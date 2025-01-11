@@ -2,7 +2,6 @@
 
 local DrawSystem = 
 {
-
     -- ===========================================================================================================
     -- #region [CORE]
     -- ===========================================================================================================
@@ -24,7 +23,9 @@ local DrawSystem =
                         self:DrawText(drawableData)
                     elseif drawableData.type == GameConstants.DrawableTypes.SpritesheetQuad then
                         self:DrawSpritesheetQuad(drawableData)
-                    end
+					elseif drawableData.type == GameConstants.DrawableTypes.ComplexSpritesheetQuad then
+						self:DrawComplexSpritesheetQuad(drawableData)
+					end
                 end
             end
         end
@@ -40,24 +41,32 @@ local DrawSystem =
     -- ===========================================================================================================
     -- #region [EXTERNAL]
     -- ===========================================================================================================
+	---@param self any
+	---@param spritesheet love.Image
+	---@param spriteWidth number
+	---@param spriteHeight number
+	ExtractAllSpritesheetQuads = function(self, spritesheet, spriteWidth, spriteHeight)
+		local spritesheetWidth = spritesheet:getWidth()
+		local spritesheetHeight = spritesheet:getHeight()
+
+		local columns = spritesheetWidth / spriteWidth
+		local rows = spritesheetHeight / spriteHeight
+		local quads = {}
+		local quadIndex = 1
+		for y = 0, rows - 1 do
+			for x = 0, columns - 1 do
+				quads[quadIndex] = love.graphics.newQuad(x * spriteWidth, y * spriteHeight, spriteWidth, spriteHeight, spritesheetWidth, spritesheetHeight)
+				quadIndex = quadIndex + 1
+			end
+		end
+		print("ExtractAllSpritesheetQuads: Extracted ", table.count(quads), " quads")
+		return quads
+	end,
+
     -- ===========================================================================================================
     -- #region [INTERNAL]
     -- ===========================================================================================================
     DrawSprite = function(self, spriteData)
-        --if spriteData.drawShadow and spriteData.position.z > 0 then
-            -- love.graphics.setColor(0, 0, 0, 0.2)
-            -- love.graphics.draw(
-            --     spriteData.drawable,
-            --     spriteData.position.x + (spriteData.position.z * GameSettings.WindowResolutionScale),
-            --     spriteData.position.y + (spriteData.position.z * GameSettings.WindowResolutionScale),
-            --     math.rad(spriteData.angle),
-            --     GameSettings.WindowResolutionScale * spriteData.scaleModifier * (1 + (spriteData.position.z / 100)),
-            --     GameSettings.WindowResolutionScale * spriteData.scaleModifier * (1 + (spriteData.position.z / 100)),
-            --     spriteData.width * spriteData.originOffsetRatio.x,
-            --     spriteData.height * spriteData.originOffsetRatio.y
-            -- )
-            -- love.graphics.setColor(1, 1, 1, 1)
-        --end
         love.graphics.draw(
             spriteData.drawable,
             spriteData.position.x,
@@ -83,21 +92,6 @@ local DrawSystem =
     end,
 
     DrawSpritesheetQuad = function(self, spritesheetData)
-        if spritesheetData.drawShadow and spritesheetData.position.z > 0 then
-            love.graphics.setColor(0, 0, 0, 0.2)
-            love.graphics.draw(
-                spritesheetData.drawableSpritesheet,
-                spritesheetData.quad,
-                spritesheetData.position.x + (spritesheetData.position.z * GameSettings.WindowResolutionScale),
-                spritesheetData.position.y + (spritesheetData.position.z * GameSettings.WindowResolutionScale),
-                math.rad(spritesheetData.angle),
-                GameSettings.WindowResolutionScale * spritesheetData.scaleModifier * (1 + (spritesheetData.position.z / 100)),
-                GameSettings.WindowResolutionScale * spritesheetData.scaleModifier * (1 + (spritesheetData.position.z / 100)),
-                spritesheetData.width * spritesheetData.originOffsetRatio.x,
-                spritesheetData.height * spritesheetData.originOffsetRatio.y
-            )
-            love.graphics.setColor(1, 1, 1, 1)
-        end
         love.graphics.draw(
             spritesheetData.drawableSpritesheet,
             spritesheetData.quad,
@@ -109,6 +103,22 @@ local DrawSystem =
             spritesheetData.width * spritesheetData.originOffsetRatio.x,
             spritesheetData.height * spritesheetData.originOffsetRatio.y
         )
+    end,
+
+	DrawComplexSpritesheetQuad = function(self, spritesheetData)
+		for index, spritesheet in ipairs(spritesheetData.drawableSpritesheetTable) do
+			love.graphics.draw(
+				spritesheet,
+				spritesheetData.quadTable[index],
+				spritesheetData.position.x,
+				spritesheetData.position.y,
+				math.rad(spritesheetData.angle),
+				GameSettings.WindowResolutionScale * spritesheetData.scaleModifier * (1 + (spritesheetData.position.z / 100)),
+				GameSettings.WindowResolutionScale * spritesheetData.scaleModifier * (1 + (spritesheetData.position.z / 100)),
+				spritesheetData.width * spritesheetData.originOffsetRatio.x,
+				spritesheetData.height * spritesheetData.originOffsetRatio.y
+			)
+		end
     end,
 
     DrawText = function(self, textData)

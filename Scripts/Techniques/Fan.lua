@@ -255,6 +255,9 @@ local Fan = {
 		local finalEvaluation = (angleDistributionQuality + cardNumberQuality + fullAngleQuality) / 3
 		finalEvaluation = finalEvaluation + 5
 		finalEvaluation = (finalEvaluation * finalEvaluation) / 100
+		if finalEvaluation ~= finalEvaluation then
+			return 0
+		end
 		return Common:Clamp(finalEvaluation, 0, 100)
 	end,
 

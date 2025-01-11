@@ -1,42 +1,35 @@
 local AudienceMember = require("Scripts.Audience.AudienceMember")
-local Common         = require("Scripts.Common")
 
 local Audience = 
 {
-    New = function(self)
-        local instance = setmetatable({}, self)
-
-        local spriteWidth, spriteHeight = 32, 32
+	-- ===========================================================================================================
+	-- #region [CORE]
+	-- ===========================================================================================================
+	Load = function(self)
         local headSpritesheet = love.graphics.newImage("Images/Faces/Head_Base_Spritesheet.png")
         local hairSpritesheet = love.graphics.newImage("Images/Faces/Hair_Spritesheet.png")
         local faceSpritesheet = love.graphics.newImage("Images/Faces/Face_Spritesheet.png")
 
-        local headQuads = self:GetTableOfQuads(headSpritesheet, spriteWidth, spriteHeight)
-        local hairQuads = self:GetTableOfQuads(hairSpritesheet, spriteWidth, spriteHeight)
-        local faceQuads = self:GetTableOfQuads(faceSpritesheet, spriteWidth, spriteHeight)
+		self.audienceSpriteData = 
+		{
+			head =
+			{
+				spritesheet = headSpritesheet,
+				quads = DrawSystem:ExtractAllSpritesheetQuads(headSpritesheet, 32, 32),
+			},
+			hair =
+			{
+				spritesheet = hairSpritesheet,
+				quads = DrawSystem:ExtractAllSpritesheetQuads(hairSpritesheet, 32, 32),
+			},
+			face =
+			{
+				spritesheet = faceSpritesheet,
+				quads = DrawSystem:ExtractAllSpritesheetQuads(faceSpritesheet, 32, 32),
+			},
+		}
 
-        local spriteData = {
-            head = {
-                spritesheet = headSpritesheet,
-                quads = headQuads,
-            },
-            hair = {
-                spritesheet = hairSpritesheet,
-                quads = hairQuads,
-            },
-            face = {
-                spritesheet = faceSpritesheet,
-                quads = faceQuads,
-            }
-        }
-
-        instance.audience = {}
-
-        for i = 1, 10 do
-            table.insert(instance.audience, AudienceMember:New(spriteData))
-        end
-
-        return instance
+        self.audience = {}
     end,
 
     FixedUpdate = function(self, dt)
@@ -51,20 +44,23 @@ local Audience =
         end
     end,
 
-    GetTableOfQuads = function(self, spritesheet, spriteWidth, spriteHeight)
-        local quads = {}
-        local spritesheetWidth = spritesheet:getWidth()
-        local spritesheetHeight = spritesheet:getHeight()
-        local count = spritesheetWidth / spriteWidth
-        local x = 0
-        for i = 1, count do
-            local quad = love.graphics.newQuad(x, 0, spriteWidth, spriteHeight, spritesheetWidth, spritesheetHeight)
-            table.insert(quads, quad)
-            x = x + spriteWidth
+	OnStart = function(self)
+		self:GenerateAudience(10)
+        for _, audienceMember in pairs(self.audience) do
+            DrawSystem:AddDrawable(audienceMember.sprite)
         end
-        return quads
-    end,
+	end,
 
+	OnStop = function(self)
+        for _, audienceMember in pairs(self.audience) do
+            DrawSystem:RemoveDrawable(audienceMember.sprite)
+        end
+		self.audience = {}
+	end,
+
+	-- ===========================================================================================================
+	-- #region [EXTERNAL]
+	-- ===========================================================================================================
     SetAudienceAwe = function(self, score)
         if not score then
             return
@@ -86,14 +82,6 @@ local Audience =
                 audienceMember:SetFaceAwe()
             end
         end
-    end,
-
-    GetTotalHealth = function(self)
-        local total = 0
-        for _, audienceMember in pairs(self.audience) do
-            total = total + audienceMember:GetHealth()
-        end
-        return total
     end,
 
     HandleDamage = function(self, damage)
@@ -121,6 +109,55 @@ local Audience =
             end
         end
     end,
+
+	-- ===========================================================================================================
+	-- #region [INTERNAL]
+	-- ===========================================================================================================
+
+	GenerateAudience = function(self, size)
+		self.audience = {}
+		for memberIndex = 1, size do
+			self.audience[memberIndex] = self:GenerateRandomAudienceMember()
+		end
+	end,
+
+	GenerateRandomAudienceMember = function(self)
+		local sprite = Sprite:NewComplexSpriteFromSpritesheet(
+			{
+				self.audienceSpriteData.head.spritesheet,
+				self.audienceSpriteData.hair.spritesheet,
+				self.audienceSpriteData.face.spritesheet,
+			},
+			{
+				self.audienceSpriteData.head.quads[love.math.random(table.count(self.audienceSpriteData.head.quads))],
+				self.audienceSpriteData.hair.quads[love.math.random(table.count(self.audienceSpriteData.hair.quads))],
+				self.audienceSpriteData.face.quads[GameConstants.AudienceFaceIndex.Neutral],
+			},
+			{ width = 32, height = 32 },
+			{ x = 0, y = 0 },
+			0,
+			1,
+			DrawLayers.Audience,
+			false,
+			{ x = 0, y = 0 }
+		)
+
+        return AudienceMember:New(sprite)
+    end,
+
+	-- ===========================================================================================================
+	-- #region [PUBLICHELPERS]
+	-- ===========================================================================================================
+	GetTotalHealth = function(self)
+        local total = 0
+        for _, audienceMember in pairs(self.audience) do
+            total = total + audienceMember:GetHealth()
+        end
+        return total
+    end,
+	-- ===========================================================================================================
+	-- #endregion
+
+
 }
-Audience.__index = Audience
 return Audience

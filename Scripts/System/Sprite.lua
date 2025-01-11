@@ -37,6 +37,18 @@ local Sprite =
         return instance
     end,
 
+	---comment
+	---@param self any
+	---@param drawableSpritesheet love.Image
+	---@param quad love.Quad
+	---@param dimensions table (width, height)
+	---@param position table (x, y)
+	---@param angle number
+	---@param scaleModifier number
+	---@param layerIndex number
+	---@param drawShadow boolean
+	---@param originOffsetRatio table (x, y)
+	---@return table|nil
     NewFromSpritesheet = function(self, drawableSpritesheet, quad, dimensions, position, angle, scaleModifier, layerIndex, drawShadow, originOffsetRatio)
         if not drawableSpritesheet then
             print("Sprite:NewFromSpritesheet() Error - Cannot create new sprite object, received drawable is nil")
@@ -71,15 +83,52 @@ local Sprite =
         return instance
     end,
 
+	NewComplexSpriteFromSpritesheet = function(self, drawableSpritesheetTable, quadTable, dimensions, position, angle, scaleModifier, layerIndex, drawShadow, originOffsetRatio)
+		local spriteCount = table.count(drawableSpritesheetTable)
+		local quadCount = table.count(quadTable)
+
+		if spriteCount ~= quadCount then
+			print("Sprite:NewComplexSprite() Error - Cannot create new sprite object, number of spritesheets and quads is mismatched")
+            return nil
+		end
+
+		local instance = setmetatable({}, self)
+		instance.drawableSpritesheetTable = drawableSpritesheetTable
+        instance.quadTable = quadTable
+
+        instance.position =
+        {
+            x = position.x or 0,
+            y = position.y or 0,
+            z = position.z or 0,
+        }
+        instance.angle = angle or 0
+        instance.scaleModifier = scaleModifier or 1
+        instance.layerIndex = layerIndex or 0
+        instance.drawShadow = drawShadow
+        instance.originOffsetRatio = originOffsetRatio or { x = 0, y = 0 }
+
+        -- New variables
+        instance.width = dimensions.width
+        instance.height = dimensions.height
+        instance.visible = true
+        instance.type = GameConstants.DrawableTypes.ComplexSpritesheetQuad
+		instance.originOffset = {
+            x = (instance.originOffsetRatio.x * instance.width * GameSettings.WindowResolutionScale),
+            y = (instance.originOffsetRatio.y * instance.height * GameSettings.WindowResolutionScale),
+        }
+		return instance
+	end,
+
     -- ===========================================================================================================
     -- #region [EXTERNAL]
     -- ===========================================================================================================
 
     CreateSpritesheetQuad = function(self, spritesheet, columnCount, rowCount, column, row)
-        if not column > 0 then
+        if column <= 0 then
             return
         end
-        if not row > 0 then
+        if row <= 0 then
             return
         end
 
@@ -88,7 +137,7 @@ local Sprite =
 
         local x = (column - 1) * spriteWidth
         local y = (row - 1) * spriteHeight
-        
+
         return love.graphics.newQuad(x, y, spriteWidth, spriteHeight, spritesheet:GetWidth(), spritesheet:GetHeight())
     end,
 

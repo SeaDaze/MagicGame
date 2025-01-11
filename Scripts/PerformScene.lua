@@ -11,7 +11,7 @@ local PerformScene =
     -- ===========================================================================================================
     Load = function(self)
 		-- Create new objects
-		self.audience = Audience:New()
+		Audience:Load()
 		Mat:Load()
 
 		self.backgroundVFX = 
@@ -36,7 +36,7 @@ local PerformScene =
 		Player:OnStartPerform()
 		Mat:OnStartPerform()
 		DrawSystem:AddDrawable(self.scoreText)
-
+		Audience:OnStart()
 		self.scoreNotificationId = EventSystem:ConnectToEvent(EventIds.TechniqueEvaluated, self, "OnTechniqueEvaluated")
 	end,
 
@@ -45,6 +45,7 @@ local PerformScene =
 		Mat:OnStopPerform()
 		DrawSystem:RemoveDrawable(self.scoreText)
 		EventSystem:DisconnectFromEvent(self.scoreNotificationId)
+		Audience:OnStop()
 		self.scoreNotificationId = nil
 	end,
 
@@ -57,7 +58,7 @@ local PerformScene =
 
 	FixedUpdate = function(self, dt)
 		Player:FixedUpdate(dt)
-		self.audience:FixedUpdate(dt)
+		Audience:FixedUpdate(dt)
 	end,
 
     Draw = function(self)
@@ -69,10 +70,7 @@ local PerformScene =
 			end
 		)
 
-		self.audience:Draw()
-
 		love.graphics.printf("Perform", GameConstants.UI.Font, 0, 0, love.graphics.getWidth(), "center")
-		love.graphics.printf(self.audience:GetTotalHealth(), GameConstants.UI.Font, 0, 180, love.graphics.getWidth(), "center")
     end,
 
 	LateDraw = function(self)
