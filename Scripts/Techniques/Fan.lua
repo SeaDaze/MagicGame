@@ -33,59 +33,82 @@ local Fan = {
 
 		self.rightActionNotificationId = EventSystem:ConnectToEvent(EventIds.RightAction, self, "OnInputAction")
 
-		-- DrawSystem:AddDebugDraw(
-        --     function ()
-		-- 		love.graphics.setColor(1, 0, 0, 1)
-		-- 		local cards = self.deck:GetCards()
-		-- 		local sockets = {
-		-- 			cards[52]:GetSprite():GetSocket("TopLeft"),
-		-- 			cards[52]:GetSprite():GetSocket("Top"),
-		-- 		}
+		DrawSystem:AddDebugDraw(
+            function ()
+				love.graphics.setColor(1, 0, 0, 1)
+				-- local cards = self.deck:GetCards()
+				-- local sockets = {
+				-- 	cards[52]:GetSprite():GetSocket("TopLeft"),
+				-- 	cards[52]:GetSprite():GetSocket("Top"),
+				-- }
 
-		-- 		for _, socket in pairs(sockets) do
-		-- 			love.graphics.ellipse(
-		-- 				"fill",
-		-- 				socket.x,
-		-- 				socket.y,
-		-- 				5,
-		-- 				5,
-		-- 				6
-		-- 			)
-		-- 		end
+				-- for _, socket in pairs(sockets) do
+				-- 	love.graphics.ellipse(
+				-- 		"fill",
+				-- 		socket.x,
+				-- 		socket.y,
+				-- 		5,
+				-- 		5,
+				-- 		6
+				-- 	)
+				-- end
 				
-		-- 		love.graphics.setColor(1, 0, 1, 1)
-		-- 		for _, point in pairs(self.points) do
-		-- 			love.graphics.ellipse(
-		-- 				"fill",
-		-- 				point.x,
-		-- 				point.y,
-		-- 				3,
-		-- 				3,
-		-- 				6
-		-- 			)
-		-- 		end
+				-- love.graphics.setColor(1, 0, 1, 1)
+				-- for _, point in pairs(self.points) do
+				-- 	love.graphics.ellipse(
+				-- 		"fill",
+				-- 		point.x,
+				-- 		point.y,
+				-- 		3,
+				-- 		3,
+				-- 		6
+				-- 	)
+				-- end
 
-		-- 		love.graphics.ellipse(
-		-- 			"fill",
-		-- 			self.newPoint.x,
-		-- 			self.newPoint.y,
-		-- 			3,
-		-- 			3,
-		-- 			6
-		-- 		)
+				-- love.graphics.ellipse(
+				-- 	"fill",
+				-- 	self.newPoint.x,
+				-- 	self.newPoint.y,
+				-- 	3,
+				-- 	3,
+				-- 	6
+				-- )
 				
-		-- 		local cards = self.deck:GetCards()
-		-- 		local topCard = cards[52]
-		-- 		local topCardSprite = topCard:GetSprite()
-		-- 		local bottomSocket = topCardSprite:GetSocket("Bottom")
-		-- 		local pointSocket = topCardSprite:GetSocket("Top")
+				local cards = self.deck:GetCards()
+				local topCard = cards[52]
+				local topCardSprite = topCard:GetSprite()
+				local top = topCardSprite:GetSocket("TopLeft")
+				local bottom = topCardSprite:GetSocket("BottomLeft")
+				local indexFingerPosition = self.rightHand:GetIndexFingerPosition()
 
-		-- 		love.graphics.line(bottomSocket.x, bottomSocket.y, pointSocket.x, pointSocket.y)
-		-- 		love.graphics.line(bottomSocket.x, bottomSocket.y, bottomSocket.x, bottomSocket.y - topCardSprite:GetHeight() * GameSettings.WindowResolutionScale)
+				love.graphics.line(top.x, top.y, bottom.x, bottom.y)
+				love.graphics.line(indexFingerPosition.x, indexFingerPosition.y, bottom.x, bottom.y)
+				love.graphics.line(top.x, top.y, indexFingerPosition.x, indexFingerPosition.y)
 
-		-- 		love.graphics.setColor(1, 1, 1, 1)
-        --     end
-        -- )
+				local a = topCardSprite:GetHeight() * GameSettings.WindowResolutionScale
+				local b = Common:Distance(bottom.x, bottom.y, indexFingerPosition.x, indexFingerPosition.y)
+				local c = Common:Distance(indexFingerPosition.x, indexFingerPosition.y, top.x, top.y)
+				local altitude = Common:CalculateTriangleAltitude(a, b, c)
+				local internalAngleA = Common:CalculateTriangleInternalAngle(c, a, b)
+				local internalAngleB = Common:CalculateTriangleInternalAngle(b, c, a)
+
+				local direction = Common:ConvertAngleToVectorDirection(topCardSprite:GetAngle())
+				direction = Common:Normalize(direction)
+
+				local altitudePoint = {
+					x = indexFingerPosition.x + (-direction.x * altitude),
+					y = indexFingerPosition.y + (-direction.y * altitude),
+				}
+				if internalAngleA < 90 and internalAngleB < 90 then
+					love.graphics.setColor(0, 1, 0, 1)
+				else
+					love.graphics.setColor(1, 0, 0, 1)
+				end
+
+				love.graphics.line(indexFingerPosition.x, indexFingerPosition.y, altitudePoint.x, altitudePoint.y)
+				love.graphics.setColor(1, 1, 1, 1)
+            end
+        )
     end,
 
     OnStop = function(self)
@@ -185,8 +208,9 @@ local Fan = {
 			y = pointSocket.y - targetSocket.y,
 		}
 
-		local handsDistance = Common:DistanceSquared(targetSocket.x, targetSocket.y, indexFingerPosition.x, indexFingerPosition.y)
-		if handsDistance > self.distanceThreshold then
+		local touchingEdge = self:EvaluateTouchingEdge()
+
+		if not touchingEdge then
 			return
 		end
 		self.newPoint = {
@@ -287,18 +311,40 @@ local Fan = {
 
 		return totalDiff / table.count(angleDiffPercentages)
 	end,
-	
-	EvaluateRightHandState = function(self)
+
+	EvaluateTouchingEdge = function(self)
 		local cards = self.deck:GetCards()
 		local topCardSprite = cards[52]:GetSprite()
-		local targetSocket = topCardSprite:GetSocket("TopLeft")
-
+		local top = topCardSprite:GetSocket("TopLeft")
+		local bottom = topCardSprite:GetSocket("BottomLeft")
 		local indexFingerPosition = self.rightHand:GetIndexFingerPosition()
-		local withinThreshold = Common:DistanceSquared(targetSocket.x, targetSocket.y, indexFingerPosition.x, indexFingerPosition.y) <= self.distanceThreshold
 
-		if not withinThreshold and self.leftHand:GetState() ~= GameConstants.HandStates.PalmDownNatural then
-			self.rightHand:SetState(GameConstants.HandStates.PalmDownRelaxed)
-		elseif withinThreshold and self.leftHand:GetState() ~= GameConstants.HandStates.PalmDownIndexOut then
+		love.graphics.line(top.x, top.y, bottom.x, bottom.y)
+		love.graphics.line(indexFingerPosition.x, indexFingerPosition.y, bottom.x, bottom.y)
+		love.graphics.line(top.x, top.y, indexFingerPosition.x, indexFingerPosition.y)
+
+		local a = topCardSprite:GetHeight() * GameSettings.WindowResolutionScale
+		local b = Common:Distance(bottom.x, bottom.y, indexFingerPosition.x, indexFingerPosition.y)
+		local c = Common:Distance(indexFingerPosition.x, indexFingerPosition.y, top.x, top.y)
+		local altitude = Common:CalculateTriangleAltitude(a, b, c)
+		local internalAngleA = Common:CalculateTriangleInternalAngle(c, a, b)
+		local internalAngleB = Common:CalculateTriangleInternalAngle(b, c, a)
+
+		local direction = Common:ConvertAngleToVectorDirection(topCardSprite:GetAngle())
+		direction = Common:Normalize(direction)
+
+		if internalAngleA < 90 and internalAngleB < 90 and altitude < 20 then
+			return true
+		end
+		return false
+	end,
+
+	EvaluateRightHandState = function(self)
+		local touchingEdge = self:EvaluateTouchingEdge()
+
+		if not touchingEdge and self.leftHand:GetState() ~= GameConstants.HandStates.PalmDownNatural then
+			self.rightHand:SetState(GameConstants.HandStates.PalmDownGrabOpen)
+		elseif touchingEdge and self.leftHand:GetState() ~= GameConstants.HandStates.PalmDownIndexOut then
 			self.rightHand:SetState(GameConstants.HandStates.PalmDownRelaxedIndexOut)
 		end
 	end,

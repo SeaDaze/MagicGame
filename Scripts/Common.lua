@@ -27,7 +27,9 @@ local Common = {
 	end,
 
 	DistanceSquared = function(self, x1, y1, x2, y2)
-		return (x2-x1)^2 + (y2-y1)^2
+		local dx = x2 - x1
+		local dy = y2 - y1
+		return dx * dx + dy * dy
 	end,
 
 	Distance = function(self, x1, y1, x2, y2)
@@ -101,6 +103,22 @@ local Common = {
 		}
 		
 		return rotatedPoint
+	end,
+
+	CalculateTriangleHeronArea = function(self, a, b, c)
+		local s = (a + b + c) / 2
+		local area = math.sqrt(s * (s - a) * (s - b) * (s - c))
+		return area
+	end,
+
+	CalculateTriangleAltitude = function(self, a, b, c)
+		local area = self:CalculateTriangleHeronArea(a, b, c)
+		local altitude = (2 * area) / a
+		return altitude
+	end,
+
+	CalculateTriangleInternalAngle = function(self, a, b, c)
+		return math.deg(math.acos((b^2 + c^2 - a^2) / (2 * b * c))) -- Convert radians to degrees
 	end,
 }
 return Common
