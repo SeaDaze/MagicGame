@@ -38,14 +38,8 @@ local Audience =
         end
     end,
 
-    Draw = function(self)
-        for _, audienceMember in pairs(self.audience) do
-            audienceMember:Draw()
-        end
-    end,
-
 	OnStart = function(self)
-		self:GenerateAudience(10)
+		self:GenerateAudience(3)
         for _, audienceMember in pairs(self.audience) do
             DrawSystem:AddDrawable(audienceMember.sprite)
         end
@@ -84,32 +78,6 @@ local Audience =
         end
     end,
 
-    HandleDamage = function(self, damage)
-        print("damage=", damage)
-        local remainingDamage = damage
-        local damageDealt = 0
-        for _, audienceMember in pairs(self.audience) do
-            if remainingDamage == 0 then
-                return
-            end
-            local currentHealth = audienceMember:GetHealth()
-            print("currentHealth=", currentHealth)
-            if currentHealth > 0 then
-                if remainingDamage > currentHealth then
-                    audienceMember:SetHealth(0)
-                    damageDealt = currentHealth
-                else
-                    local newHealth = currentHealth - remainingDamage
-                    audienceMember:SetHealth(newHealth)
-                    damageDealt = remainingDamage
-                    print("damageDealt=", damageDealt)
-                end
-                remainingDamage = remainingDamage - damageDealt
-                print("remainingDamage=", remainingDamage)
-            end
-        end
-    end,
-
 	-- ===========================================================================================================
 	-- #region [INTERNAL]
 	-- ===========================================================================================================
@@ -139,7 +107,7 @@ local Audience =
 			1,
 			DrawLayers.Audience,
 			false,
-			{ x = 0, y = 0 }
+			{ x = 0.5, y = 0.5 }
 		)
 
         return AudienceMember:New(sprite)
@@ -148,13 +116,10 @@ local Audience =
 	-- ===========================================================================================================
 	-- #region [PUBLICHELPERS]
 	-- ===========================================================================================================
-	GetTotalHealth = function(self)
-        local total = 0
-        for _, audienceMember in pairs(self.audience) do
-            total = total + audienceMember:GetHealth()
-        end
-        return total
-    end,
+	GetAllMembers = function(self)
+		return self.audience
+	end,
+
 	-- ===========================================================================================================
 	-- #endregion
 

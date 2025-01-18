@@ -13,7 +13,10 @@ local DrawLayers =
     DeckBottom = 50,
 
     LeftHandDefault = 49,
-    LeftHandAboveDeck = 103,
+
+	Projectiles = 103,
+
+    LeftHandAboveDeck = 105,
     RightHandDefault = 150,
 
     HUD = 200,

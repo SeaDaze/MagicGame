@@ -9,23 +9,38 @@ local DrawSystem =
     Load = function(self)
         self.layers = {}
         self.orderedLayers = {}
+		self.updateTable = {}
         self.debug_DrawFunctions = {}
         self.debug_DrawIndex = 0
+		self.blurEffect = Moonshine(Moonshine.effects.boxblur).chain(Moonshine.effects.pixelate)
     end,
 
+	Update = function(self, dt)
+		for _, drawable in pairs(self.updateTable) do
+			if drawable.Update then
+				drawable:Update(dt)
+			else
+				print("DrawSystem:Update() Error - Drawable class does not contain Update() function")
+			end
+		end
+	end,
+
     DrawAll = function(self)
+		self.blurEffect(
+			function()
+				for layerOrderedIndex, layerIndex in ipairs(self.orderedLayers) do
+					for drawableIndex, drawableData in pairs(self.layers[layerIndex]) do
+						if drawableData.blur then
+							self:EvaluateDrawableType(drawableData)
+						end
+					end
+				end
+			end
+		)
         for layerOrderedIndex, layerIndex in ipairs(self.orderedLayers) do
             for drawableIndex, drawableData in pairs(self.layers[layerIndex]) do
-                if drawableData.visible then
-                    if drawableData.type == GameConstants.DrawableTypes.Sprite then
-                        self:DrawSprite(drawableData)
-                    elseif drawableData.type == GameConstants.DrawableTypes.Text then
-                        self:DrawText(drawableData)
-                    elseif drawableData.type == GameConstants.DrawableTypes.SpritesheetQuad then
-                        self:DrawSpritesheetQuad(drawableData)
-					elseif drawableData.type == GameConstants.DrawableTypes.ComplexSpritesheetQuad then
-						self:DrawComplexSpritesheetQuad(drawableData)
-					end
+                if drawableData.visible and not drawableData.blur then
+					self:EvaluateDrawableType(drawableData)
                 end
             end
         end
@@ -37,6 +52,20 @@ local DrawSystem =
             func()
         end
     end,
+
+	EvaluateDrawableType = function(self, drawableData)
+		if drawableData.type == GameConstants.DrawableTypes.Sprite then
+			self:DrawSprite(drawableData)
+		elseif drawableData.type == GameConstants.DrawableTypes.Text then
+			self:DrawText(drawableData)
+		elseif drawableData.type == GameConstants.DrawableTypes.SpritesheetQuad then
+			self:DrawSpritesheetQuad(drawableData)
+		elseif drawableData.type == GameConstants.DrawableTypes.ComplexSpritesheetQuad then
+			self:DrawComplexSpritesheetQuad(drawableData)
+		elseif drawableData.type == GameConstants.DrawableTypes.ParticleSystem then
+			self:DrawParticleSystem(drawableData)
+		end
+	end,
 
     -- ===========================================================================================================
     -- #region [EXTERNAL]
@@ -132,6 +161,10 @@ local DrawSystem =
         )
     end,
 
+	DrawParticleSystem = function(self, particleSystemData)
+		love.graphics.draw(particleSystemData.particleSystem)
+	end,
+
     -- ===========================================================================================================
     -- #region [PUBLICHELPERS]
     -- ===========================================================================================================
@@ -152,15 +185,21 @@ local DrawSystem =
         table.insert(self.layers[layerIndex], drawable)
         table.insert(self.orderedLayers, layerIndex)
         table.sort(self.orderedLayers)
+		if drawable.requiresUpdate then
+			table.insert(self.updateTable, drawable)
+		end
     end,
 
     RemoveDrawable = function(self, drawable)
         if not drawable then
-            print("AddDrawable: Received sprite is nil")
+            print("RemoveDrawable: Received sprite is nil")
             return
         end
         local layerIndex = drawable.layerIndex
         table.removeByValue(self.layers[layerIndex], drawable)
+		if drawable.requiresUpdate then
+			table.removeByValue(self.updateTable, drawable)
+		end
     end,
 
     ChangeDrawableLayerIndex = function(self, drawable, newLayerIndex)

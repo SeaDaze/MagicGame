@@ -157,6 +157,7 @@ local GameConstants =
         Text = 2,
         SpritesheetQuad = 3,
 		ComplexSpritesheetQuad = 4,
+		ParticleSystem = 5,
     },
 
 	AudienceFaceIndex = 

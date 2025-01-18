@@ -1,3 +1,4 @@
+local EventIds = require "Scripts.System.EventIds"
 
 local Constants = 
 {
@@ -15,22 +16,16 @@ local AudienceMember =
         instance.upper = love.graphics.getWidth() - (32 * 4)
         instance.sprite:SetPosition({
             x = love.math.random(instance.lower, instance.upper),
-            y = love.math.random(80),
+            y = love.math.random(80) + 40,
         })
 
         local randomDirection = love.math.random(2)
         instance.direction = randomDirection == 1 and Constants.Left or Constants.Right
-
-        instance.maxHealth = 30
-        instance.health = instance.maxHealth
-
+		instance.score = 0
         return instance
     end,
 
     FixedUpdate = function(self, dt)
-        if self.health == 0 then
-            return
-        end
 		local position = self.sprite:GetPosition()
         if position.x <= self.lower then
             self.direction = Constants.Right
@@ -44,17 +39,19 @@ local AudienceMember =
         })
     end,
 
-    GetMaxHealth = function(self)
-        return self.maxHealth
-    end,
+	GetPosition = function(self)
+		return self.sprite.position
+	end,
 
-    GetHealth = function(self)
-        return self.health
-    end,
+	AddScore = function(self, score)
+		self.score = self.score + score
+		EventSystem:BroadcastEvent(EventIds.AudienceMemberScoreUpdated, self.score)
+	end,
 
-    SetHealth = function(self, health)
-        self.health = health
-    end,
+	GetScore = function(self)
+		return self.score
+	end,
+
 }
 
 AudienceMember.__index = AudienceMember

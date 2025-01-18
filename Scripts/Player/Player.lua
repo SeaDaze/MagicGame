@@ -1,11 +1,11 @@
-
-
 local RightHand = require("Scripts.Player.RightHand")
 local LeftHand = require("Scripts.Player.LeftHand")
 local Deck = require("Scripts.Deck")
 local TechniqueCardSlot = require("Scripts.Items.Pickup.Cards.TechniqueCardSlot")
 local CreditCard = require("Scripts.Items.Pickup.CreditCard")
 local Inventory = require("Scripts.Player.Inventory")
+local Projectile = require("Scripts.Player.Projectile")
+local EventIds = require("Scripts.System.EventIds")
 
 local Techniques = 
 {
@@ -34,6 +34,7 @@ local Player =
         self.actionListeners = {}
         self.actionListenerId = 0
         self.equippedRoutineIndex = 1
+		self.score = 0
 
         local cardSlotSprites = {
             slot = love.graphics.newImage("Images/Cards/TechniqueCards/technique_CardSlot.png"),
@@ -50,6 +51,9 @@ local Player =
             TechniqueCardSlot:New(4, cardSlotSprites, { x = (love.graphics.getWidth() / 2) + (cardSlotWidth * 2), y = love.graphics.getHeight() -  (cardSlotHeight * 2) }),
             TechniqueCardSlot:New(5, cardSlotSprites, { x = (love.graphics.getWidth() / 2) + (cardSlotWidth * 4), y = love.graphics.getHeight() -  (cardSlotHeight * 2) }),
         }
+
+		self.activeProjectiles = {}
+		self.projectileImage = love.graphics.newImage("Images/Projectiles/Projectile_01.png")
 
         self.cardSlotsActive = true
     end,
@@ -72,6 +76,9 @@ local Player =
                 self.routine[self.routineIndex]:Update(dt)
             end
         end
+		for _, projectile in ipairs(self.activeProjectiles) do
+			projectile:Update(dt)
+		end
     end,
 
     FixedUpdate = function(self, dt)
@@ -121,7 +128,8 @@ local Player =
     -- ===========================================================================================================
     -- #region [EXTERNAL]
     -- ===========================================================================================================
-    OnStartPerform = function(self)
+    OnStartPerform = function(self, audienceMembers)
+		self.audienceMembers = audienceMembers
         -- Input:AddKeyListener("1", self, "EquipOne")
 		-- Input:AddKeyListener("2", self, "EquipTwo")
 		-- Input:AddKeyListener("3", self, "EquipThree")
@@ -134,6 +142,9 @@ local Player =
         self:EquipDeckInLeftHand()
         self:SetRoutineIndex(1, "Fan")
         self:EquipRoutineIndex(self.equippedRoutineIndex)
+
+		self.scoreNotificationId = EventSystem:ConnectToEvent(EventIds.TechniqueEvaluated, self, "OnTechniqueEvaluated")
+		self.projectileNotificationId = EventSystem:ConnectToEvent(EventIds.ProjectileHit, self, "OnProjectileHit")
     end,
 
     OnStopPerform = function(self)
@@ -217,6 +228,43 @@ local Player =
 
 	EquipFive = function(self)
 		self:EquipRoutineIndex(5)
+	end,
+
+	OnTechniqueEvaluated = function(self, techniqueName, score)
+		for _, member in pairs(self.audienceMembers) do
+			self:CreateProjectile({ x = love.graphics.getWidth() / 2, y = love.graphics.getHeight() / 2, z = 0 }, member, score)
+		end
+	end,
+
+	CreateProjectile = function(self, position, target, score)
+		local scale = math.random(1, 3)
+		local sprite = Sprite:New(
+            self.projectileImage,
+            position,
+            0,
+            scale,
+            DrawLayers.Projectiles,
+            true,
+            { x = 0.5, y = 0.5 }
+        )
+		table.insert(self.activeProjectiles, Projectile:New(
+			sprite,
+			target,
+			score
+		))
+		DrawSystem:AddDrawable(sprite)
+	end,
+
+	DestroyProjectile = function(self, projectile)
+		projectile:OnStop()
+		DrawSystem:RemoveDrawable(projectile.sprite)
+		table.removeByValue(self.activeProjectiles, projectile)
+		projectile = nil
+	end,
+
+	OnProjectileHit = function(self, projectile, target, score)
+		self:DestroyProjectile(projectile)
+		target:AddScore(score)
 	end,
 
     -- ===========================================================================================================

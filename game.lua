@@ -2,9 +2,9 @@
 GameSettings = require("Scripts.Config.GameSettings")
 EventSystem = require("Scripts.System.EventSystem")
 DrawSystem = require("Scripts.System.DrawSystem")
-
 Input = require("Scripts.System.Input")
 Timer = require("Scripts.Timer")
+UniqueIds = require("Scripts.System.UniqueIds")
 
 -- TODO: move to required scripts rather than globals
 LuaCommon = require("Scripts.System.LuaCommon")
@@ -77,6 +77,7 @@ local game = {
     end,
 
     Update = function(self, dt)
+		DrawSystem:Update(dt)
         Input:Update()
         SettingsMenu:Update(dt)
 

@@ -258,7 +258,6 @@ local Fan = {
 		local removedCard = table.remove(self.spreadingCards, 1)
 		local lastCardAngle = removedCard:GetSprite():GetAngle()
 		local quality = self:EvaluateFanQuality()
-		EventSystem:BroadcastEvent(EventIds.TechniqueEvaluated, "fan", quality)
 		if lastCardAngle > 175 or table.isEmpty(self.spreadingCards) then
 			self.points = {}
 			self.pointIndex = 1

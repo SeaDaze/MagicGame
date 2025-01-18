@@ -11,5 +11,9 @@ local EventIds =
 	ItemBought = 6,
 
 	TechniqueEvaluated = 7,
+
+	ProjectileHit = 8,
+
+	AudienceMemberScoreUpdated = 9,
 }
 return EventIds
