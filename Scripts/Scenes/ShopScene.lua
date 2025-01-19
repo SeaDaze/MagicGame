@@ -18,8 +18,6 @@ local ShopScene =
         
         self.pickups = {
             Relic:New("Apple", Player:GetLeftHand(), Player:GetRightHand()),
-            Relic:New("Apple", Player:GetLeftHand(), Player:GetRightHand()),
-            Relic:New("Apple", Player:GetLeftHand(), Player:GetRightHand()),
         }
 
         for _, relic in pairs(self.pickups) do

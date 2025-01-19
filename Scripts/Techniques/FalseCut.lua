@@ -1,5 +1,6 @@
 local Technique = require("Scripts.Techniques.Technique")
 local Animator = require("Scripts.libraries.anim8")
+local TechniqueCard = require("Scripts.Items.Pickup.Cards.TechniqueCard")
 
 local FalseCut = {
     New = function(self, deck, leftHand, rightHand)
@@ -12,9 +13,11 @@ local FalseCut = {
 		instance.leftHand = leftHand
         instance.rightHand = rightHand
 		instance.position = { x = (love.graphics.getWidth() / 2) - (32 * 5), y = (love.graphics.getHeight() / 2) - (32 * 5) }
-		instance.name = "false cut"
+		instance.name = "FalseCut"
 		instance.visible = false
 		instance.active = false
+		instance.techniqueCard = TechniqueCard:New(instance.name, leftHand, rightHand)
+
         return instance
     end,
 

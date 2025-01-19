@@ -15,5 +15,7 @@ local EventIds =
 	ProjectileHit = 8,
 
 	AudienceMemberScoreUpdated = 9,
+
+	PlayerTechniqueFinished = 10,
 }
 return EventIds

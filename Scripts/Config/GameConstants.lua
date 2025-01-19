@@ -90,6 +90,7 @@ local GameConstants =
         PalmDownRelaxedIndexOut = 11,
         MechanicsGrip = 12,
         Fan = 13,
+		PalmDownRelaxedIndexPressed = 14,
 	},
 
 	CardSuits = 

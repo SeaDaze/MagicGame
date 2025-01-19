@@ -1,7 +1,6 @@
 local RightHand = require("Scripts.Player.RightHand")
 local LeftHand = require("Scripts.Player.LeftHand")
 local Deck = require("Scripts.Deck")
-local TechniqueCardSlot = require("Scripts.Items.Pickup.Cards.TechniqueCardSlot")
 local CreditCard = require("Scripts.Items.Pickup.CreditCard")
 local Inventory = require("Scripts.Player.Inventory")
 local Projectile = require("Scripts.Player.Projectile")
@@ -28,34 +27,15 @@ local Player =
 		self.deck = Deck:New(self.leftHand, self.rightHand)
         self.creditCard = CreditCard:New(self.leftHand, self.rightHand)
 
+		Projectile:Load()
         Inventory:Load()
+
         self.techniques = {}
         self.routine = {}
-        self.actionListeners = {}
-        self.actionListenerId = 0
-        self.equippedRoutineIndex = 1
-		self.score = 0
-
-        local cardSlotSprites = {
-            slot = love.graphics.newImage("Images/Cards/TechniqueCards/technique_CardSlot.png"),
-            selected = love.graphics.newImage("Images/Cards/TechniqueCards/technique_Selected.png"),
-            completed = love.graphics.newImage("Images/Cards/TechniqueCards/technique_Complete.png"),
-        }
-        local cardSlotWidth = cardSlotSprites.slot:getWidth()
-        local cardSlotHeight = cardSlotSprites.slot:getHeight()
-
-        self.cardSlots = {
-            TechniqueCardSlot:New(1, cardSlotSprites, { x = (love.graphics.getWidth() / 2) - (cardSlotWidth * 4), y = love.graphics.getHeight() -  (cardSlotHeight * 2) }),
-            TechniqueCardSlot:New(2, cardSlotSprites, { x = (love.graphics.getWidth() / 2) - (cardSlotWidth * 2), y = love.graphics.getHeight() -  (cardSlotHeight * 2) }),
-            TechniqueCardSlot:New(3, cardSlotSprites, { x = (love.graphics.getWidth() / 2), y = love.graphics.getHeight() -  (cardSlotHeight * 2) }),
-            TechniqueCardSlot:New(4, cardSlotSprites, { x = (love.graphics.getWidth() / 2) + (cardSlotWidth * 2), y = love.graphics.getHeight() -  (cardSlotHeight * 2) }),
-            TechniqueCardSlot:New(5, cardSlotSprites, { x = (love.graphics.getWidth() / 2) + (cardSlotWidth * 4), y = love.graphics.getHeight() -  (cardSlotHeight * 2) }),
-        }
-
 		self.activeProjectiles = {}
-		self.projectileImage = love.graphics.newImage("Images/Projectiles/Projectile_01.png")
+		self.techniqueCards = {}
 
-        self.cardSlotsActive = true
+        self.equippedRoutineIndex = 1
     end,
 
     OnStart = function(self)
@@ -93,58 +73,28 @@ local Player =
         end
 	end,
 
-    Draw = function(self)
-        Inventory:Draw()
-
-        if self.cardSlotsActive then
-            for _, cardSlot in pairs(self.cardSlots) do
-                cardSlot:Draw()
-                local attachedCard = cardSlot:GetAttachedCard()
-                if attachedCard then
-                    attachedCard:Draw()
-                end
-                cardSlot:DrawTag()
-            end
-        end
-
-        self.deck:Draw()
-
-        if self.routineIndex and self.routine[self.routineIndex] then
-            if self.routine[self.routineIndex].Draw then
-                self.routine[self.routineIndex]:Draw()
-            end
-        end
-    end,
-
-    LateDraw = function(self)
-        self.deck:LateDraw()
-        if self.routineIndex and self.routine[self.routineIndex] then
-            if self.routine[self.routineIndex].LateDraw then
-                self.routine[self.routineIndex]:LateDraw()
-            end
-        end
-    end,
-
     -- ===========================================================================================================
     -- #region [EXTERNAL]
     -- ===========================================================================================================
     OnStartPerform = function(self, audienceMembers)
 		self.audienceMembers = audienceMembers
-        -- Input:AddKeyListener("1", self, "EquipOne")
-		-- Input:AddKeyListener("2", self, "EquipTwo")
-		-- Input:AddKeyListener("3", self, "EquipThree")
-		-- Input:AddKeyListener("4", self, "EquipFour")
-		-- Input:AddKeyListener("5", self, "EquipFive")
-
         self.leftHand:OnStartPerform()
         self.rightHand:OnStartPerform()
         self.deck:OnStart()
         self:EquipDeckInLeftHand()
+
         self:SetRoutineIndex(1, "Fan")
+		self:SetRoutineIndex(2, "FalseCut")
         self:EquipRoutineIndex(self.equippedRoutineIndex)
 
 		self.scoreNotificationId = EventSystem:ConnectToEvent(EventIds.TechniqueEvaluated, self, "OnTechniqueEvaluated")
 		self.projectileNotificationId = EventSystem:ConnectToEvent(EventIds.ProjectileHit, self, "OnProjectileHit")
+		self.techniqueFinishedNotificationId = EventSystem:ConnectToEvent(EventIds.PlayerTechniqueFinished, self, "OnTechniqueFinished")
+
+		for index, technique in pairs(self.routine) do
+			technique:Technique_GetTechniqueCard():OnStart()
+		end
+		self:UpdateTechniqueCardPositions()
     end,
 
     OnStopPerform = function(self)
@@ -158,7 +108,6 @@ local Player =
 
         self.leftHand:OnStartBuild()
         self.rightHand:OnStartBuild()
-        self.cardSlotsActive = true
     end,
 
     OnStopBuild = function(self)
@@ -167,7 +116,6 @@ local Player =
     end,
 
     OnStartShop = function(self)
-        self.cardSlotsActive = false
         self.leftHand:OnStartShop()
         self.rightHand:OnStartShop()
         self.creditCard:OnStart()
@@ -195,7 +143,6 @@ local Player =
 
 		if self.routineIndex and self.routine[self.routineIndex] then
 			self.routine[self.routineIndex]:OnStop()
-            self.cardSlots[self.routineIndex]:SetCompleted()
             print("EquipRoutineIndex: Completed=", self.routineIndex)
 		end
 
@@ -207,27 +154,23 @@ local Player =
         print("EquipRoutineIndex: index=", index)
 		self.routineIndex = index
 		self.routine[self.routineIndex]:OnStart()
-        self.cardSlots[self.routineIndex]:SetSelected()
 	end,
 
-    EquipOne = function(self)
-		self:EquipRoutineIndex(1)
-	end,
-
-	EquipTwo = function(self)
-		self:EquipRoutineIndex(2)
-	end,
-
-	EquipThree = function(self)
-		self:EquipRoutineIndex(3)
-	end,
-
-	EquipFour = function(self)
-		self:EquipRoutineIndex(4)
-	end,
-
-	EquipFive = function(self)
-		self:EquipRoutineIndex(5)
+	UpdateTechniqueCardPositions = function(self)
+		for index, technique in pairs(self.routine) do
+			local targetPosition = ((index - self.routineIndex) * 150) + (love.graphics.getWidth() / 2)
+			local techniqueCard = technique:Technique_GetTechniqueCard()
+			local techniqueCardSprite = techniqueCard:GetSprite()
+			print("targetPosition: ", targetPosition)
+			if index - self.routineIndex == 0 then
+				techniqueCardSprite:SetColorOverride({1.0, 1.0, 1.0, 1.0})
+				techniqueCardSprite:SetScaleModifier(1.2)
+			else
+				techniqueCardSprite:SetColorOverride({0.5, 0.5, 0.5, 1.0})
+				techniqueCardSprite:SetScaleModifier(1)
+			end
+			techniqueCard:FluxPositionTo({x = targetPosition, y = techniqueCard:GetPosition().y }, 0.5)
+		end
 	end,
 
 	OnTechniqueEvaluated = function(self, techniqueName, score)
@@ -236,30 +179,22 @@ local Player =
 		end
 	end,
 
+	OnTechniqueFinished = function(self)
+		self:EquipRoutineIndex(self.routineIndex + 1)
+		self:UpdateTechniqueCardPositions()
+	end,
+
 	CreateProjectile = function(self, position, target, score)
-		local scale = math.random(1, 3)
-		local sprite = Sprite:New(
-            self.projectileImage,
-            position,
-            0,
-            scale,
-            DrawLayers.Projectiles,
-            true,
-            { x = 0.5, y = 0.5 }
-        )
 		table.insert(self.activeProjectiles, Projectile:New(
-			sprite,
+			position,
 			target,
 			score
 		))
-		DrawSystem:AddDrawable(sprite)
 	end,
 
 	DestroyProjectile = function(self, projectile)
 		projectile:OnStop()
-		DrawSystem:RemoveDrawable(projectile.sprite)
 		table.removeByValue(self.activeProjectiles, projectile)
-		projectile = nil
 	end,
 
 	OnProjectileHit = function(self, projectile, target, score)
@@ -286,14 +221,10 @@ local Player =
         if typeId then
             if not self.techniques[typeId] then
                 self.techniques[typeId] = Techniques[typeId]:New(self.deck, self.leftHand, self.rightHand)
-                print("SetRoutineIndex: Created new technique with Id=", typeId, ", index=", index)
             end
             self.routine[index] = self.techniques[typeId]
-            print("SetRoutineIndex: self.routine[index]=", self.routine[index])
-            print("SetRoutineIndex: Set technique with Id=", typeId, ", to index=", index)
         else
             self.routine[index] = nil
-            print("SetRoutineIndex: Set index=", index, " to nil")
         end
     end,
 
@@ -303,10 +234,6 @@ local Player =
 
     GetRoutine = function(self)
         return self.routine
-    end,
-
-    GetCardSlots = function(self)
-        return self.cardSlots
     end,
 
     GetCreditCard = function(self)

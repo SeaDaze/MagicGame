@@ -54,6 +54,9 @@ local DrawSystem =
     end,
 
 	EvaluateDrawableType = function(self, drawableData)
+		if drawableData.colorOverride then
+			love.graphics.setColor(drawableData.colorOverride)
+		end
 		if drawableData.type == GameConstants.DrawableTypes.Sprite then
 			self:DrawSprite(drawableData)
 		elseif drawableData.type == GameConstants.DrawableTypes.Text then
@@ -64,6 +67,9 @@ local DrawSystem =
 			self:DrawComplexSpritesheetQuad(drawableData)
 		elseif drawableData.type == GameConstants.DrawableTypes.ParticleSystem then
 			self:DrawParticleSystem(drawableData)
+		end
+		if drawableData.colorOverride then
+			love.graphics.setColor(1, 1, 1, 1)
 		end
 	end,
 

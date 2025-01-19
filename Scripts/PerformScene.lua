@@ -4,6 +4,7 @@ local Mat = require("Scripts.Mat")
 local Text = require("Scripts.System.Text")
 local EventIds = require("Scripts.System.EventIds")
 local ParticleSystem = require("Scripts.System.ParticleSystem")
+
 local PerformScene =
 {
 	-- ===========================================================================================================
@@ -30,15 +31,6 @@ local PerformScene =
 
 		self.blurEffect = Moonshine(Moonshine.effects.boxblur).chain(Moonshine.effects.pixelate)
 
-		self.scoreText = Text:New(
-            "Score: 0",
-            GameConstants.UI.Font,
-            { x = 10, y = 200, z = 0 },
-            0,
-            DrawLayers.HUD,
-            "left"
-        )
-
 		self.quotaText = Text:New(
             "Quota: 300",
             GameConstants.UI.Font,
@@ -47,14 +39,41 @@ local PerformScene =
             DrawLayers.HUD,
             "left"
         )
+		self.scoreText = Text:New(
+            "Score: 0",
+            GameConstants.UI.Font,
+            { x = 10, y = 200, z = 0 },
+            0,
+            DrawLayers.HUD,
+            "left"
+        )
+		self.tricksText = Text:New(
+            "Tricks: 3",
+            GameConstants.UI.Font,
+            { x = 10, y = 230, z = 0 },
+            0,
+            DrawLayers.HUD,
+            "left"
+        )
+		self.tutorialText = Text:New(
+            "",
+            GameConstants.UI.Font,
+            { x = 10, y = 260, z = 0 },
+            0,
+            DrawLayers.HUD,
+            "left"
+        )
+		self.tutorialText:SetLimit(60 * GameSettings.WindowResolutionScale)
     end,
 
 	OnStart = function(self)
 		Audience:OnStart()
 		Player:OnStartPerform(Audience:GetAllMembers())
 		Mat:OnStartPerform()
-		DrawSystem:AddDrawable(self.scoreText)
 		DrawSystem:AddDrawable(self.quotaText)
+		DrawSystem:AddDrawable(self.scoreText)
+		DrawSystem:AddDrawable(self.tricksText)
+		DrawSystem:AddDrawable(self.tutorialText)
 		for _, vfx in pairs(self.backgroundVFX) do
 			DrawSystem:AddDrawable(vfx)
 		end
@@ -64,8 +83,10 @@ local PerformScene =
 	OnStop = function(self)
 		Player:OnStopPerform()
 		Mat:OnStopPerform()
-		DrawSystem:RemoveDrawable(self.scoreText)
 		DrawSystem:RemoveDrawable(self.quotaText)
+		DrawSystem:RemoveDrawable(self.scoreText)
+		DrawSystem:RemoveDrawable(self.tricksText)
+		DrawSystem:RemoveDrawable(self.tutorialText)
 		for _, vfx in pairs(self.backgroundVFX) do
 			DrawSystem:RemoveDrawable(vfx)
 		end

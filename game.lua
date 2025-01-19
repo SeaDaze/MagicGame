@@ -62,7 +62,7 @@ local game = {
             [GameConstants.GameStates.Shop] = ShopScene,
         }
 
-        self:SetGameState(GameConstants.GameStates.Perform)
+        self:SetGameState(GameConstants.GameStates.Shop)
 
 		self.nextFixedUpdate = 0
 		self.lastFixedUpdate = 0

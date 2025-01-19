@@ -17,6 +17,7 @@ local RightHand = setmetatable({
 			[GameConstants.HandStates.PalmDownGrabClose] = love.graphics.newImage("Images/Hands/right_palmDown_GrabClose.png"),
 			[GameConstants.HandStates.PalmDownRelaxed] = love.graphics.newImage("Images/Hands/right_palmDown_Relaxed.png"),
 			[GameConstants.HandStates.PalmDownRelaxedIndexOut] = love.graphics.newImage("Images/Hands/right_palmDown_RelaxedIndexOut.png"),
+			[GameConstants.HandStates.PalmDownRelaxedIndexPressed] = love.graphics.newImage("Images/Hands/right_palmDown_RelaxedIndexOutPressed.png"),
 			[GameConstants.HandStates.MechanicsGrip] = nil,
 			[GameConstants.HandStates.Fan] = nil,
 		}

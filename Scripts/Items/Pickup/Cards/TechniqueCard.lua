@@ -11,7 +11,15 @@ local TechniqueCard = setmetatable(
 	New = function(self, typeId,  leftHand, rightHand)
 		local instance = setmetatable({}, self)
         instance.typeId = typeId
-        instance.sprite = love.graphics.newImage(TechniqueCardSprites[typeId])
+        instance.sprite =  Sprite:New(
+			love.graphics.newImage(TechniqueCardSprites[typeId]),
+			{ x = love.graphics.getWidth() / 2, y = love.graphics.getHeight() * 0.9, z = 0 },
+			0,
+			1,
+			DrawLayers.PickupDefault,
+			true,
+			{ x = 0.5, y = 0.5 }
+		)
 
         instance:Pickup_Initialize(leftHand, rightHand, 1)
         return instance
@@ -19,7 +27,6 @@ local TechniqueCard = setmetatable(
 
     OnStart = function(self)
         self:Pickup_OnStart()
-        print("TechniqueCard: OnStart")
     end,
 
     SetAttachedSlot = function(self, slot)
@@ -33,6 +40,14 @@ local TechniqueCard = setmetatable(
     GetTypeId = function(self)
         return self.typeId
     end,
+
+	GetPosition = function(self)
+		return self.sprite.position
+	end,
+
+	FluxPositionTo = function(self, newPosition, duration)
+		Flux.to(self.sprite.position, duration, { x = newPosition.x, y = newPosition.y })
+	end,
 
 }, Pickup)
 

@@ -23,7 +23,6 @@ local Relic = setmetatable(
 		)
 
         instance:Pickup_Initialize(leftHand, rightHand)
-        instance.itemOwner = GameConstants.ItemOwners.None
         return instance
     end,
 

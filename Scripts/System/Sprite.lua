@@ -257,6 +257,9 @@ local Sprite =
         }
 	end,
 
+	SetColorOverride = function(self, color)
+		self.colorOverride = color
+	end,
     -- ===========================================================================================================
     -- #endregion
 }

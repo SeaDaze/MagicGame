@@ -6,9 +6,25 @@ local Projectile =
 	-- #region [CORE]
 	-- ===========================================================================================================
 
-	New = function(self, sprite, target, score)
+	Load = function(self)
+		self.projectileImage = love.graphics.newImage("Images/Projectiles/Projectile_01.png")
+	end,
+
+	New = function(self, position, target, score)
+		love.graphics.setDefaultFilter("nearest", "nearest")
 		local instance = setmetatable({}, self)
-		instance.sprite = sprite
+		local scale = math.random(1, 3)
+
+		instance.sprite = Sprite:New(
+            self.projectileImage,
+            position,
+            0,
+            scale,
+            DrawLayers.Projectiles,
+            true,
+            { x = 0.5, y = 0.5 }
+        )
+
 		instance.baseSpeed = 50
 		instance.acceleration = 0
 		instance.target = target
@@ -17,6 +33,7 @@ local Projectile =
 		instance.id = UniqueIds:GenerateNew()
 		instance.score = score
 		Timer:Start("Projectile" .. instance.id, 1)
+		DrawSystem:AddDrawable(instance.sprite)
 		return instance
 	end,
 
@@ -26,6 +43,7 @@ local Projectile =
 	end,
 
 	OnStop = function(self)
+		DrawSystem:RemoveDrawable(self.sprite)
 		Timer:RemoveListener(self.timerNotificationId)
 	end,
 

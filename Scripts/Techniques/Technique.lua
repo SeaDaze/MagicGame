@@ -44,6 +44,11 @@ local Technique =
 			Timer:RemoveListener(self.technique_timerNotificationId)
 		end
 	end,
+
+	Technique_GetTechniqueCard = function(self)
+		return self.techniqueCard
+	end,
+
 }
 
 Technique.__index = Technique

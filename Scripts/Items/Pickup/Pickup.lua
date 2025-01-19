@@ -20,6 +20,7 @@ local Pickup =
 
         self.value = 10
         self.collider = BoxCollider:BoxCollider_New(self, self.sprite.position, self.sprite.width, self.sprite.height, { x = 0.5, y = 0.5 }, self.windowScaleFraction)
+		self.itemOwner = GameConstants.ItemOwners.None
 
         self.active = false
     end,

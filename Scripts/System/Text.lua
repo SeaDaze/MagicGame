@@ -55,6 +55,11 @@ local Text =
     SetVisible = function(self, isVisible)
         self.visible = isVisible
     end,
+	
+	SetLimit = function(self, newLimit)
+		self.limit = newLimit
+	end,
+
     -- ===========================================================================================================
     -- #endregion
 }
