@@ -4,36 +4,31 @@ local GameConstants =
     WindowResolution = 
     {
         [1] = {
-            x = 320,
-            y = 180,
+            x = 640,
+            y = 360,
             scale = 1,
         },
         [2] = {
-            x = 640,
-            y = 360,
-            scale = 2,
-        },
-        [3] = {
             x = 960,
             y = 540,
-            scale = 3,
+            scale = 1.5,
         },
-        [4] = {
+        [3] = {
             x = 1280,
             y = 720,
-            scale = 4,
+            scale = 2,
         },
-        [5] = {
+        [4] = {
             x = 1600,
             y = 900,
-            scale = 5,
+            scale = 2.5,
         },
-        [6] = {
+        [5] = {
             x = 1920,
             y = 1080,
-            scale = 5,
+            scale = 3,
         },
-        Max = 6,
+        Max = 5,
     },
 
     UI = {

@@ -94,7 +94,7 @@ local DrawSystem =
 				quadIndex = quadIndex + 1
 			end
 		end
-		print("ExtractAllSpritesheetQuads: Extracted ", table.count(quads), " quads")
+		Log.Med("ExtractAllSpritesheetQuads: Extracted ", table.count(quads), " quads")
 		return quads
 	end,
 
@@ -177,11 +177,11 @@ local DrawSystem =
 
     AddDrawable = function(self, drawable)
         if not drawable then
-            print("AddDrawable: Received drawable is nil")
+            Log.Error("AddDrawable: Received drawable is nil")
             return
         end
         if not drawable.type then
-            print("AddDrawable: Received drawable does not have a type")
+			Log.Error("AddDrawable: Received drawable does not have a type")
             return
         end
         local layerIndex = drawable.layerIndex

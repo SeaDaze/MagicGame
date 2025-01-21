@@ -4,6 +4,7 @@ local Mat = require("Scripts.Mat")
 local Text = require("Scripts.System.Text")
 local EventIds = require("Scripts.System.EventIds")
 local ParticleSystem = require("Scripts.System.ParticleSystem")
+local SpectatorPanel = require("Scripts.UI.SpectatorPanel")
 
 local PerformScene =
 {
@@ -14,6 +15,7 @@ local PerformScene =
 		-- Create new objects
 		Audience:Load()
 		Mat:Load()
+		SpectatorPanel:Load()
 
 		self.backgroundVFX = 
 		{
@@ -70,6 +72,7 @@ local PerformScene =
 		Audience:OnStart()
 		Player:OnStartPerform(Audience:GetAllMembers())
 		Mat:OnStartPerform()
+		SpectatorPanel:OnStartPerform()
 		DrawSystem:AddDrawable(self.quotaText)
 		DrawSystem:AddDrawable(self.scoreText)
 		DrawSystem:AddDrawable(self.tricksText)
@@ -83,6 +86,7 @@ local PerformScene =
 	OnStop = function(self)
 		Player:OnStopPerform()
 		Mat:OnStopPerform()
+		SpectatorPanel:OnStopPerform()
 		DrawSystem:RemoveDrawable(self.quotaText)
 		DrawSystem:RemoveDrawable(self.scoreText)
 		DrawSystem:RemoveDrawable(self.tricksText)

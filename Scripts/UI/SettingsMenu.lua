@@ -5,44 +5,44 @@ local SettingsMenu =
 {
     Load = function(self)
         self.background = love.graphics.newImage("Images/Background/settingsbackground.png")
-        self.buttons = 
-        {
-            apply = BasicButton:New(
-                GameConstants.UI.BasicButtonType.Rectangle,
-                "Apply",
-                { x = 100, y = 20 },
-                GameConstants.UI.Anchor.Bottom
-            ),
-            resolutionLeft = BasicButton:New(
-                GameConstants.UI.BasicButtonType.Square,
-                "<",
-                { x = 200, y = 20 },
-                GameConstants.UI.Anchor.Top
-            ),
-            resolutionRight = BasicButton:New(
-                GameConstants.UI.BasicButtonType.Square,
-                ">",
-                { x = 264, y = 20 },
-                GameConstants.UI.Anchor.Top
-            ),
-            close = BasicButton:New(
-                GameConstants.UI.BasicButtonType.Rectangle,
-                "Close",
-                { x = 20, y = 20 },
-                GameConstants.UI.Anchor.Bottom
-            ),
-        }
-        local resolution = GameConstants.WindowResolution[GameSettings.WindowResolutionScale]
-        self.resolutionText = "" .. resolution.x .. " x " .. resolution.y
-        self.active = false
-        self.newResolutionScale = nil
-        self.buttons.resolutionLeft:AddListener(self, "OnDecreaseResolutionClicked")
-        self.buttons.resolutionRight:AddListener(self, "OnIncreaseResolutionClicked")
-        self.buttons.apply:AddListener(self, "OnApplyButtonClicked")
-        self.buttons.close:AddListener(self, "OnCloseClicked")
+        -- self.buttons = 
+        -- {
+        --     apply = BasicButton:New(
+        --         GameConstants.UI.BasicButtonType.Rectangle,
+        --         "Apply",
+        --         { x = 100, y = 20 },
+        --         GameConstants.UI.Anchor.Bottom
+        --     ),
+        --     resolutionLeft = BasicButton:New(
+        --         GameConstants.UI.BasicButtonType.Square,
+        --         "<",
+        --         { x = 200, y = 20 },
+        --         GameConstants.UI.Anchor.Top
+        --     ),
+        --     resolutionRight = BasicButton:New(
+        --         GameConstants.UI.BasicButtonType.Square,
+        --         ">",
+        --         { x = 264, y = 20 },
+        --         GameConstants.UI.Anchor.Top
+        --     ),
+        --     close = BasicButton:New(
+        --         GameConstants.UI.BasicButtonType.Rectangle,
+        --         "Close",
+        --         { x = 20, y = 20 },
+        --         GameConstants.UI.Anchor.Bottom
+        --     ),
+        -- }
+        -- local resolution = GameConstants.WindowResolution[GameSettings.WindowResolutionScale]
+        -- self.resolutionText = "" .. resolution.x .. " x " .. resolution.y
+        -- self.active = false
+        -- self.newResolutionScale = nil
+        -- self.buttons.resolutionLeft:AddListener(self, "OnDecreaseResolutionClicked")
+        -- self.buttons.resolutionRight:AddListener(self, "OnIncreaseResolutionClicked")
+        -- self.buttons.apply:AddListener(self, "OnApplyButtonClicked")
+        -- self.buttons.close:AddListener(self, "OnCloseClicked")
 
-        self.hooks = {}
-        self.hookId = {}
+        -- self.hooks = {}
+        -- self.hookId = {}
        -- Input:AddKeyListener("escape", self, "ToggleActive")
     end,
 

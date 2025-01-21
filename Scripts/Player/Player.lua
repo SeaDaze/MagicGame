@@ -36,6 +36,7 @@ local Player =
 		self.techniqueCards = {}
 
         self.equippedRoutineIndex = 1
+		Log.High("Load: Player loaded")
     end,
 
     OnStart = function(self)
@@ -161,7 +162,6 @@ local Player =
 			local targetPosition = ((index - self.routineIndex) * 150) + (love.graphics.getWidth() / 2)
 			local techniqueCard = technique:Technique_GetTechniqueCard()
 			local techniqueCardSprite = techniqueCard:GetSprite()
-			print("targetPosition: ", targetPosition)
 			if index - self.routineIndex == 0 then
 				techniqueCardSprite:SetColorOverride({1.0, 1.0, 1.0, 1.0})
 				techniqueCardSprite:SetScaleModifier(1.2)

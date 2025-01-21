@@ -1,3 +1,4 @@
+local Vector3 = require("Scripts.System.Vector3")
 
 local Sprite =
 {
@@ -6,19 +7,15 @@ local Sprite =
     -- ===========================================================================================================
     New = function(self, drawable, position, angle, scaleModifier, layerIndex, drawShadow, originOffsetRatio)
         if not drawable then
-            print("Sprite:New() Error - Cannot create new sprite object, received drawable is nil")
+			Log.Error("New: Cannot create new sprite object, received drawable is nil")
             return nil
         end
 
 		local instance = setmetatable({}, self)
         -- Inputs
         instance.drawable = drawable
-        instance.position =
-        {
-            x = position.x or 0,
-            y = position.y or 0,
-            z = position.z or 0,
-        }
+        instance.position = Vector3:New(position.x, position.y, position.z)
+
         instance.angle = angle or 0
         instance.scaleModifier = scaleModifier or 1
         instance.layerIndex = layerIndex or 0
@@ -51,7 +48,7 @@ local Sprite =
 	---@return table|nil
     NewFromSpritesheet = function(self, drawableSpritesheet, quad, dimensions, position, angle, scaleModifier, layerIndex, drawShadow, originOffsetRatio)
         if not drawableSpritesheet then
-            print("Sprite:NewFromSpritesheet() Error - Cannot create new sprite object, received drawable is nil")
+			Log.Error("NewFromSpritesheet: Cannot create new sprite object, received drawable is nil")
             return nil
         end
 
@@ -59,12 +56,8 @@ local Sprite =
         -- Inputs
         instance.drawableSpritesheet = drawableSpritesheet
         instance.quad = quad
-        instance.position =
-        {
-            x = position.x or 0,
-            y = position.y or 0,
-            z = position.z or 0,
-        }
+        instance.position = Vector3:New(position.x, position.y, position.z)
+
         instance.angle = angle or 0
         instance.scaleModifier = scaleModifier or 1
         instance.layerIndex = layerIndex or 0
@@ -88,7 +81,7 @@ local Sprite =
 		local quadCount = table.count(quadTable)
 
 		if spriteCount ~= quadCount then
-			print("Sprite:NewComplexSprite() Error - Cannot create new sprite object, number of spritesheets and quads is mismatched")
+			Log.Error("NewFromSpritesheet: Cannot create new sprite object, number of spritesheets and quads is mismatched")
             return nil
 		end
 
@@ -96,12 +89,8 @@ local Sprite =
 		instance.drawableSpritesheetTable = drawableSpritesheetTable
         instance.quadTable = quadTable
 
-        instance.position =
-        {
-            x = position.x or 0,
-            y = position.y or 0,
-            z = position.z or 0,
-        }
+		instance.position = Vector3:New(position.x, position.y, position.z)
+
         instance.angle = angle or 0
         instance.scaleModifier = scaleModifier or 1
         instance.layerIndex = layerIndex or 0
@@ -214,11 +203,9 @@ local Sprite =
     end,
 
     SetPosition = function(self, position)
-        self.position = {
-            x = position.x,
-            y = position.y,
-            z = position.z or 0,
-        }
+        self.position.x = position.x
+		self.position.y = position.y
+		self.position.z = position.z or 0
     end,
 
     GetPosition = function(self)

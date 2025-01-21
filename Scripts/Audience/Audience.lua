@@ -42,12 +42,26 @@ local Audience =
 		self:GenerateAudience(3)
         for _, audienceMember in pairs(self.audience) do
             DrawSystem:AddDrawable(audienceMember.sprite)
+			local collider = audienceMember:GetCollider()
+			collider:BoxCollider_OnStart()
+			local playerRelaxedFingerPosition = Player:GetRightHand():GetRelaxedFingerPosition()
+			collider:BoxCollider_AddPointCollisionListener(playerRelaxedFingerPosition,
+            function(colliderA)
+				Log.High("OnStart: Collision Start")
+            end,
+
+            function(colliderA)
+				Log.High("OnStart: Collision Stop")
+            end
+        )
         end
 	end,
 
 	OnStop = function(self)
         for _, audienceMember in pairs(self.audience) do
             DrawSystem:RemoveDrawable(audienceMember.sprite)
+			local collider = audienceMember:GetCollider()
+			collider:BoxCollider_OnStop()
         end
 		self.audience = {}
 	end,

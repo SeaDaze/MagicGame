@@ -1,6 +1,27 @@
 
 
 local Common = {
+	PointCollision = function(self, objA, targetVector3Reference)
+		local error = false
+		if not objA.position.x or not objA.position.y or not objA.width or not objA.height then
+			print("Common:AABB - objA setup is missing a parameter")
+			error = true
+		end
+		if error then
+			return nil
+		end
+		if targetVector3Reference.x > (objA.position.x + objA.width) then
+			return false
+		elseif targetVector3Reference.x < objA.position.x then
+			return false
+		elseif targetVector3Reference.y > (objA.position.y + objA.height) then
+			return false
+		elseif targetVector3Reference.y < objA.position.y then
+			return false
+		end
+		return true
+	end,
+
 	AABB = function(self, objA, objB)
 		local error = false
 		if not objA.position.x or not objA.position.y or not objA.width or not objA.height then
@@ -53,14 +74,6 @@ local Common = {
 			x = math.cos(rad),
 			y = math.sin(rad),
 		}
-	end,
-
-	DotProduct = function(self, a, b)
-		local value = 0
-		for i = 1, #a do
-			value = value + (a[i] * b[i])
-		end
-		return value
 	end,
 
 	Determinant = function(self, a, b)

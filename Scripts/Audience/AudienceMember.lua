@@ -1,4 +1,5 @@
 local EventIds = require "Scripts.System.EventIds"
+local BoxCollider = require("Scripts.Physics.BoxCollider")
 
 local Constants = 
 {
@@ -22,6 +23,9 @@ local AudienceMember =
         local randomDirection = love.math.random(2)
         instance.direction = randomDirection == 1 and Constants.Left or Constants.Right
 		instance.score = 0
+
+		instance.collider = BoxCollider:BoxCollider_New(instance, instance.sprite.position, instance.sprite.width, instance.sprite.height, { x = 0.5, y = 0.5 })
+
         return instance
     end,
 
@@ -37,6 +41,8 @@ local AudienceMember =
             x = position.x + (dt * self.speed * self.direction),
             y = position.y,
         })
+
+		self.collider:BoxCollider_Update(dt)
     end,
 
 	GetPosition = function(self)
@@ -52,6 +58,9 @@ local AudienceMember =
 		return self.score
 	end,
 
+	GetCollider = function(self)
+		return self.collider
+	end,
 }
 
 AudienceMember.__index = AudienceMember

@@ -5,6 +5,7 @@ DrawSystem = require("Scripts.System.DrawSystem")
 Input = require("Scripts.System.Input")
 Timer = require("Scripts.Timer")
 UniqueIds = require("Scripts.System.UniqueIds")
+Log = require("Scripts.Debug.Log")
 
 -- TODO: move to required scripts rather than globals
 LuaCommon = require("Scripts.System.LuaCommon")
@@ -18,17 +19,13 @@ Moonshine = require ("Scripts.libraries.moonshine")
 -- TODO: Change to injection
 Player = require("Scripts.Player.Player")
 SettingsMenu = require("Scripts.UI.SettingsMenu")
-HUD = require("Scripts.UI.HUD")
 Flux = require("Scripts.libraries.flux")
 
 -- Scenes
-local PerformScene = require("Scripts.PerformScene")
+local PerformScene = require("Scripts.Scenes.PerformScene")
 local MainMenu = require("Scripts.UI.MainMenu")
 local ShopScene = require("Scripts.Scenes.ShopScene")
 local RoutineBuilderScene = require("Scripts.Scenes.RoutineBuilderScene")
-
-local PlayerStats = require("Scripts.PlayerStats")
-local Logger = require("Scripts.Debug.Log")
 
 local game = {
 
@@ -36,15 +33,17 @@ local game = {
     -- #region [CORE]
     -- ===========================================================================================================
     Load = function(self)
+		self:ApplyWindowPreset(5)
         love.math.setRandomSeed(os.time())
         love.graphics.setDefaultFilter("nearest", "nearest")
 		love.mouse.setVisible(false)
 
         DrawSystem:Load()
 		EventSystem:Load()
-        Logger:Load()
+		io.open("MagicGame.log","w"):close()
+		Log.outfile = "MagicGame.log"
+
 		Input:Load()
-		HUD:Load(PlayerStats)
         SettingsMenu:Load()
         Timer:Load()
 
@@ -62,7 +61,7 @@ local game = {
             [GameConstants.GameStates.Shop] = ShopScene,
         }
 
-        self:SetGameState(GameConstants.GameStates.Shop)
+        self:SetGameState(GameConstants.GameStates.Perform)
 
 		self.nextFixedUpdate = 0
 		self.lastFixedUpdate = 0
@@ -74,6 +73,8 @@ local game = {
         self.vignetteRadius = 0
         self.vignetteOpacity = 1
         self:FadeToScene(1)
+
+		Log.High("Load: Magic game loaded")
     end,
 
     Update = function(self, dt)
@@ -124,6 +125,12 @@ local game = {
     -- ===========================================================================================================
     -- #region [INTERNAL]
     -- ===========================================================================================================
+
+	ApplyWindowPreset = function(self, preset)
+		local windowResolution = GameConstants.WindowResolution[preset]
+		love.window.setMode(windowResolution.x, windowResolution.y)
+		GameSettings.WindowResolutionScale = windowResolution.scale
+	end,
 
     FadeToScene = function(self, fadeDuration)
         Flux.to(self, fadeDuration, { vignetteRadius = 0.9 })

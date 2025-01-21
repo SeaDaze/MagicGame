@@ -142,10 +142,6 @@ local Deck = {
 	-- ===========================================================================================================
 	-- #endregion
 
-
-
-
-
 	-----------------------------------------------------------------------------------------------------------
 	-- SECTION Helpers
 	-----------------------------------------------------------------------------------------------------------
@@ -330,45 +326,7 @@ local Deck = {
 	-- end,
 
 	OnCardDropped = function(self, card)
-		self:BroadcastToListeners("OnCardDropped")
-	end,
-
-	-----------------------------------------------------------------------------------------------------------
-	-- !SECTION
-	-- SECTION Listeners
-	-----------------------------------------------------------------------------------------------------------
-	AddListener = function(self, functionName, callbackTable, callbackFunction)
-		if not self.notificationListeners[functionName] then
-			self.notificationListeners[functionName] = {}
-		end
-		--print("AddListener: functionName=", functionName)
-		self.listenerId = self.listenerId + 1
-		self.notificationListeners[functionName][self.listenerId] = {
-			callbackTable = callbackTable,
-			callbackFunction = callbackFunction,
-		}
-		return self.listenerId
-	end,
-
-	RemoveListener = function(self, functionName, listenerId)
-		if not self.notificationListeners[functionName] then
-			print("RemoveListener: No notification found for function=", functionName)
-			return
-		end
-		if not self.notificationListeners[functionName][listenerId] then
-			print("RemoveListener: No notification found for function=", functionName, " with listenerId=", listenerId)
-			return
-		end
-		self.notificationListeners[functionName][listenerId] = nil
-	end,
-
-	BroadcastToListeners = function(self, functionName, params)
-		if not self.notificationListeners[functionName] then
-			return
-		end
-		for _, dataTable in pairs(self.notificationListeners[functionName]) do
-			dataTable.callbackTable[dataTable.callbackFunction](dataTable.callbackTable, params)
-		end
+		--self:BroadcastToListeners("OnCardDropped")
 	end,
 
 	-----------------------------------------------------------------------------------------------------------

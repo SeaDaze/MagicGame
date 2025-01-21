@@ -16,6 +16,7 @@ local BoxCollider =
         instance.collisionListenerId = 0
         instance.otherColliders = {}
         instance.collisionListeners = {}
+		instance.pointCollisionListeners = {}
         instance.owner = owner
         instance.active = false
 
@@ -75,6 +76,34 @@ local BoxCollider =
                 end
             end
         end
+		for _, listenerData in ipairs(self.pointCollisionListeners) do
+            if self.active and listenerData.targetVector3Reference then
+				Log.High("listenerData.targetVector3Reference = ", listenerData.targetVector3Reference)
+                if not listenerData.colliding and Common:PointCollision(self, listenerData.targetVector3Reference) then
+                    listenerData.colliding = true
+                    listenerData.startCollidingCallback(self)
+                elseif listenerData.colliding and not Common:PointCollision(self, listenerData.targetVector3Reference) then
+                    listenerData.colliding = false
+                    listenerData.stopCollidingCallback(self)
+                end
+            end
+        end
+    end,
+
+	BoxCollider_AddPointCollisionListener = function(self, targetVector3Reference, startCollidingCallback, stopCollidingCallback)
+		self.collisionListenerId = self.collisionListenerId + 1
+		self.pointCollisionListeners[self.collisionListenerId] =
+		{
+            targetVector3Reference = targetVector3Reference,
+			startCollidingCallback = startCollidingCallback,
+            stopCollidingCallback = stopCollidingCallback,
+            colliding = false,
+		}
+        return self.collisionListenerId
+    end,
+
+    BoxCollider_RemovePointCollisionListener = function(self, listenerId)
+        self.collisionListeners[listenerId] = nil
     end,
 
     BoxCollider_AddCollisionListener = function(self, otherCollider, startCollidingCallback, stopCollidingCallback)

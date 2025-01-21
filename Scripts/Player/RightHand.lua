@@ -1,5 +1,6 @@
 local Hand = require("Scripts.Player.Hand")
 local EventIds = require("Scripts.System.EventIds")
+local Vector3  = require("Scripts.System.Vector3")
 local RightHand = setmetatable({
 	New = function(self)
 		local instance = setmetatable({}, self)
@@ -38,6 +39,9 @@ local RightHand = setmetatable({
 
 		
 		instance.targetPosition = { x = love.graphics.getWidth() / 2, y = love.graphics.getHeight() / 2 }
+		instance.relaxedFingerOffset = Vector3:New(-20, -20, 0)
+		instance.relaxedFingerPosition = Vector3:New(0, 0, 0)
+
 		instance.indexFingerOffset = { x = -18, y = -25 }
 
 		instance.palmUpPinchOffset = { x = 25, y = -35 }
@@ -108,13 +112,20 @@ local RightHand = setmetatable({
 		self.targetPosition.x = Common:Clamp(self.targetPosition.x, 0, love.graphics.getWidth())
 		self.targetPosition.y = Common:Clamp(self.targetPosition.y, 0, love.graphics.getHeight())
         self.activeTween = Flux.to(self.sprite.position, 0.3, { x = self.targetPosition.x, y = self.targetPosition.y})
+
+		self:UpdateFingerPositions()
     end,
 
 	FixedUpdate = function(self, dt)
 	end,
 
+	UpdateFingerPositions = function(self)
+		local spritePosition = self.sprite:GetPosition()
+		self.relaxedFingerPosition = spritePosition + self.relaxedFingerOffset
+	end,
+
 	GetIndexFingerPosition = function(self)
-		local pos = { 
+		local pos = {
 			x = self.sprite.position.x + (self.indexFingerOffset.x * GameSettings.WindowResolutionScale),
 			y = self.sprite.position.y + (self.indexFingerOffset.y * GameSettings.WindowResolutionScale)
 		}
@@ -124,6 +135,10 @@ local RightHand = setmetatable({
 	GetPalmUpPinchFingerPosition = function(self)
 		local pos = { x = self.position.x + self.palmUpPinchOffset.x, y = self.position.y + self.palmUpPinchOffset.y }
 		return pos
+	end,
+
+	GetRelaxedFingerPosition = function(self)
+		return self.relaxedFingerPosition
 	end,
 
 }, Hand)
