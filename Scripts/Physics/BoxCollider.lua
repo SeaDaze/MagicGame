@@ -78,7 +78,6 @@ local BoxCollider =
         end
 		for _, listenerData in ipairs(self.pointCollisionListeners) do
             if self.active and listenerData.targetVector3Reference then
-				Log.High("listenerData.targetVector3Reference = ", listenerData.targetVector3Reference)
                 if not listenerData.colliding and Common:PointCollision(self, listenerData.targetVector3Reference) then
                     listenerData.colliding = true
                     listenerData.startCollidingCallback(self)

@@ -1,3 +1,4 @@
+local EventIds = require "Scripts.System.EventIds"
 
 local SpectatorPanel = 
 {
@@ -14,13 +15,16 @@ local SpectatorPanel =
             true,
             { x = 1, y = 0.5 }
         )
+
+        EventSystem:ConnectToEvent(EventIds.ShowSpectatorPanel, self, "OnShowRequested")
+        EventSystem:ConnectToEvent(EventIds.HideSpectatorPanel, self, "OnHideRequested")
 	end,
 
-	OnStartPerform = function(self)
+	OnShowRequested = function(self)
         DrawSystem:AddDrawable(self.sprite)
     end,
 
-    OnStopPerform = function(self)
+    OnHideRequested = function(self)
         DrawSystem:RemoveDrawable(self.sprite)
     end,
 

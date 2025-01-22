@@ -17,5 +17,8 @@ local EventIds =
 	AudienceMemberScoreUpdated = 9,
 
 	PlayerTechniqueFinished = 10,
+
+	ShowSpectatorPanel = 11,
+	HideSpectatorPanel = 12,
 }
 return EventIds

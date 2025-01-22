@@ -121,7 +121,8 @@ local RightHand = setmetatable({
 
 	UpdateFingerPositions = function(self)
 		local spritePosition = self.sprite:GetPosition()
-		self.relaxedFingerPosition = spritePosition + self.relaxedFingerOffset
+		self.relaxedFingerPosition.x = spritePosition.x + self.relaxedFingerOffset.x
+		self.relaxedFingerPosition.y = spritePosition.y + self.relaxedFingerOffset.y
 	end,
 
 	GetIndexFingerPosition = function(self)

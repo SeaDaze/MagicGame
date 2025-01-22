@@ -3,20 +3,22 @@
 local Common = {
 	PointCollision = function(self, objA, targetVector3Reference)
 		local error = false
+
 		if not objA.position.x or not objA.position.y or not objA.width or not objA.height then
-			print("Common:AABB - objA setup is missing a parameter")
+			Log.Error("PointCollision: objA setup is missing a parameter")
 			error = true
 		end
 		if error then
 			return nil
 		end
-		if targetVector3Reference.x > (objA.position.x + objA.width) then
+
+		if targetVector3Reference.x > (objA.position.x + objA.width + (objA.width * objA.originOffsetRatio.x)) then
 			return false
-		elseif targetVector3Reference.x < objA.position.x then
+		elseif targetVector3Reference.x < (objA.position.x + (objA.width * objA.originOffsetRatio.x)) then
 			return false
-		elseif targetVector3Reference.y > (objA.position.y + objA.height) then
+		elseif targetVector3Reference.y > (objA.position.y + objA.height + (objA.height * objA.originOffsetRatio.y)) then
 			return false
-		elseif targetVector3Reference.y < objA.position.y then
+		elseif targetVector3Reference.y < (objA.position.y + (objA.height * objA.originOffsetRatio.y)) then
 			return false
 		end
 		return true

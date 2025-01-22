@@ -24,7 +24,13 @@ local AudienceMember =
         instance.direction = randomDirection == 1 and Constants.Left or Constants.Right
 		instance.score = 0
 
-		instance.collider = BoxCollider:BoxCollider_New(instance, instance.sprite.position, instance.sprite.width, instance.sprite.height, { x = 0.5, y = 0.5 })
+		instance.collider = BoxCollider:BoxCollider_New(
+            instance,
+            instance.sprite.position,
+            instance.sprite.width,
+            instance.sprite.height,
+            instance.sprite.originOffsetRatio
+        )
 
         return instance
     end,

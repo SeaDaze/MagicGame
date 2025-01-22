@@ -33,7 +33,7 @@ local game = {
     -- #region [CORE]
     -- ===========================================================================================================
     Load = function(self)
-		self:ApplyWindowPreset(5)
+		self:ApplyWindowPreset(4)
         love.math.setRandomSeed(os.time())
         love.graphics.setDefaultFilter("nearest", "nearest")
 		love.mouse.setVisible(false)

@@ -1,4 +1,5 @@
 local AudienceMember = require("Scripts.Audience.AudienceMember")
+local EventIds       = require("Scripts.System.EventIds")
 
 local Audience = 
 {
@@ -30,6 +31,7 @@ local Audience =
 		}
 
         self.audience = {}
+		self.hoveredMembers = {}
     end,
 
     FixedUpdate = function(self, dt)
@@ -47,11 +49,11 @@ local Audience =
 			local playerRelaxedFingerPosition = Player:GetRightHand():GetRelaxedFingerPosition()
 			collider:BoxCollider_AddPointCollisionListener(playerRelaxedFingerPosition,
             function(colliderA)
-				Log.High("OnStart: Collision Start")
+				self:OnStartHoveringAudienceMember(colliderA:BoxCollider_GetOwner())
             end,
 
             function(colliderA)
-				Log.High("OnStart: Collision Stop")
+				self:OnStopHoveringAudienceMember(colliderA:BoxCollider_GetOwner())
             end
         )
         end
@@ -126,6 +128,25 @@ local Audience =
 
         return AudienceMember:New(sprite)
     end,
+
+	OnStartHoveringAudienceMember = function(self, audienceMember)
+		Log.Med("OnStartHoveringAudienceMember: ")
+
+		if table.isEmpty(self.hoveredMembers) then
+			EventSystem:BroadcastEvent(EventIds.ShowSpectatorPanel)
+		end
+		
+		table.insert(self.hoveredMembers, audienceMember)
+	end,
+
+	OnStopHoveringAudienceMember = function(self, audienceMember)
+		Log.Med("OnStopHoveringAudienceMember: ")
+		table.removeByValue(self.hoveredMembers, audienceMember)
+
+		if table.isEmpty(self.hoveredMembers) then
+			EventSystem:BroadcastEvent(EventIds.HideSpectatorPanel)
+		end
+	end,
 
 	-- ===========================================================================================================
 	-- #region [PUBLICHELPERS]
