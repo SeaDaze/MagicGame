@@ -17,8 +17,8 @@ local SpectatorPanel =
             { x = 1, y = 0.5 }
         )
 
-        -- EventSystem:ConnectToEvent(EventIds.OnStartHoverSpectator, self, "OnStartHoverSpectator")
-        -- EventSystem:ConnectToEvent(EventIds.OnStopHoverSpectator, self, "OnStopHoverSpectator")
+        EventSystem:ConnectToEvent(EventIds.OnStartHoverSpectator, self, "OnStartHoverSpectator")
+        EventSystem:ConnectToEvent(EventIds.OnStopHoverSpectator, self, "OnStopHoverSpectator")
 		self.visible = false
 		self.hoveredSpectators = {}
 		self.selectedSpectator = nil

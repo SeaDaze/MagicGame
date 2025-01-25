@@ -1,5 +1,5 @@
 local Spectator = require("Scripts.Audience.Spectator")
-local EventIds       = require("Scripts.System.EventIds")
+local EventIds = require("Scripts.System.EventIds")
 
 local Audience = 
 {
@@ -7,30 +7,27 @@ local Audience =
 	-- #region [CORE]
 	-- ===========================================================================================================
 	Load = function(self)
-        local headSpritesheet = DrawSystem:LoadImage("Images/Faces/Head_Base_Spritesheet.png")
-        local hairSpritesheet = DrawSystem:LoadImage("Images/Faces/Hair_Spritesheet.png")
-        local faceSpritesheet = DrawSystem:LoadImage("Images/Faces/Face_Spritesheet.png")
+		self.audienceNumber = 500
 
-		self.headSpriteBatch = Sprite:NewSpriteBatch(headSpritesheet, 500)
-		self.hairSpriteBatch = Sprite:NewSpriteBatch(hairSpritesheet, 500)
-		self.faceSpriteBatch = Sprite:NewSpriteBatch(faceSpritesheet, 500)
+		local characterSpritesheet = DrawSystem:LoadImage("Images/Faces/Character_Spritesheet.png")
+		self.characterSpriteBatch = Sprite:NewSpriteBatch(characterSpritesheet, self.audienceNumber)
 
-		self.audienceSpriteData = 
+		self.audienceSpriteData =
 		{
 			head =
 			{
-				spritesheet = headSpritesheet,
-				quads = DrawSystem:ExtractAllSpritesheetQuads(headSpritesheet, 32, 32),
+				spritesheet = characterSpritesheet,
+				quads = DrawSystem:ExtractSpritesheetQuadByRow(characterSpritesheet, 32, 32, 1, 2),
 			},
 			hair =
 			{
-				spritesheet = hairSpritesheet,
-				quads = DrawSystem:ExtractAllSpritesheetQuads(hairSpritesheet, 32, 32),
+				spritesheet = characterSpritesheet,
+				quads = DrawSystem:ExtractSpritesheetQuadByRow(characterSpritesheet, 32, 32, 3, 7),
 			},
 			face =
 			{
-				spritesheet = faceSpritesheet,
-				quads = DrawSystem:ExtractAllSpritesheetQuads(faceSpritesheet, 32, 32),
+				spritesheet = characterSpritesheet,
+				quads = DrawSystem:ExtractSpritesheetQuadByRow(characterSpritesheet, 32, 32, 2, 7),
 			},
 		}
 
@@ -42,7 +39,7 @@ local Audience =
 			spectator:FixedUpdate(dt)
 
 			local sprite = spectator.sprite
-			self.headSpriteBatch.spriteBatch:set(
+			self.characterSpriteBatch.spriteBatch:set(
 				spectator.headSpriteBatchId,
 				sprite.quadTable[1],
 				sprite.position.x,
@@ -53,7 +50,7 @@ local Audience =
 				sprite.width * sprite.originOffsetRatio.x,
 				sprite.height * sprite.originOffsetRatio.y
 			)
-		   	self.hairSpriteBatch.spriteBatch:set(
+		   	self.characterSpriteBatch.spriteBatch:set(
 				spectator.hairSpriteBatchId,
 			   	sprite.quadTable[2],
 			   	sprite.position.x,
@@ -64,7 +61,7 @@ local Audience =
 			   	sprite.width * sprite.originOffsetRatio.x,
 			   	sprite.height * sprite.originOffsetRatio.y
 		   	)
-		   	self.faceSpriteBatch.spriteBatch:set(
+		   	self.characterSpriteBatch.spriteBatch:set(
 				spectator.faceSpriteBatchId,
 			   	sprite.quadTable[3],
 			   	sprite.position.x,
@@ -79,7 +76,7 @@ local Audience =
     end,
 
 	OnStart = function(self)
-		self:GenerateAudience(5000)
+		self:GenerateAudience(self.audienceNumber)
 
 		DrawSystem:AddDebugDraw(
             function ()
@@ -97,7 +94,7 @@ local Audience =
 
         for _, spectator in pairs(self.audience) do
 			local sprite = spectator.sprite
-			spectator.headSpriteBatchId = self.headSpriteBatch.spriteBatch:add(
+			spectator.headSpriteBatchId = self.characterSpriteBatch.spriteBatch:add(
 				sprite.quadTable[1],
 				sprite.position.x,
 				sprite.position.y,
@@ -107,7 +104,7 @@ local Audience =
 				sprite.width * sprite.originOffsetRatio.x,
 				sprite.height * sprite.originOffsetRatio.y
 			)
-			spectator.hairSpriteBatchId = self.hairSpriteBatch.spriteBatch:add(
+			spectator.hairSpriteBatchId = self.characterSpriteBatch.spriteBatch:add(
 				sprite.quadTable[2],
 				sprite.position.x,
 				sprite.position.y,
@@ -117,7 +114,7 @@ local Audience =
 				sprite.width * sprite.originOffsetRatio.x,
 				sprite.height * sprite.originOffsetRatio.y
 			)
-			spectator.faceSpriteBatchId = self.faceSpriteBatch.spriteBatch:add(
+			spectator.faceSpriteBatchId = self.characterSpriteBatch.spriteBatch:add(
 				sprite.quadTable[3],
 				sprite.position.x,
 				sprite.position.y,
@@ -127,7 +124,6 @@ local Audience =
 				sprite.width * sprite.originOffsetRatio.x,
 				sprite.height * sprite.originOffsetRatio.y
 			)
-            --DrawSystem:AddDrawable(spectator.sprite)
 
 			local collider = spectator:GetCollider()
 			collider:BoxCollider_OnStart()
@@ -142,14 +138,14 @@ local Audience =
 			)
         end
 
-		DrawSystem:AddDrawable(self.headSpriteBatch)
-		DrawSystem:AddDrawable(self.hairSpriteBatch)
-		DrawSystem:AddDrawable(self.faceSpriteBatch)
+		DrawSystem:AddDrawable(self.characterSpriteBatch)
 	end,
 
 	OnStop = function(self)
+		DrawSystem:RemoveDrawable(self.characterSpriteBatch)
+		self.characterSpriteBatch.spriteBatch:clear()
+
         for _, spectator in pairs(self.audience) do
-            DrawSystem:RemoveDrawable(spectator.sprite)
 			local collider = spectator:GetCollider()
 			collider:BoxCollider_OnStop()
         end

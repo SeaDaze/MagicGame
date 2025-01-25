@@ -1,7 +1,7 @@
 
 local DrawLayers = 
 {
-    PerformanceMat = 1,
+    PerformanceMat = 11,
 
     AIHand = 4,
     CardReader = 5,

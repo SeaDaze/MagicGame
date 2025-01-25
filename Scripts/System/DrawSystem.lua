@@ -13,6 +13,7 @@ local DrawSystem =
         self.debug_DrawFunctions = {}
         self.debug_DrawIndex = 0
 		self.blurEffect = Moonshine(Moonshine.effects.boxblur).chain(Moonshine.effects.pixelate)
+		self.debug_DrawCalls = 0
     end,
 
 	Update = function(self, dt)
@@ -26,21 +27,23 @@ local DrawSystem =
 	end,
 
     DrawAll = function(self)
-		self.blurEffect(
-			function()
-				for layerOrderedIndex, layerIndex in ipairs(self.orderedLayers) do
-					for drawableIndex, drawableData in pairs(self.layers[layerIndex]) do
-						if drawableData.blur then
-							self:EvaluateDrawableType(drawableData)
-						end
-					end
-				end
-			end
-		)
+		-- self.blurEffect(
+		-- 	function()
+		-- 		for layerOrderedIndex, layerIndex in ipairs(self.orderedLayers) do
+		-- 			for drawableIndex, drawableData in pairs(self.layers[layerIndex]) do
+		-- 				if drawableData.blur then
+		-- 					self:EvaluateDrawableType(drawableData)
+		-- 				end
+		-- 			end
+		-- 		end
+		-- 	end
+		-- )
+		self.debug_DrawCalls = 0
         for layerOrderedIndex, layerIndex in ipairs(self.orderedLayers) do
             for drawableIndex, drawableData in pairs(self.layers[layerIndex]) do
                 if drawableData.visible and not drawableData.blur then
 					self:EvaluateDrawableType(drawableData)
+					self.debug_DrawCalls = self.debug_DrawCalls + 1
                 end
             end
         end
@@ -103,6 +106,25 @@ local DrawSystem =
 			end
 		end
 		Log.Med("ExtractAllSpritesheetQuads: Extracted ", table.count(quads), " quads")
+		return quads
+	end,
+
+	---@param self any
+	---@param spritesheet love.Image
+	---@param spriteWidth number
+	---@param spriteHeight number
+	ExtractSpritesheetQuadByRow = function(self, spritesheet, spriteWidth, spriteHeight, row, columns)
+		local spritesheetWidth = spritesheet:getWidth()
+		local spritesheetHeight = spritesheet:getHeight()
+
+		local quads = {}
+		local quadIndex = 1
+
+		for x = 0, columns - 1 do
+			quads[quadIndex] = love.graphics.newQuad(x * spriteWidth, (row - 1) * spriteHeight, spriteWidth, spriteHeight, spritesheetWidth, spritesheetHeight)
+			quadIndex = quadIndex + 1
+		end
+		Log.Med("ExtractSpritesheetQuadByRow: Extracted ", table.count(quads), " quads")
 		return quads
 	end,
 
@@ -201,11 +223,14 @@ local DrawSystem =
             self.layers[layerIndex] = {}
         end
         table.insert(self.layers[layerIndex], drawable)
-        table.insert(self.orderedLayers, layerIndex)
+		if not table.findKey(self.orderedLayers, layerIndex) then
+			table.insert(self.orderedLayers, layerIndex)
+		end
         table.sort(self.orderedLayers)
 		if drawable.requiresUpdate then
 			table.insert(self.updateTable, drawable)
 		end
+		Log.Med("AddDrawable: ")
     end,
 
     RemoveDrawable = function(self, drawable)
@@ -218,6 +243,8 @@ local DrawSystem =
 		if drawable.requiresUpdate then
 			table.removeByValue(self.updateTable, drawable)
 		end
+
+		Log.Med("RemoveDrawable: ")
     end,
 
     ChangeDrawableLayerIndex = function(self, drawable, newLayerIndex)

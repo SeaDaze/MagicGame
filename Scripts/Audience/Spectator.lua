@@ -14,7 +14,7 @@ local Spectator =
 		instance.sprite = sprite
         instance.speed = love.math.random(10, 30)
         instance.lower = 32
-        instance.upper = love.graphics.getWidth() - (32 * 4)
+        instance.upper = love.graphics.getWidth() - 32
         instance.sprite:SetPosition({
             x = love.math.random(instance.lower, instance.upper),
             y = love.math.random(60 * GameSettings.WindowResolutionScale) + 40,
