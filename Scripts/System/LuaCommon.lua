@@ -32,3 +32,37 @@ end
 table.findLastElement = function(t)
     return t[t.count]
 end
+
+table.simpleCopy = function(t)
+	local copy = {}
+	for key, value in pairs(t) do
+		copy[key] = value
+	end
+	return copy
+end
+
+table.deepCopy = function(t)
+    local copy = {}
+    for key, value in pairs(t) do
+        if type(value) == "table" then
+            copy[key] = table.deepCopy(value) -- Recursively copy nested tables
+        else
+            copy[key] = value -- Directly copy non-table values
+        end
+    end
+    return copy
+end
+
+table.deepCopyWithMetaTable = function(t)
+    local copy = {}
+    for key, value in pairs(t) do
+        if type(value) == "table" then
+            copy[key] = table.deepCopyWithMetaTable(value) -- Recursively copy nested tables
+        else
+            copy[key] = value -- Directly copy non-table values
+        end
+    end
+    -- Copy the metatable of the original table
+    setmetatable(copy, getmetatable(t))
+    return copy
+end

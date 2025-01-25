@@ -10,7 +10,7 @@ local Relic = setmetatable(
 	New = function(self, typeId,  leftHand, rightHand)
 		local instance = setmetatable({}, self)
         instance.typeId = typeId
-        instance.drawable = love.graphics.newImage(RelicSprites[typeId])
+        instance.drawable = DrawSystem:LoadImage(RelicSprites[typeId])
 
         instance.sprite = Sprite:New(
 			instance.drawable,

@@ -4,7 +4,7 @@ local CreditCard = setmetatable(
 {
 	New = function(self, leftHand, rightHand)
 		local instance = setmetatable({}, self)
-        instance.drawable = love.graphics.newImage("Images/Items/CreditCard.png")
+        instance.drawable = DrawSystem:LoadImage("Images/Items/CreditCard.png")
 
         instance.sprite = Sprite:New(
 			instance.drawable,

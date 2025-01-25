@@ -13,18 +13,18 @@ local LeftHand = setmetatable({
 			[GameConstants.HandStates.PalmUp] = nil,
 			[GameConstants.HandStates.PalmUpPinch] = nil,
 			[GameConstants.HandStates.PalmDownTableSpread] = nil,
-			[GameConstants.HandStates.PalmDownNatural] = love.graphics.newImage("Images/Hands/left_palmDown_Natural.png"),
-			[GameConstants.HandStates.PalmDownGrabOpen] = love.graphics.newImage("Images/Hands/left_palmDown_GrabOpen.png"),
-			[GameConstants.HandStates.PalmDownGrabClose] = love.graphics.newImage("Images/Hands/left_palmDown_GrabClose.png"),
-			[GameConstants.HandStates.PalmDownRelaxed] = love.graphics.newImage("Images/Hands/left_palmDown_Relaxed.png"),
-			[GameConstants.HandStates.PalmDownRelaxedIndexOut] = love.graphics.newImage("Images/Hands/left_palmDown_RelaxedIndexOut.png"),
-			[GameConstants.HandStates.MechanicsGrip] = love.graphics.newImage("Images/Hands/left_dealerGrip.png"),
-			[GameConstants.HandStates.Fan] = love.graphics.newImage("Images/Hands/left_fan_NoThumb.png"),
+			[GameConstants.HandStates.PalmDownNatural] = DrawSystem:LoadImage("Images/Hands/left_palmDown_Natural.png"),
+			[GameConstants.HandStates.PalmDownGrabOpen] = DrawSystem:LoadImage("Images/Hands/left_palmDown_GrabOpen.png"),
+			[GameConstants.HandStates.PalmDownGrabClose] = DrawSystem:LoadImage("Images/Hands/left_palmDown_GrabClose.png"),
+			[GameConstants.HandStates.PalmDownRelaxed] = DrawSystem:LoadImage("Images/Hands/left_palmDown_Relaxed.png"),
+			[GameConstants.HandStates.PalmDownRelaxedIndexOut] = DrawSystem:LoadImage("Images/Hands/left_palmDown_RelaxedIndexOut.png"),
+			[GameConstants.HandStates.MechanicsGrip] = DrawSystem:LoadImage("Images/Hands/left_dealerGrip.png"),
+			[GameConstants.HandStates.Fan] = DrawSystem:LoadImage("Images/Hands/left_fan_NoThumb.png"),
 		}
 
 		instance.lateDrawables =
 		{
-			[GameConstants.HandStates.Fan] = love.graphics.newImage("Images/Hands/left_fan_ThumbOnly.png"),
+			[GameConstants.HandStates.Fan] = DrawSystem:LoadImage("Images/Hands/left_fan_ThumbOnly.png"),
 		}
 
 		instance.state = GameConstants.HandStates.PalmDownRelaxed

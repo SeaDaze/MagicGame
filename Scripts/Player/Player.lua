@@ -30,7 +30,6 @@ local Player =
 		Projectile:Load()
         Inventory:Load()
 
-        self.techniques = {}
         self.routine = {}
 		self.activeProjectiles = {}
 		self.techniqueCards = {}
@@ -77,15 +76,16 @@ local Player =
     -- ===========================================================================================================
     -- #region [EXTERNAL]
     -- ===========================================================================================================
-    OnStartPerform = function(self, audienceMembers)
-		self.audienceMembers = audienceMembers
+    OnStartPerform = function(self, spectators)
+		self.spectators = spectators
         self.leftHand:OnStartPerform()
         self.rightHand:OnStartPerform()
         self.deck:OnStart()
         self:EquipDeckInLeftHand()
 
         self:SetRoutineIndex(1, "Fan")
-		self:SetRoutineIndex(2, "FalseCut")
+		self:SetRoutineIndex(2, "Fan")
+		self:SetRoutineIndex(3, "Fan")
         self:EquipRoutineIndex(self.equippedRoutineIndex)
 
 		self.scoreNotificationId = EventSystem:ConnectToEvent(EventIds.TechniqueEvaluated, self, "OnTechniqueEvaluated")
@@ -138,21 +138,21 @@ local Player =
 
     EquipRoutineIndex = function(self, index)
 		if self.routineIndex == index then
-            print("EquipRoutineIndex: routineIndex is already set to: ", index)
+            Log.Med("EquipRoutineIndex: routineIndex is already set to: ", index)
 			return
 		end
 
 		if self.routineIndex and self.routine[self.routineIndex] then
 			self.routine[self.routineIndex]:OnStop()
-            print("EquipRoutineIndex: Completed=", self.routineIndex)
+			Log.Med("EquipRoutineIndex: Completed=", self.routineIndex)
 		end
 
         if self.routine[index] == nil then
-            print("EquipRoutineIndex: No technique initialised at routineIndex=", index)
+            Log.Med("EquipRoutineIndex: No technique initialised at routineIndex=", index)
 			return
 		end
 
-        print("EquipRoutineIndex: index=", index)
+        Log.Med("EquipRoutineIndex: Equipping index=", index)
 		self.routineIndex = index
 		self.routine[self.routineIndex]:OnStart()
 	end,
@@ -174,12 +174,13 @@ local Player =
 	end,
 
 	OnTechniqueEvaluated = function(self, techniqueName, score)
-		for _, member in pairs(self.audienceMembers) do
-			self:CreateProjectile({ x = love.graphics.getWidth() / 2, y = love.graphics.getHeight() / 2, z = 0 }, member, score)
-		end
+		-- for _, spectator in pairs(self.spectators) do
+		-- 	self:CreateProjectile({ x = love.graphics.getWidth() / 2, y = love.graphics.getHeight() / 2, z = 0 }, spectator, score)
+		-- end
 	end,
 
 	OnTechniqueFinished = function(self)
+		Log.Med("OnTechniqueFinished: self.routineIndex=", self.routineIndex)
 		self:EquipRoutineIndex(self.routineIndex + 1)
 		self:UpdateTechniqueCardPositions()
 	end,
@@ -219,10 +220,13 @@ local Player =
 
     SetRoutineIndex = function(self, index, typeId)
         if typeId then
-            if not self.techniques[typeId] then
-                self.techniques[typeId] = Techniques[typeId]:New(self.deck, self.leftHand, self.rightHand)
-            end
-            self.routine[index] = self.techniques[typeId]
+			local techniqueInstance
+			if Techniques[typeId] then
+				techniqueInstance = Techniques[typeId]:New(self.deck, self.leftHand, self.rightHand)
+				self.routine[index] = techniqueInstance
+			else
+				Log.Error("SetRoutineIndex: No technique found with typeId=", typeId)
+			end
         else
             self.routine[index] = nil
         end

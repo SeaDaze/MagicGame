@@ -5,7 +5,7 @@ local Mat =
     -- #region [CORE]
     -- ===========================================================================================================
     Load = function(self)
-        self.drawable = love.graphics.newImage("Images/Background/mat.png")
+        self.drawable = DrawSystem:LoadImage("Images/Background/mat.png")
 
         -- Components
         self.sprite = Sprite:New(

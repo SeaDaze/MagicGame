@@ -1,3 +1,4 @@
+local EventIds = require "Scripts.System.EventIds"
 
 
 local EventSystem = 
@@ -56,6 +57,7 @@ local EventSystem =
 			instanceTable = instanceTable,
 			callbackFunctionName = callbackFunctionName
 		}
+		Log.Low("ConnectToEvent: Connected to event=", table.findKey(EventIds, eventId))
 		return self.notificationId
 	end,
 

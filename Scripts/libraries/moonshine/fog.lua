@@ -17,8 +17,8 @@ local time = 0
 
 function love.load()
 	image_data = love.image.newImageData(love.graphics.getWidth(), love.graphics.getHeight())
-	image = love.graphics.newImage(image_data)
-	bg = love.graphics.newImage("bg.png")
+	image = DrawSystem:LoadImage(image_data)
+	bg = DrawSystem:LoadImage("bg.png")
 	effect = moonshine(moonshine.effects.fog)
 	effect.fog.fog_color = {0.1, 0.0, 0.0}
 	effect.fog.speed = {0.2, 0.9}

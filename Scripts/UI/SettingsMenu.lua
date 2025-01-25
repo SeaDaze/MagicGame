@@ -4,7 +4,7 @@ local BasicButton = require("Scripts.UI.BasicButton")
 local SettingsMenu =
 {
     Load = function(self)
-        self.background = love.graphics.newImage("Images/Background/settingsbackground.png")
+        self.background = DrawSystem:LoadImage("Images/Background/settingsbackground.png")
         -- self.buttons = 
         -- {
         --     apply = BasicButton:New(

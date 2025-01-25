@@ -32,9 +32,9 @@ local BasicButton = {
         local instance = setmetatable({}, self)
         --instance.size = BasicButtonType[type].size
     
-        instance.defaultSprite = love.graphics.newImage(BasicButtonType[type].default)
-        instance.hoveredSprite = love.graphics.newImage(BasicButtonType[type].hovered)
-        instance.selectedSprite = love.graphics.newImage(BasicButtonType[type].selected)
+        instance.defaultSprite = DrawSystem:LoadImage(BasicButtonType[type].default)
+        instance.hoveredSprite = DrawSystem:LoadImage(BasicButtonType[type].hovered)
+        instance.selectedSprite = DrawSystem:LoadImage(BasicButtonType[type].selected)
         instance.size = 
         {
             x = instance.defaultSprite:getWidth(),

@@ -35,7 +35,7 @@ local Deck = {
 		instance.lines = {}
         instance.lineIndex = 1
 
-		local faceDownDrawable = love.graphics.newImage("Images/Cards/cardBack_03.png")
+		local faceDownDrawable = DrawSystem:LoadImage("Images/Cards/cardBack_03.png")
 
 		local pathPrefixes = 
 		{
@@ -104,7 +104,7 @@ local Deck = {
 	-- ===========================================================================================================
 
 	CreatePlayingCard = function(self, pathPrefix, cardValue, cardSuit, cardIndex, faceDownDrawable)
-		local drawable = love.graphics.newImage(pathPrefix .. CardImageNames[cardValue])
+		local drawable = DrawSystem:LoadImage(pathPrefix .. CardImageNames[cardValue])
 		local sprite = Sprite:New(
 			drawable,
 			{ x = love.graphics.getWidth() / 2, y = love.graphics.getHeight() / 2, z = 0 },

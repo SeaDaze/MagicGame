@@ -8,9 +8,10 @@ local Timer = {
 
     Update = function(self, dt)
 		local timersToRemove = {}
+		local callbackTargets = table.simpleCopy(self.callbackTargets)
 		for timerId, timerData in pairs(self.runningTimers) do
 			if love.timer.getTime() >= timerData.endTime then
-				for _, callbackTarget in pairs(self.callbackTargets) do
+				for _, callbackTarget in pairs(callbackTargets) do
 					callbackTarget.listenTarget[callbackTarget.functionName](callbackTarget.listenTarget, timerId)
 				end
 				table.insert(timersToRemove, timerId)

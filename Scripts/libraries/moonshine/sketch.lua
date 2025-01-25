@@ -28,7 +28,7 @@ return function(moonshine)
   noisetex:mapPixel(function()
     return love.math.random() * 255,love.math.random() * 255, 0, 0
   end)
-  noisetex = love.graphics.newImage(noisetex)
+  noisetex = DrawSystem:LoadImage(noisetex)
   noisetex:setWrap ("repeat", "repeat")
   noisetex:setFilter("nearest", "nearest")
 

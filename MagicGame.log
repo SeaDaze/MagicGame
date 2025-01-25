@@ -1,41 +1,7 @@
-[HIGH  01/22/25 21:39:44] Scripts/Player/Player.lua:39: Load: Player loaded
-[MED   01/22/25 21:39:44] Scripts/System/DrawSystem.lua:97: ExtractAllSpritesheetQuads: Extracted  2  quads
-[MED   01/22/25 21:39:44] Scripts/System/DrawSystem.lua:97: ExtractAllSpritesheetQuads: Extracted  7  quads
-[MED   01/22/25 21:39:44] Scripts/System/DrawSystem.lua:97: ExtractAllSpritesheetQuads: Extracted  7  quads
-[HIGH  01/22/25 21:39:45] game.lua:77: Load: Magic game loaded
-[MED   01/22/25 21:39:47] Scripts/Audience/Audience.lua:133: OnStartHoveringAudienceMember: 
-[MED   01/22/25 21:39:47] Scripts/Audience/Audience.lua:143: OnStopHoveringAudienceMember: 
-[MED   01/22/25 21:39:48] Scripts/Audience/Audience.lua:133: OnStartHoveringAudienceMember: 
-[MED   01/22/25 21:39:49] Scripts/Audience/Audience.lua:143: OnStopHoveringAudienceMember: 
-[MED   01/22/25 21:39:50] Scripts/Audience/Audience.lua:133: OnStartHoveringAudienceMember: 
-[MED   01/22/25 21:39:51] Scripts/Audience/Audience.lua:143: OnStopHoveringAudienceMember: 
-[MED   01/22/25 21:39:52] Scripts/Audience/Audience.lua:133: OnStartHoveringAudienceMember: 
-[MED   01/22/25 21:39:52] Scripts/Audience/Audience.lua:143: OnStopHoveringAudienceMember: 
-[MED   01/22/25 21:39:53] Scripts/Audience/Audience.lua:133: OnStartHoveringAudienceMember: 
-[MED   01/22/25 21:39:55] Scripts/Audience/Audience.lua:143: OnStopHoveringAudienceMember: 
-[MED   01/22/25 21:39:57] Scripts/Audience/Audience.lua:133: OnStartHoveringAudienceMember: 
-[MED   01/22/25 21:39:58] Scripts/Audience/Audience.lua:143: OnStopHoveringAudienceMember: 
-[MED   01/22/25 21:39:59] Scripts/Audience/Audience.lua:133: OnStartHoveringAudienceMember: 
-[MED   01/22/25 21:40:01] Scripts/Audience/Audience.lua:143: OnStopHoveringAudienceMember: 
-[MED   01/22/25 21:40:04] Scripts/Audience/Audience.lua:133: OnStartHoveringAudienceMember: 
-[MED   01/22/25 21:40:04] Scripts/Audience/Audience.lua:143: OnStopHoveringAudienceMember: 
-[MED   01/22/25 21:40:05] Scripts/Audience/Audience.lua:133: OnStartHoveringAudienceMember: 
-[MED   01/22/25 21:40:05] Scripts/Audience/Audience.lua:133: OnStartHoveringAudienceMember: 
-[MED   01/22/25 21:40:05] Scripts/Audience/Audience.lua:143: OnStopHoveringAudienceMember: 
-[MED   01/22/25 21:40:05] Scripts/Audience/Audience.lua:133: OnStartHoveringAudienceMember: 
-[MED   01/22/25 21:40:05] Scripts/Audience/Audience.lua:143: OnStopHoveringAudienceMember: 
-[MED   01/22/25 21:40:05] Scripts/Audience/Audience.lua:143: OnStopHoveringAudienceMember: 
-[MED   01/22/25 21:40:14] Scripts/Audience/Audience.lua:133: OnStartHoveringAudienceMember: 
-[MED   01/22/25 21:40:17] Scripts/Audience/Audience.lua:143: OnStopHoveringAudienceMember: 
-[MED   01/22/25 21:40:17] Scripts/Audience/Audience.lua:133: OnStartHoveringAudienceMember: 
-[MED   01/22/25 21:40:18] Scripts/Audience/Audience.lua:143: OnStopHoveringAudienceMember: 
-[MED   01/22/25 21:40:39] Scripts/Audience/Audience.lua:133: OnStartHoveringAudienceMember: 
-[MED   01/22/25 21:40:39] Scripts/Audience/Audience.lua:143: OnStopHoveringAudienceMember: 
-[MED   01/22/25 21:40:39] Scripts/Audience/Audience.lua:133: OnStartHoveringAudienceMember: 
-[MED   01/22/25 21:40:41] Scripts/Audience/Audience.lua:143: OnStopHoveringAudienceMember: 
-[MED   01/22/25 21:40:41] Scripts/Audience/Audience.lua:133: OnStartHoveringAudienceMember: 
-[MED   01/22/25 21:40:42] Scripts/Audience/Audience.lua:143: OnStopHoveringAudienceMember: 
-[MED   01/22/25 21:40:42] Scripts/Audience/Audience.lua:133: OnStartHoveringAudienceMember: 
-[MED   01/22/25 21:40:44] Scripts/Audience/Audience.lua:143: OnStopHoveringAudienceMember: 
-[MED   01/22/25 21:40:45] Scripts/Audience/Audience.lua:133: OnStartHoveringAudienceMember: 
-[MED   01/22/25 21:40:45] Scripts/Audience/Audience.lua:143: OnStopHoveringAudienceMember: 
+[HIGH  01/25/25 16:21:56] Scripts/Player/Player.lua:38: Load: Player loaded
+[MED   01/25/25 16:21:56] Scripts/System/DrawSystem.lua:105: ExtractAllSpritesheetQuads: Extracted  2  quads
+[MED   01/25/25 16:21:56] Scripts/System/DrawSystem.lua:105: ExtractAllSpritesheetQuads: Extracted  7  quads
+[MED   01/25/25 16:21:56] Scripts/System/DrawSystem.lua:105: ExtractAllSpritesheetQuads: Extracted  7  quads
+[MED   01/25/25 16:21:56] Scripts/Player/Player.lua:155: EquipRoutineIndex: Equipping index= 1
+[MED   01/25/25 16:21:56] Scripts/Techniques/Fan.lua:30: OnStart: Fan Technique
+[HIGH  01/25/25 16:21:56] game.lua:77: Load: Magic game loaded

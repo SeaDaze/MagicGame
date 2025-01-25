@@ -14,11 +14,11 @@ local EventIds =
 
 	ProjectileHit = 8,
 
-	AudienceMemberScoreUpdated = 9,
+	SpectatorScoreUpdated = 9,
 
 	PlayerTechniqueFinished = 10,
 
-	ShowSpectatorPanel = 11,
-	HideSpectatorPanel = 12,
+	OnStartHoverSpectator = 11,
+	OnStopHoverSpectator = 12,
 }
 return EventIds

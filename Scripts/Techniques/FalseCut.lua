@@ -6,7 +6,7 @@ local FalseCut = {
     New = function(self, deck, leftHand, rightHand)
         local instance = setmetatable({}, self)
 
-		instance.spriteSheet = love.graphics.newImage("Images/Animations/BasicCut.png")
+		instance.spriteSheet = DrawSystem:LoadImage("Images/Animations/BasicCut.png")
 		instance.grid = Animator.newGrid(64, 64, instance.spriteSheet:getWidth(), instance.spriteSheet:getHeight())
 		instance.animation = Animator.newAnimation(instance.grid('1-5', 1), 0.2)
         instance.deck = deck

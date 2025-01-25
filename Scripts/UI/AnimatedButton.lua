@@ -16,7 +16,7 @@ local Button = {
 		instance.callbackData = { }
         instance.active = true
 
-        -- instance.spriteSheet = love.graphics.newImage("Images/UI/Buttons/Button_Test_Anim.png")
+        -- instance.spriteSheet = DrawSystem:LoadImage("Images/UI/Buttons/Button_Test_Anim.png")
 		-- instance.grid = Animator.newGrid(80, 45, instance.spriteSheet:getWidth(), instance.spriteSheet:getHeight())
 		-- instance.animation = Animator.newAnimation(instance.grid('1-10', 1), 0.02)
         -- instance.reverseAnimation = Animator.newAnimation(instance.grid('10-1', 1), 0.02)

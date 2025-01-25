@@ -1,4 +1,4 @@
-local AudienceMember = require("Scripts.Audience.AudienceMember")
+local Spectator = require("Scripts.Audience.Spectator")
 local EventIds       = require("Scripts.System.EventIds")
 
 local Audience = 
@@ -7,9 +7,13 @@ local Audience =
 	-- #region [CORE]
 	-- ===========================================================================================================
 	Load = function(self)
-        local headSpritesheet = love.graphics.newImage("Images/Faces/Head_Base_Spritesheet.png")
-        local hairSpritesheet = love.graphics.newImage("Images/Faces/Hair_Spritesheet.png")
-        local faceSpritesheet = love.graphics.newImage("Images/Faces/Face_Spritesheet.png")
+        local headSpritesheet = DrawSystem:LoadImage("Images/Faces/Head_Base_Spritesheet.png")
+        local hairSpritesheet = DrawSystem:LoadImage("Images/Faces/Hair_Spritesheet.png")
+        local faceSpritesheet = DrawSystem:LoadImage("Images/Faces/Face_Spritesheet.png")
+
+		self.headSpriteBatch = Sprite:NewSpriteBatch(headSpritesheet, 500)
+		self.hairSpriteBatch = Sprite:NewSpriteBatch(hairSpritesheet, 500)
+		self.faceSpriteBatch = Sprite:NewSpriteBatch(faceSpritesheet, 500)
 
 		self.audienceSpriteData = 
 		{
@@ -31,38 +35,122 @@ local Audience =
 		}
 
         self.audience = {}
-		self.hoveredMembers = {}
     end,
 
     FixedUpdate = function(self, dt)
-        for _, audienceMember in pairs(self.audience) do
-           audienceMember:FixedUpdate(dt)
+        for _, spectator in pairs(self.audience) do
+			spectator:FixedUpdate(dt)
+
+			local sprite = spectator.sprite
+			self.headSpriteBatch.spriteBatch:set(
+				spectator.headSpriteBatchId,
+				sprite.quadTable[1],
+				sprite.position.x,
+				sprite.position.y,
+				math.rad(sprite.angle),
+				GameSettings.WindowResolutionScale * sprite.scaleModifier * (1 + (sprite.position.z / 100)),
+				GameSettings.WindowResolutionScale * sprite.scaleModifier * (1 + (sprite.position.z / 100)),
+				sprite.width * sprite.originOffsetRatio.x,
+				sprite.height * sprite.originOffsetRatio.y
+			)
+		   	self.hairSpriteBatch.spriteBatch:set(
+				spectator.hairSpriteBatchId,
+			   	sprite.quadTable[2],
+			   	sprite.position.x,
+			   	sprite.position.y,
+			   	math.rad(sprite.angle),
+			   	GameSettings.WindowResolutionScale * sprite.scaleModifier * (1 + (sprite.position.z / 100)),
+			   	GameSettings.WindowResolutionScale * sprite.scaleModifier * (1 + (sprite.position.z / 100)),
+			   	sprite.width * sprite.originOffsetRatio.x,
+			   	sprite.height * sprite.originOffsetRatio.y
+		   	)
+		   	self.faceSpriteBatch.spriteBatch:set(
+				spectator.faceSpriteBatchId,
+			   	sprite.quadTable[3],
+			   	sprite.position.x,
+			   	sprite.position.y,
+			   	math.rad(sprite.angle),
+			   	GameSettings.WindowResolutionScale * sprite.scaleModifier * (1 + (sprite.position.z / 100)),
+			   	GameSettings.WindowResolutionScale * sprite.scaleModifier * (1 + (sprite.position.z / 100)),
+			   	sprite.width * sprite.originOffsetRatio.x,
+			   	sprite.height * sprite.originOffsetRatio.y
+		   	)
         end
     end,
 
 	OnStart = function(self)
-		self:GenerateAudience(3)
-        for _, audienceMember in pairs(self.audience) do
-            DrawSystem:AddDrawable(audienceMember.sprite)
-			local collider = audienceMember:GetCollider()
+		self:GenerateAudience(5000)
+
+		DrawSystem:AddDebugDraw(
+            function ()
+				local indexFingerPosition = Player:GetRightHand():GetRelaxedFingerPosition()
+				love.graphics.ellipse(
+					"fill",
+					indexFingerPosition.x,
+					indexFingerPosition.y,
+					3,
+					3,
+					6
+				)
+			end
+		)
+
+        for _, spectator in pairs(self.audience) do
+			local sprite = spectator.sprite
+			spectator.headSpriteBatchId = self.headSpriteBatch.spriteBatch:add(
+				sprite.quadTable[1],
+				sprite.position.x,
+				sprite.position.y,
+				math.rad(sprite.angle),
+				GameSettings.WindowResolutionScale * sprite.scaleModifier * (1 + (sprite.position.z / 100)),
+				GameSettings.WindowResolutionScale * sprite.scaleModifier * (1 + (sprite.position.z / 100)),
+				sprite.width * sprite.originOffsetRatio.x,
+				sprite.height * sprite.originOffsetRatio.y
+			)
+			spectator.hairSpriteBatchId = self.hairSpriteBatch.spriteBatch:add(
+				sprite.quadTable[2],
+				sprite.position.x,
+				sprite.position.y,
+				math.rad(sprite.angle),
+				GameSettings.WindowResolutionScale * sprite.scaleModifier * (1 + (sprite.position.z / 100)),
+				GameSettings.WindowResolutionScale * sprite.scaleModifier * (1 + (sprite.position.z / 100)),
+				sprite.width * sprite.originOffsetRatio.x,
+				sprite.height * sprite.originOffsetRatio.y
+			)
+			spectator.faceSpriteBatchId = self.faceSpriteBatch.spriteBatch:add(
+				sprite.quadTable[3],
+				sprite.position.x,
+				sprite.position.y,
+				math.rad(sprite.angle),
+				GameSettings.WindowResolutionScale * sprite.scaleModifier * (1 + (sprite.position.z / 100)),
+				GameSettings.WindowResolutionScale * sprite.scaleModifier * (1 + (sprite.position.z / 100)),
+				sprite.width * sprite.originOffsetRatio.x,
+				sprite.height * sprite.originOffsetRatio.y
+			)
+            --DrawSystem:AddDrawable(spectator.sprite)
+
+			local collider = spectator:GetCollider()
 			collider:BoxCollider_OnStart()
 			local playerRelaxedFingerPosition = Player:GetRightHand():GetRelaxedFingerPosition()
 			collider:BoxCollider_AddPointCollisionListener(playerRelaxedFingerPosition,
-            function(colliderA)
-				self:OnStartHoveringAudienceMember(colliderA:BoxCollider_GetOwner())
-            end,
-
-            function(colliderA)
-				self:OnStopHoveringAudienceMember(colliderA:BoxCollider_GetOwner())
-            end
-        )
+				function(colliderA)
+					EventSystem:BroadcastEvent(EventIds.OnStartHoverSpectator, colliderA:BoxCollider_GetOwner())
+				end,
+				function(colliderA)
+					EventSystem:BroadcastEvent(EventIds.OnStopHoverSpectator, colliderA:BoxCollider_GetOwner())
+				end
+			)
         end
+
+		DrawSystem:AddDrawable(self.headSpriteBatch)
+		DrawSystem:AddDrawable(self.hairSpriteBatch)
+		DrawSystem:AddDrawable(self.faceSpriteBatch)
 	end,
 
 	OnStop = function(self)
-        for _, audienceMember in pairs(self.audience) do
-            DrawSystem:RemoveDrawable(audienceMember.sprite)
-			local collider = audienceMember:GetCollider()
+        for _, spectator in pairs(self.audience) do
+            DrawSystem:RemoveDrawable(spectator.sprite)
+			local collider = spectator:GetCollider()
 			collider:BoxCollider_OnStop()
         end
 		self.audience = {}
@@ -76,20 +164,20 @@ local Audience =
             return
         end
         if score < 25 then
-            for _, audienceMember in pairs(self.audience) do
-                audienceMember:SetFaceAngry()
+            for _, spectator in pairs(self.audience) do
+                spectator:SetFaceAngry()
             end
         elseif score < 50 then
-            for _, audienceMember in pairs(self.audience) do
-                audienceMember:SetFaceNeutral()
+            for _, spectator in pairs(self.audience) do
+                spectator:SetFaceNeutral()
             end
         elseif score < 75 then
-            for _, audienceMember in pairs(self.audience) do
-                audienceMember:SetFaceHappy()
+            for _, spectator in pairs(self.audience) do
+                spectator:SetFaceHappy()
             end
         else
-            for _, audienceMember in pairs(self.audience) do
-                audienceMember:SetFaceAwe()
+            for _, spectator in pairs(self.audience) do
+                spectator:SetFaceAwe()
             end
         end
     end,
@@ -100,12 +188,12 @@ local Audience =
 
 	GenerateAudience = function(self, size)
 		self.audience = {}
-		for memberIndex = 1, size do
-			self.audience[memberIndex] = self:GenerateRandomAudienceMember()
+		for spectatorIndex = 1, size do
+			self.audience[spectatorIndex] = self:GenerateRandomSpectator()
 		end
 	end,
 
-	GenerateRandomAudienceMember = function(self)
+	GenerateRandomSpectator = function(self)
 		local sprite = Sprite:NewComplexSpriteFromSpritesheet(
 			{
 				self.audienceSpriteData.head.spritesheet,
@@ -126,32 +214,13 @@ local Audience =
 			{ x = 0.5, y = 0.5 }
 		)
 
-        return AudienceMember:New(sprite)
+        return Spectator:New(sprite)
     end,
-
-	OnStartHoveringAudienceMember = function(self, audienceMember)
-		Log.Med("OnStartHoveringAudienceMember: ")
-
-		if table.isEmpty(self.hoveredMembers) then
-			EventSystem:BroadcastEvent(EventIds.ShowSpectatorPanel)
-		end
-		
-		table.insert(self.hoveredMembers, audienceMember)
-	end,
-
-	OnStopHoveringAudienceMember = function(self, audienceMember)
-		Log.Med("OnStopHoveringAudienceMember: ")
-		table.removeByValue(self.hoveredMembers, audienceMember)
-
-		if table.isEmpty(self.hoveredMembers) then
-			EventSystem:BroadcastEvent(EventIds.HideSpectatorPanel)
-		end
-	end,
 
 	-- ===========================================================================================================
 	-- #region [PUBLICHELPERS]
 	-- ===========================================================================================================
-	GetAllMembers = function(self)
+	GetAllSpectators = function(self)
 		return self.audience
 	end,
 

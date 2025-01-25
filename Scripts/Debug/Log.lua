@@ -11,8 +11,7 @@ local log = { _version = "0.1.0" }
 
 log.usecolor = true
 log.outfile = nil
-log.level = "Low"
-
+log.level = "Med"
 
 local modes = {
   { name = "Low", color = "\27[34m", },

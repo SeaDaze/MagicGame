@@ -109,6 +109,15 @@ local Sprite =
 		return instance
 	end,
 
+	NewSpriteBatch = function(self, image, maxSprites)
+		local instance = setmetatable({}, self)
+		instance.spriteBatch = love.graphics.newSpriteBatch(image, maxSprites)
+		instance.type = GameConstants.DrawableTypes.SpriteBatch
+		instance.layerIndex = DrawLayers.Audience
+		instance.visible = true
+		return instance
+	end,
+
     -- ===========================================================================================================
     -- #region [EXTERNAL]
     -- ===========================================================================================================

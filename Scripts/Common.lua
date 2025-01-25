@@ -12,13 +12,13 @@ local Common = {
 			return nil
 		end
 
-		if targetVector3Reference.x > (objA.position.x + objA.width + (objA.width * objA.originOffsetRatio.x)) then
+		if targetVector3Reference.x > (objA.position.x + objA.width) then
 			return false
-		elseif targetVector3Reference.x < (objA.position.x + (objA.width * objA.originOffsetRatio.x)) then
+		elseif targetVector3Reference.x < (objA.position.x) then
 			return false
-		elseif targetVector3Reference.y > (objA.position.y + objA.height + (objA.height * objA.originOffsetRatio.y)) then
+		elseif targetVector3Reference.y > (objA.position.y + objA.height) then
 			return false
-		elseif targetVector3Reference.y < (objA.position.y + (objA.height * objA.originOffsetRatio.y)) then
+		elseif targetVector3Reference.y < (objA.position.y) then
 			return false
 		end
 		return true

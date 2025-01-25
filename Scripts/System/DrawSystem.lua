@@ -67,6 +67,8 @@ local DrawSystem =
 			self:DrawComplexSpritesheetQuad(drawableData)
 		elseif drawableData.type == GameConstants.DrawableTypes.ParticleSystem then
 			self:DrawParticleSystem(drawableData)
+		elseif drawableData.type == GameConstants.DrawableTypes.SpriteBatch then
+			self:DrawSpriteBatch(drawableData)
 		end
 		if drawableData.colorOverride then
 			love.graphics.setColor(1, 1, 1, 1)
@@ -76,6 +78,12 @@ local DrawSystem =
     -- ===========================================================================================================
     -- #region [EXTERNAL]
     -- ===========================================================================================================
+
+	LoadImage = function(self, imagePath)
+		Log.Low("LoadImage: Loaded image with path: ", imagePath)
+		return love.graphics.newImage(imagePath)
+	end,
+
 	---@param self any
 	---@param spritesheet love.Image
 	---@param spriteWidth number
@@ -169,6 +177,10 @@ local DrawSystem =
 
 	DrawParticleSystem = function(self, particleSystemData)
 		love.graphics.draw(particleSystemData.particleSystem)
+	end,
+
+	DrawSpriteBatch = function(self, spriteBatchData)
+		love.graphics.draw(spriteBatchData.spriteBatch)
 	end,
 
     -- ===========================================================================================================

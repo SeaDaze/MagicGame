@@ -20,12 +20,12 @@ local PerformScene =
 		self.backgroundVFX = 
 		{
 			ParticleSystem:New(
-				love.graphics.newImage("Images/Cards/spade_01.png"),
+				DrawSystem:LoadImage("Images/Cards/spade_01.png"),
 				{ x = love.graphics.getWidth() / 2, y = love.graphics.getHeight() / 2 },
 				0
 			),
 			ParticleSystem:New(
-				love.graphics.newImage("Images/Cards/heart_01.png"),
+				DrawSystem:LoadImage("Images/Cards/heart_01.png"),
 				{ x = love.graphics.getWidth() / 2, y = love.graphics.getHeight() / 2 },
 				0
 			),
@@ -70,7 +70,7 @@ local PerformScene =
 
 	OnStart = function(self)
 		Audience:OnStart()
-		Player:OnStartPerform(Audience:GetAllMembers())
+		Player:OnStartPerform(Audience:GetAllSpectators())
 		Mat:OnStartPerform()
 		DrawSystem:AddDrawable(self.quotaText)
 		DrawSystem:AddDrawable(self.scoreText)
@@ -79,7 +79,7 @@ local PerformScene =
 		for _, vfx in pairs(self.backgroundVFX) do
 			DrawSystem:AddDrawable(vfx)
 		end
-		self.scoreNotificationId = EventSystem:ConnectToEvent(EventIds.AudienceMemberScoreUpdated, self, "OnAudienceMemberScoreUpdated")
+		self.scoreNotificationId = EventSystem:ConnectToEvent(EventIds.SpectatorScoreUpdated, self, "OnSpectatorScoreUpdated")
 	end,
 
 	OnStop = function(self)
@@ -110,10 +110,10 @@ local PerformScene =
     -- #region [INTERNAL]
     -- ===========================================================================================================
 
-	OnAudienceMemberScoreUpdated = function(self, score)
+	OnSpectatorScoreUpdated = function(self, score)
 		local score = 0
-		for _, member in pairs(Audience:GetAllMembers()) do
-			score = score + member:GetScore()
+		for _, spectator in pairs(Audience:GetAllSpectators()) do
+			score = score + spectator:GetScore()
 		end
 
 		self.scoreText:SetText("Score: " .. tostring(math.floor(score)))

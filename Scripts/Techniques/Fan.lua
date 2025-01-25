@@ -27,25 +27,26 @@ local Fan = {
     end,
 
     OnStart = function(self)
+		Log.Med("OnStart: Fan Technique")
 		self.timerNotificationId = Timer:AddListener(self, "OnTimerFinished")
 		self.leftHand:SetState(GameConstants.HandStates.Fan)
 		self:InitializeFan()
 
 		self.rightActionNotificationId = EventSystem:ConnectToEvent(EventIds.RightAction, self, "OnInputAction")
 
-		DrawSystem:AddDebugDraw(
-            function ()
-				local indexFingerPosition = self.rightHand:GetIndexFingerPosition()
-				love.graphics.ellipse(
-					"fill",
-					indexFingerPosition.x,
-					indexFingerPosition.y,
-					3,
-					3,
-					6
-				)
-			end
-		)
+		-- DrawSystem:AddDebugDraw(
+        --     function ()
+		-- 		local indexFingerPosition = self.rightHand:GetIndexFingerPosition()
+		-- 		love.graphics.ellipse(
+		-- 			"fill",
+		-- 			indexFingerPosition.x,
+		-- 			indexFingerPosition.y,
+		-- 			3,
+		-- 			3,
+		-- 			6
+		-- 		)
+		-- 	end
+		-- )
 
 		-- DrawSystem:AddDebugDraw(
         --     function ()
@@ -135,7 +136,7 @@ local Fan = {
     end,
 
     OnStop = function(self)
-		self:UninitializeFan()
+		Log.Med("OnStop: Fan Technique")
 		Timer:RemoveListener(self.timerNotificationId)
     end,
 
@@ -174,13 +175,11 @@ local Fan = {
 				self.deck:RetrieveSelectedCard()
 				Timer:Start("Reset", 0.35)
 			else
-				EventSystem:BroadcastEvent(EventIds.PlayerTechniqueFinished)
+				self:UninitializeFan()
+				Timer:Start("Finish", 0.5)
 			end
-			--self:UninitializeFan()
-
-			--Timer:Start("InitializeFan", 1)
-		-- elseif timerId == "InitializeFan" then
-		-- 	self:InitializeFan()
+		elseif timerId == "Finish" then
+			EventSystem:BroadcastEvent(EventIds.PlayerTechniqueFinished)
 		elseif timerId == "Reset" then
 			self.deck:ResetSelectedCard()
 		end

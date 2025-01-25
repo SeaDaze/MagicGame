@@ -21,7 +21,7 @@ return function(moonshine)
     local l = love.math.random() * 255
     return l,l,l,l
   end)
-  noisetex = love.graphics.newImage(noisetex)
+  noisetex = DrawSystem:LoadImage(noisetex)
 
   local shader = love.graphics.newShader[[
     extern number opacity;

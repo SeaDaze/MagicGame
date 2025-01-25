@@ -17,8 +17,8 @@ local CardReader =
         -- Variables
         self.drawables = 
         {
-            [CardReaderStates.Default] = love.graphics.newImage("Images/Items/ShopKeeper/CardReader.png"),
-            [CardReaderStates.Green] = love.graphics.newImage("Images/Items/ShopKeeper/CardReaderGreen.png"),
+            [CardReaderStates.Default] = DrawSystem:LoadImage("Images/Items/ShopKeeper/CardReader.png"),
+            [CardReaderStates.Green] = DrawSystem:LoadImage("Images/Items/ShopKeeper/CardReaderGreen.png"),
         }
 
         self.active = false

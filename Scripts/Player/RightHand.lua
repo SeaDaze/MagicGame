@@ -7,39 +7,39 @@ local RightHand = setmetatable({
 
 		instance.drawables = 
 		{
-			[GameConstants.HandStates.PalmDown] = love.graphics.newImage("Images/Hands/right_palmDown_ThumbIn.png"),
-			[GameConstants.HandStates.PalmDownPinch] = love.graphics.newImage("Images/Hands/right_palmDown_PinchNoThumb.png"),
-			[GameConstants.HandStates.PalmDownIndexOut] = love.graphics.newImage("Images/Hands/right_palmDown_IndexOut.png"),
-			[GameConstants.HandStates.PalmUp] = love.graphics.newImage("Images/Hands/right_palmUp_ThumbIn.png"),
-			[GameConstants.HandStates.PalmUpPinch] = love.graphics.newImage("Images/Hands/right_palmUp_NoThumb.png"),
-			[GameConstants.HandStates.PalmDownTableSpread] = love.graphics.newImage("Images/Hands/right_palmDown_TableSpread.png"),
-			[GameConstants.HandStates.PalmDownNatural] = love.graphics.newImage("Images/Hands/right_palmDown_Natural.png"),
-			[GameConstants.HandStates.PalmDownGrabOpen] = love.graphics.newImage("Images/Hands/right_palmDown_GrabOpen.png"),
-			[GameConstants.HandStates.PalmDownGrabClose] = love.graphics.newImage("Images/Hands/right_palmDown_GrabClose.png"),
-			[GameConstants.HandStates.PalmDownRelaxed] = love.graphics.newImage("Images/Hands/right_palmDown_Relaxed.png"),
-			[GameConstants.HandStates.PalmDownRelaxedIndexOut] = love.graphics.newImage("Images/Hands/right_palmDown_RelaxedIndexOut.png"),
-			[GameConstants.HandStates.PalmDownRelaxedIndexPressed] = love.graphics.newImage("Images/Hands/right_palmDown_RelaxedIndexOutPressed.png"),
+			[GameConstants.HandStates.PalmDown] = DrawSystem:LoadImage("Images/Hands/right_palmDown_ThumbIn.png"),
+			[GameConstants.HandStates.PalmDownPinch] = DrawSystem:LoadImage("Images/Hands/right_palmDown_PinchNoThumb.png"),
+			[GameConstants.HandStates.PalmDownIndexOut] = DrawSystem:LoadImage("Images/Hands/right_palmDown_IndexOut.png"),
+			[GameConstants.HandStates.PalmUp] = DrawSystem:LoadImage("Images/Hands/right_palmUp_ThumbIn.png"),
+			[GameConstants.HandStates.PalmUpPinch] = DrawSystem:LoadImage("Images/Hands/right_palmUp_NoThumb.png"),
+			[GameConstants.HandStates.PalmDownTableSpread] = DrawSystem:LoadImage("Images/Hands/right_palmDown_TableSpread.png"),
+			[GameConstants.HandStates.PalmDownNatural] = DrawSystem:LoadImage("Images/Hands/right_palmDown_Natural.png"),
+			[GameConstants.HandStates.PalmDownGrabOpen] = DrawSystem:LoadImage("Images/Hands/right_palmDown_GrabOpen.png"),
+			[GameConstants.HandStates.PalmDownGrabClose] = DrawSystem:LoadImage("Images/Hands/right_palmDown_GrabClose.png"),
+			[GameConstants.HandStates.PalmDownRelaxed] = DrawSystem:LoadImage("Images/Hands/right_palmDown_Relaxed.png"),
+			[GameConstants.HandStates.PalmDownRelaxedIndexOut] = DrawSystem:LoadImage("Images/Hands/right_palmDown_RelaxedIndexOut.png"),
+			[GameConstants.HandStates.PalmDownRelaxedIndexPressed] = DrawSystem:LoadImage("Images/Hands/right_palmDown_RelaxedIndexOutPressed.png"),
 			[GameConstants.HandStates.MechanicsGrip] = nil,
 			[GameConstants.HandStates.Fan] = nil,
 		}
 
-		-- instance.spritePalmDown = love.graphics.newImage("Images/Hands/right_palmDown_ThumbIn.png")
-		-- instance.spritePalmDownIndexOut = love.graphics.newImage("Images/Hands/right_palmDown_IndexOut.png")
-		-- instance.spritePalmDownPinchNoThumb = love.graphics.newImage("Images/Hands/right_palmDown_PinchNoThumb.png")
-		-- instance.spritePalmDownPinchThumbOnly = love.graphics.newImage("Images/Hands/right_palmDown_PinchThumbOnly.png")
-		-- instance.spritePalmDownTableSpread = love.graphics.newImage("Images/Hands/right_palmDown_TableSpread.png")
-		-- instance.spritePalmDownNatural = love.graphics.newImage("Images/Hands/right_palmDown_Natural.png")
-		-- instance.spritePalmDownGrabOpen = love.graphics.newImage("Images/Hands/right_palmDown_GrabOpen.png")
-		-- instance.spritePalmDownGrabClose = love.graphics.newImage("Images/Hands/right_palmDown_GrabClose.png")
-		-- instance.spritePalmDownRelaxed = love.graphics.newImage("Images/Hands/right_palmDown_Relaxed.png")
-		-- instance.spritePalmDownRelaxedIndexOut = love.graphics.newImage("Images/Hands/right_palmDown_RelaxedIndexOut.png")
-		-- instance.spritePalmUp = love.graphics.newImage("Images/Hands/right_palmUp_ThumbIn.png")
-		-- instance.spritePalmUpNoThumb = love.graphics.newImage("Images/Hands/right_palmUp_NoThumb.png")
-		-- instance.spritePalmUpThumbOnly = love.graphics.newImage("Images/Hands/right_palmUp_ThumbOnly.png")
+		-- instance.spritePalmDown = DrawSystem:LoadImage("Images/Hands/right_palmDown_ThumbIn.png")
+		-- instance.spritePalmDownIndexOut = DrawSystem:LoadImage("Images/Hands/right_palmDown_IndexOut.png")
+		-- instance.spritePalmDownPinchNoThumb = DrawSystem:LoadImage("Images/Hands/right_palmDown_PinchNoThumb.png")
+		-- instance.spritePalmDownPinchThumbOnly = DrawSystem:LoadImage("Images/Hands/right_palmDown_PinchThumbOnly.png")
+		-- instance.spritePalmDownTableSpread = DrawSystem:LoadImage("Images/Hands/right_palmDown_TableSpread.png")
+		-- instance.spritePalmDownNatural = DrawSystem:LoadImage("Images/Hands/right_palmDown_Natural.png")
+		-- instance.spritePalmDownGrabOpen = DrawSystem:LoadImage("Images/Hands/right_palmDown_GrabOpen.png")
+		-- instance.spritePalmDownGrabClose = DrawSystem:LoadImage("Images/Hands/right_palmDown_GrabClose.png")
+		-- instance.spritePalmDownRelaxed = DrawSystem:LoadImage("Images/Hands/right_palmDown_Relaxed.png")
+		-- instance.spritePalmDownRelaxedIndexOut = DrawSystem:LoadImage("Images/Hands/right_palmDown_RelaxedIndexOut.png")
+		-- instance.spritePalmUp = DrawSystem:LoadImage("Images/Hands/right_palmUp_ThumbIn.png")
+		-- instance.spritePalmUpNoThumb = DrawSystem:LoadImage("Images/Hands/right_palmUp_NoThumb.png")
+		-- instance.spritePalmUpThumbOnly = DrawSystem:LoadImage("Images/Hands/right_palmUp_ThumbOnly.png")
 
 		
 		instance.targetPosition = { x = love.graphics.getWidth() / 2, y = love.graphics.getHeight() / 2 }
-		instance.relaxedFingerOffset = Vector3:New(-20, -20, 0)
+		instance.relaxedFingerOffset = Vector3:New(-20 * GameSettings.WindowResolutionScale, -20 * GameSettings.WindowResolutionScale, 0)
 		instance.relaxedFingerPosition = Vector3:New(0, 0, 0)
 
 		instance.indexFingerOffset = { x = -18, y = -25 }

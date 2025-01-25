@@ -19,15 +19,15 @@ local AIRightHand = setmetatable({
 			[GameConstants.HandStates.PalmDownNatural] = nil,
 			[GameConstants.HandStates.PalmDownGrabOpen] = nil,
 			[GameConstants.HandStates.PalmDownGrabClose] = nil,
-			[GameConstants.HandStates.PalmDownRelaxed] = love.graphics.newImage("Images/Hands/AI/ai_right_palmDown_Relaxed.png"),
-			[GameConstants.HandStates.PalmDownRelaxedIndexOut] = love.graphics.newImage("Images/Hands/AI/ai_right_palmDown_RelaxedIndexOut.png"),
-			[GameConstants.HandStates.MechanicsGrip] = love.graphics.newImage("Images/Hands/AI/ai_right_dealerGrip.png"),
+			[GameConstants.HandStates.PalmDownRelaxed] = DrawSystem:LoadImage("Images/Hands/AI/ai_right_palmDown_Relaxed.png"),
+			[GameConstants.HandStates.PalmDownRelaxedIndexOut] = DrawSystem:LoadImage("Images/Hands/AI/ai_right_palmDown_RelaxedIndexOut.png"),
+			[GameConstants.HandStates.MechanicsGrip] = DrawSystem:LoadImage("Images/Hands/AI/ai_right_dealerGrip.png"),
 			[GameConstants.HandStates.Fan] = nil,
 		}
 
-        -- instance.spriteMechanicsGrip = love.graphics.newImage("Images/Hands/AI/ai_right_dealerGrip.png")
-		-- instance.spritePalmDownRelaxed = love.graphics.newImage("Images/Hands/AI/ai_right_palmDown_Relaxed.png")
-		-- instance.spritePalmDownRelaxedIndexOut = love.graphics.newImage("Images/Hands/AI/ai_right_palmDown_RelaxedIndexOut.png")
+        -- instance.spriteMechanicsGrip = DrawSystem:LoadImage("Images/Hands/AI/ai_right_dealerGrip.png")
+		-- instance.spritePalmDownRelaxed = DrawSystem:LoadImage("Images/Hands/AI/ai_right_palmDown_Relaxed.png")
+		-- instance.spritePalmDownRelaxedIndexOut = DrawSystem:LoadImage("Images/Hands/AI/ai_right_palmDown_RelaxedIndexOut.png")
 
 		instance.state = GameConstants.HandStates.PalmDownRelaxedIndexOut
 		instance.targetPosition = { x = (love.graphics.getWidth()/2) - 200, y = 100 }

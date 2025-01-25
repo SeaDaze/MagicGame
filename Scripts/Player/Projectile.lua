@@ -7,7 +7,7 @@ local Projectile =
 	-- ===========================================================================================================
 
 	Load = function(self)
-		self.projectileImage = love.graphics.newImage("Images/Projectiles/Projectile_01.png")
+		self.projectileImage = DrawSystem:LoadImage("Images/Projectiles/Projectile_01.png")
 	end,
 
 	New = function(self, position, target, score)

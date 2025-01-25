@@ -3,7 +3,7 @@ local BoxCollider = require("Scripts.Physics.BoxCollider")
 local BuyZone = 
 {
     Load = function(self)
-        self.drawable = love.graphics.newImage("Images/UI/BuyZone.png")
+        self.drawable = DrawSystem:LoadImage("Images/UI/BuyZone.png")
 
         self.sprite = Sprite:New(
 			self.drawable,

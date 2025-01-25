@@ -19,16 +19,16 @@ local AILeftHand = setmetatable({
 			[GameConstants.HandStates.PalmDownNatural] = nil,
 			[GameConstants.HandStates.PalmDownGrabOpen] = nil,
 			[GameConstants.HandStates.PalmDownGrabClose] = nil,
-			[GameConstants.HandStates.PalmDownRelaxed] = love.graphics.newImage("Images/Hands/AI/ai_left_palmDown_Relaxed.png"),
-			[GameConstants.HandStates.PalmDownRelaxedIndexOut] = love.graphics.newImage("Images/Hands/AI/ai_left_palmDown_RelaxedIndexOut.png"),
+			[GameConstants.HandStates.PalmDownRelaxed] = DrawSystem:LoadImage("Images/Hands/AI/ai_left_palmDown_Relaxed.png"),
+			[GameConstants.HandStates.PalmDownRelaxedIndexOut] = DrawSystem:LoadImage("Images/Hands/AI/ai_left_palmDown_RelaxedIndexOut.png"),
 			[GameConstants.HandStates.MechanicsGrip] = nil,
-			[GameConstants.HandStates.Fan] = love.graphics.newImage("Images/Hands/AI/ai_left_fan_NoThumb.png"),
+			[GameConstants.HandStates.Fan] = DrawSystem:LoadImage("Images/Hands/AI/ai_left_fan_NoThumb.png"),
 		}
 
-		-- instance.spriteFanNoThumb = love.graphics.newImage("Images/Hands/AI/ai_left_fan_NoThumb.png")
-		-- instance.spriteFanThumbOnly = love.graphics.newImage("Images/Hands/AI/ai_left_fan_ThumbOnly.png")
-		-- instance.spritePalmDownRelaxed = love.graphics.newImage("Images/Hands/AI/ai_left_palmDown_Relaxed.png")
-		-- instance.spritePalmDownRelaxedIndexOut = love.graphics.newImage("Images/Hands/AI/ai_left_palmDown_RelaxedIndexOut.png")
+		-- instance.spriteFanNoThumb = DrawSystem:LoadImage("Images/Hands/AI/ai_left_fan_NoThumb.png")
+		-- instance.spriteFanThumbOnly = DrawSystem:LoadImage("Images/Hands/AI/ai_left_fan_ThumbOnly.png")
+		-- instance.spritePalmDownRelaxed = DrawSystem:LoadImage("Images/Hands/AI/ai_left_palmDown_Relaxed.png")
+		-- instance.spritePalmDownRelaxedIndexOut = DrawSystem:LoadImage("Images/Hands/AI/ai_left_palmDown_RelaxedIndexOut.png")
 
 		instance.state = GameConstants.HandStates.PalmDownRelaxed
 		instance.targetPosition = { x = (love.graphics.getWidth()/2) + 200, y = 100 }

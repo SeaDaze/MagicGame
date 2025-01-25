@@ -6,7 +6,7 @@ local Constants =
     Left = -1,
     Right = 1,
 }
-local AudienceMember = 
+local Spectator = 
 {
     New = function(self, sprite)
         local instance = setmetatable({}, self)
@@ -17,7 +17,7 @@ local AudienceMember =
         instance.upper = love.graphics.getWidth() - (32 * 4)
         instance.sprite:SetPosition({
             x = love.math.random(instance.lower, instance.upper),
-            y = love.math.random(80) + 40,
+            y = love.math.random(60 * GameSettings.WindowResolutionScale) + 40,
         })
 
         local randomDirection = love.math.random(2)
@@ -57,7 +57,7 @@ local AudienceMember =
 
 	AddScore = function(self, score)
 		self.score = self.score + score
-		EventSystem:BroadcastEvent(EventIds.AudienceMemberScoreUpdated, self.score)
+		EventSystem:BroadcastEvent(EventIds.SpectatorScoreUpdated, self.score)
 	end,
 
 	GetScore = function(self)
@@ -67,8 +67,12 @@ local AudienceMember =
 	GetCollider = function(self)
 		return self.collider
 	end,
+
+	GetSprite = function(self)
+		return self.sprite
+	end,
 }
 
-AudienceMember.__index = AudienceMember
+Spectator.__index = Spectator
 
-return AudienceMember
+return Spectator
