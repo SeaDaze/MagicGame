@@ -230,7 +230,6 @@ local DrawSystem =
 		if drawable.requiresUpdate then
 			table.insert(self.updateTable, drawable)
 		end
-		Log.Med("AddDrawable: ")
     end,
 
     RemoveDrawable = function(self, drawable)
@@ -243,8 +242,6 @@ local DrawSystem =
 		if drawable.requiresUpdate then
 			table.removeByValue(self.updateTable, drawable)
 		end
-
-		Log.Med("RemoveDrawable: ")
     end,
 
     ChangeDrawableLayerIndex = function(self, drawable, newLayerIndex)

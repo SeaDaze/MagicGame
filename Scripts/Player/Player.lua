@@ -56,9 +56,7 @@ local Player =
                 self.routine[self.routineIndex]:Update(dt)
             end
         end
-		for _, projectile in ipairs(self.activeProjectiles) do
-			projectile:Update(dt)
-		end
+
     end,
 
     FixedUpdate = function(self, dt)
@@ -71,6 +69,23 @@ local Player =
                 self.routine[self.routineIndex]:FixedUpdate(dt)
             end
         end
+
+		for _, projectile in ipairs(self.activeProjectiles) do
+			projectile:FixedUpdate(dt)
+			local projectileSprite = projectile:GetSprite()
+			if self.projectileSpriteBatch then
+				self.projectileSpriteBatch.spriteBatch:set(
+					projectile.spriteBatchId,
+					projectileSprite.position.x,
+					projectileSprite.position.y,
+					math.rad(projectileSprite.angle),
+					GameSettings.WindowResolutionScale * projectileSprite.scaleModifier * (1 + (projectileSprite.position.z / 100)),
+					GameSettings.WindowResolutionScale * projectileSprite.scaleModifier * (1 + (projectileSprite.position.z / 100)),
+					projectileSprite.width * projectileSprite.originOffsetRatio.x,
+					projectileSprite.height * projectileSprite.originOffsetRatio.y
+				)
+			end
+		end
 	end,
 
     -- ===========================================================================================================
@@ -88,7 +103,7 @@ local Player =
 		self:SetRoutineIndex(3, "Fan")
         self:EquipRoutineIndex(self.equippedRoutineIndex)
 
-		self.scoreNotificationId = EventSystem:ConnectToEvent(EventIds.TechniqueEvaluated, self, "OnTechniqueEvaluated")
+		--self.scoreNotificationId = EventSystem:ConnectToEvent(EventIds.TechniqueEvaluated, self, "OnTechniqueEvaluated")
 		self.projectileNotificationId = EventSystem:ConnectToEvent(EventIds.ProjectileHit, self, "OnProjectileHit")
 		self.techniqueFinishedNotificationId = EventSystem:ConnectToEvent(EventIds.PlayerTechniqueFinished, self, "OnTechniqueFinished")
 
@@ -174,9 +189,16 @@ local Player =
 	end,
 
 	OnTechniqueEvaluated = function(self, techniqueName, score)
-		-- for _, spectator in pairs(self.spectators) do
-		-- 	self:CreateProjectile({ x = love.graphics.getWidth() / 2, y = love.graphics.getHeight() / 2, z = 0 }, spectator, score)
-		-- end
+		local spectatorCount = table.count(self.spectators)
+		local projectileImage = Projectile:GetImage()
+		self.projectileSpriteBatch = Sprite:NewSpriteBatch(projectileImage, spectatorCount, DrawLayers.Projectiles)
+
+		for _, spectator in pairs(self.spectators) do
+			self:CreateProjectile({ x = love.graphics.getWidth() / 2, y = love.graphics.getHeight() / 2, z = 0 }, spectator, score)
+		end
+
+		DrawSystem:AddDrawable(self.projectileSpriteBatch)
+		Log.Med("OnTechniqueEvaluated: Create spectator count=", spectatorCount)
 	end,
 
 	OnTechniqueFinished = function(self)
@@ -186,16 +208,45 @@ local Player =
 	end,
 
 	CreateProjectile = function(self, position, target, score)
-		table.insert(self.activeProjectiles, Projectile:New(
+		local projectile = Projectile:New(
 			position,
 			target,
 			score
-		))
+		)
+		table.insert(self.activeProjectiles, projectile)
+
+		local projectileSprite = projectile:GetSprite()
+		projectile.spriteBatchId = self.projectileSpriteBatch.spriteBatch:add(
+			projectileSprite.position.x,
+			projectileSprite.position.y,
+			math.rad(projectileSprite.angle),
+			GameSettings.WindowResolutionScale * projectileSprite.scaleModifier * (1 + (projectileSprite.position.z / 100)),
+			GameSettings.WindowResolutionScale * projectileSprite.scaleModifier * (1 + (projectileSprite.position.z / 100)),
+			projectileSprite.width * projectileSprite.originOffsetRatio.x,
+			projectileSprite.height * projectileSprite.originOffsetRatio.y
+		)
 	end,
 
 	DestroyProjectile = function(self, projectile)
 		projectile:OnStop()
+		local projectileSprite = projectile:GetSprite()
+		self.projectileSpriteBatch.spriteBatch:set(
+			projectile.spriteBatchId,
+			projectileSprite.position.x,
+			projectileSprite.position.y,
+			math.rad(projectileSprite.angle),
+			GameSettings.WindowResolutionScale * projectileSprite.scaleModifier * (1 + (projectileSprite.position.z / 100)),
+			GameSettings.WindowResolutionScale * projectileSprite.scaleModifier * (1 + (projectileSprite.position.z / 100)),
+			projectileSprite.width * projectileSprite.originOffsetRatio.x,
+			projectileSprite.height * projectileSprite.originOffsetRatio.y
+		)
+
 		table.removeByValue(self.activeProjectiles, projectile)
+		if table.isEmpty(self.activeProjectiles) then
+			self.projectileSpriteBatch.spriteBatch:clear()
+			DrawSystem:RemoveDrawable(self.projectileSpriteBatch)
+			self.projectileSpriteBatch = nil
+		end
 	end,
 
 	OnProjectileHit = function(self, projectile, target, score)

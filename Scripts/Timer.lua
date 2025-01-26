@@ -6,6 +6,14 @@ local Timer = {
 		self.callbackId = 0
 	end,
 
+	New = function(self)
+		local instance = setmetatable({}, self)
+		instance.callbackTargets = {}
+		instance.runningTimers = {}
+		instance.callbackId = 0
+		return instance
+	end,
+
     Update = function(self, dt)
 		local timersToRemove = {}
 		local callbackTargets = table.simpleCopy(self.callbackTargets)
@@ -29,7 +37,7 @@ local Timer = {
 			startTime = love.timer.getTime(),
 			endTime = love.timer.getTime() + duration,
 		}
-		print("Start: Started timer with id=", id, ", forr duration=", duration)
+		--print("Start: Started timer with id=", id, ", forr duration=", duration)
 	end,
 
 	Stop = function(self, id)
@@ -54,5 +62,5 @@ local Timer = {
 		self.callbackTargets[callbackId] = nil
 	end,
 }
-
+Timer.__index = Timer
 return Timer

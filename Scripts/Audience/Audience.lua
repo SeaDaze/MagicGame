@@ -7,10 +7,10 @@ local Audience =
 	-- #region [CORE]
 	-- ===========================================================================================================
 	Load = function(self)
-		self.audienceNumber = 500
+		self.audienceNumber = 10000
 
 		local characterSpritesheet = DrawSystem:LoadImage("Images/Faces/Character_Spritesheet.png")
-		self.characterSpriteBatch = Sprite:NewSpriteBatch(characterSpritesheet, self.audienceNumber)
+		self.characterSpriteBatch = Sprite:NewSpriteBatch(characterSpritesheet, self.audienceNumber, DrawLayers.Audience)
 
 		self.audienceSpriteData =
 		{
@@ -199,7 +199,7 @@ local Audience =
 			{
 				self.audienceSpriteData.head.quads[love.math.random(table.count(self.audienceSpriteData.head.quads))],
 				self.audienceSpriteData.hair.quads[love.math.random(table.count(self.audienceSpriteData.hair.quads))],
-				self.audienceSpriteData.face.quads[GameConstants.AudienceFaceIndex.Neutral],
+				self.audienceSpriteData.face.quads[GameConstants.AudienceFaceIndex.Suspicious],
 			},
 			{ width = 32, height = 32 },
 			{ x = 0, y = 0 },

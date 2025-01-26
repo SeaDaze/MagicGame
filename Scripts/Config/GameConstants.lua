@@ -28,6 +28,11 @@ local GameConstants =
             y = 1080,
             scale = 3,
         },
+		[6] = {
+            x = 540,
+            y = 960,
+            scale = 1.5,
+        },
         Max = 5,
     },
 

@@ -1,4 +1,5 @@
 local EventIds = require "Scripts.System.EventIds"
+local LocalTimer = require "Scripts.Timer"
 
 local Projectile = 
 {
@@ -11,10 +12,8 @@ local Projectile =
 	end,
 
 	New = function(self, position, target, score)
-		love.graphics.setDefaultFilter("nearest", "nearest")
 		local instance = setmetatable({}, self)
-		local scale = math.random(1, 3)
-
+		local scale = love.math.random() * (3 - 1) + 1
 		instance.sprite = Sprite:New(
             self.projectileImage,
             position,
@@ -25,26 +24,30 @@ local Projectile =
             { x = 0.5, y = 0.5 }
         )
 
-		instance.baseSpeed = 50
+		instance.baseSpeed = love.math.random(20, 60)
 		instance.acceleration = 0
 		instance.target = target
 		instance.hitRadius = instance.sprite:GetWidth() * GameSettings.WindowResolutionScale
-		instance.timerNotificationId = Timer:AddListener(instance, "OnTimerFinished")
 		instance.id = UniqueIds:GenerateNew()
 		instance.score = score
-		Timer:Start("Projectile" .. instance.id, 1)
-		DrawSystem:AddDrawable(instance.sprite)
+
+		instance.timer = LocalTimer:New()
+		instance.timerNotificationId = instance.timer:AddListener(instance, "Projectile_OnTimerFinished")
+		local min, max = 0.1, 2
+		local randomInRange = love.math.random() * (max - min) + min
+		instance.timer:Start("Projectile", randomInRange)
+
 		return instance
 	end,
 
-	Update = function(self, dt)
+	FixedUpdate = function(self, dt)
 		self:MoveTowardsTarget(dt)
 		self:EvaluateTargetHit()
+		self.timer:Update(dt)
 	end,
 
 	OnStop = function(self)
-		DrawSystem:RemoveDrawable(self.sprite)
-		Timer:RemoveListener(self.timerNotificationId)
+		self.sprite.scaleModifier = 0
 	end,
 
 	-- ===========================================================================================================
@@ -54,8 +57,8 @@ local Projectile =
 	-- #region [INTERNAL]
 	-- ===========================================================================================================
 
-	OnTimerFinished = function(self, timerId)
-        if timerId == "Projectile" .. self.id then
+	Projectile_OnTimerFinished = function(self, timerId)
+        if timerId == "Projectile" then
 			self.acceleration = 10
         end
 	end,
@@ -90,6 +93,15 @@ local Projectile =
 	-- ===========================================================================================================
 	-- #region [PUBLICHELPERS]
 	-- ===========================================================================================================
+
+	GetImage = function(self)
+		return self.projectileImage
+	end,
+
+	GetSprite = function(self)
+		return self.sprite
+	end,
+
 	-- ===========================================================================================================
 	-- #endregion
 }

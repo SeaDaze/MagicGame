@@ -109,12 +109,13 @@ local Sprite =
 		return instance
 	end,
 
-	NewSpriteBatch = function(self, image, maxSprites)
+	NewSpriteBatch = function(self, image, maxSprites, layerIndex)
 		local instance = setmetatable({}, self)
 		instance.spriteBatch = love.graphics.newSpriteBatch(image, maxSprites)
 		instance.type = GameConstants.DrawableTypes.SpriteBatch
-		instance.layerIndex = DrawLayers.Audience
+		instance.layerIndex = layerIndex
 		instance.visible = true
+		Log.Med("NewSpriteBatch: New sprite batch with image=", image, ", maxSprites=", maxSprites, ", layerIndex=", layerIndex)
 		return instance
 	end,
 
