@@ -7,7 +7,7 @@ local Audience =
 	-- #region [CORE]
 	-- ===========================================================================================================
 	Load = function(self)
-		self.audienceNumber = 10000
+		self.audienceNumber = 200
 
 		local characterSpritesheet = DrawSystem:LoadImage("Images/Faces/Character_Spritesheet.png")
 		self.characterSpriteBatch = Sprite:NewSpriteBatch(characterSpritesheet, self.audienceNumber, DrawLayers.Audience)

@@ -24,7 +24,7 @@ local Projectile =
             { x = 0.5, y = 0.5 }
         )
 
-		instance.baseSpeed = love.math.random(20, 60)
+		instance.baseSpeed = love.math.random(40, 60)
 		instance.acceleration = 0
 		instance.target = target
 		instance.hitRadius = instance.sprite:GetWidth() * GameSettings.WindowResolutionScale
@@ -33,7 +33,7 @@ local Projectile =
 
 		instance.timer = LocalTimer:New()
 		instance.timerNotificationId = instance.timer:AddListener(instance, "Projectile_OnTimerFinished")
-		local min, max = 0.1, 2
+		local min, max = 0.1, 1
 		local randomInRange = love.math.random() * (max - min) + min
 		instance.timer:Start("Projectile", randomInRange)
 
