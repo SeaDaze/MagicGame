@@ -10,9 +10,10 @@ local DrawLayers =
 
     PickupDefault = 20,
 
-    DeckBottom = 50,
-
     LeftHandDefault = 49,
+
+	DeckBottom = 50,
+	DeckTop = 102,
 
 	Projectiles = 103,
 

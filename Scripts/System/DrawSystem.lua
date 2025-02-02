@@ -12,8 +12,21 @@ local DrawSystem =
 		self.updateTable = {}
         self.debug_DrawFunctions = {}
         self.debug_DrawIndex = 0
-		self.blurEffect = Moonshine(Moonshine.effects.boxblur).chain(Moonshine.effects.pixelate)
 		self.debug_DrawCalls = 0
+
+		self.blurEffect = Moonshine(Moonshine.effects.boxblur).chain(Moonshine.effects.pixelate)
+		
+		self.shadowCanvas = love.graphics.newCanvas(love.graphics.getWidth(), love.graphics.getHeight())
+		
+		self.shadowShader = love.graphics.newShader [[
+			vec4 effect(vec4 color, Image texture, vec2 texCoords, vec2 screenCoords) {
+				vec4 pixel = Texel(texture, texCoords);  // Get pixel from texture
+				if (pixel.a > 0.0) {  // Only modify non-transparent pixels
+					return vec4(0.0, 0.0, 0.0, 0.2);  // Force white color and 0.2 alpha
+				}
+				return pixel;  // Keep fully transparent pixels as they are
+			}
+		]]
     end,
 
 	Update = function(self, dt)
@@ -38,12 +51,17 @@ local DrawSystem =
 		-- 		end
 		-- 	end
 		-- )
+
 		self.debug_DrawCalls = 0
         for layerOrderedIndex, layerIndex in ipairs(self.orderedLayers) do
+			if layerIndex == DrawLayers.LeftHandDefault then
+				self:CreateShadowCanvas()
+				self:DrawShadowCanvas()
+			end
+
             for drawableIndex, drawableData in pairs(self.layers[layerIndex]) do
                 if drawableData.visible and not drawableData.blur then
 					self:EvaluateDrawableType(drawableData)
-					self.debug_DrawCalls = self.debug_DrawCalls + 1
                 end
             end
         end
@@ -76,6 +94,7 @@ local DrawSystem =
 		if drawableData.colorOverride then
 			love.graphics.setColor(1, 1, 1, 1)
 		end
+		self.debug_DrawCalls = self.debug_DrawCalls + 1
 	end,
 
     -- ===========================================================================================================
@@ -132,6 +151,20 @@ local DrawSystem =
     -- #region [INTERNAL]
     -- ===========================================================================================================
     DrawSprite = function(self, spriteData)
+		if spriteData.drawShadow and (spriteData.layerIndex < DrawLayers.DeckBottom or spriteData.layerIndex > DrawLayers.DeckTop) then
+			love.graphics.setColor(0, 0, 0, 0.2)
+			love.graphics.draw(
+				spriteData.drawable,
+				spriteData.position.x + 20,
+				spriteData.position.y + 20,
+				math.rad(spriteData.angle),
+				GameSettings.WindowResolutionScale * spriteData.scaleModifier,-- * (1 + (spriteData.position.z / 100)),
+				GameSettings.WindowResolutionScale * spriteData.scaleModifier,-- * (1 + (spriteData.position.z / 100)),
+				spriteData.width * spriteData.originOffsetRatio.x,
+				spriteData.height * spriteData.originOffsetRatio.y
+			)
+			love.graphics.setColor(1, 1, 1, 1)
+		end
         love.graphics.draw(
             spriteData.drawable,
             spriteData.position.x,
@@ -201,8 +234,45 @@ local DrawSystem =
 		love.graphics.draw(particleSystemData.particleSystem)
 	end,
 
+	DrawSprites = function(self, sprites)
+		for i = 1, 10000 do
+			love.graphics.draw(sprites[i])
+		end
+	end,
+
 	DrawSpriteBatch = function(self, spriteBatchData)
 		love.graphics.draw(spriteBatchData.spriteBatch)
+	end,
+
+	CreateShadowCanvas = function(self)
+		love.graphics.setCanvas(self.shadowCanvas)
+		love.graphics.clear(0, 0, 0, 0)
+		for deckLayerIndex = DrawLayers.DeckBottom, DrawLayers.DeckTop, 1 do
+			if self.layers[deckLayerIndex] then
+				for drawableIndex, drawableData in pairs(self.layers[deckLayerIndex]) do
+					if drawableData.drawShadow and drawableData.visible and not drawableData.blur then
+						love.graphics.draw(
+							drawableData.drawable,
+							drawableData.position.x + 20,
+							drawableData.position.y + 20,
+							math.rad(drawableData.angle),
+							GameSettings.WindowResolutionScale * drawableData.scaleModifier,-- * (1 + (spriteData.position.z / 100)),
+							GameSettings.WindowResolutionScale * drawableData.scaleModifier,-- * (1 + (spriteData.position.z / 100)),
+							drawableData.width * drawableData.originOffsetRatio.x,
+							drawableData.height * drawableData.originOffsetRatio.y
+						)
+					end
+				end
+			end
+		end
+		love.graphics.setCanvas()
+	end,
+
+	DrawShadowCanvas = function(self)
+		love.graphics.setColor(1, 1, 1, 1)
+		love.graphics.setShader(self.shadowShader)
+		love.graphics.draw(self.shadowCanvas, 0, 0)
+		love.graphics.setShader()
 	end,
 
     -- ===========================================================================================================

@@ -14,7 +14,7 @@ local Mat =
             0,
             1,
             DrawLayers.PerformanceMat,
-            true,
+            false,
             { x = 0.5, y = 0.5 }
         )
     end,

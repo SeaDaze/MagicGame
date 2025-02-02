@@ -54,7 +54,7 @@ local LeftHand = setmetatable({
 			0,
 			2,
 			DrawLayers.LeftHandAboveDeck,
-			true,
+			false,
 			{ x = 0.5, y = 0.5 }
 		)
 		instance.position = instance.sprite.position

@@ -114,11 +114,12 @@ local game = {
 
     Draw = function(self)
         love.graphics.setBackgroundColor(0.128, 0.128, 0.136, 1)
-        self.vignetteEffect(
-            function()
-                DrawSystem:DrawAll()
-            end
-        )
+        -- self.vignetteEffect(
+        --     function()
+        --         DrawSystem:DrawAll()
+        --     end
+        -- )
+		DrawSystem:DrawAll()
         SettingsMenu:Draw()
 		love.graphics.print("Current FPS: "..tostring(love.timer.getFPS( )), 10, 10)
 		love.graphics.print("Draw calls: "..tostring( DrawSystem.debug_DrawCalls), 10, 25)

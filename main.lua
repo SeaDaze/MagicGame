@@ -1,13 +1,17 @@
 local game = require("game")
+local testEnvironment = require("Scripts.Test.TestEnvironment")
 
 function love.load()
-    game:Load()
+    --game:Load()
+	testEnvironment:Load()
 end
 
 function love.update(dt)
-    game:Update(dt)
+    --game:Update(dt)
+	testEnvironment:Update(dt)
 end
 
 function love.draw()
-    game:Draw()
+    --game:Draw()
+	testEnvironment:Draw()
 end
