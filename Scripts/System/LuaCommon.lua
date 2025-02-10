@@ -66,3 +66,13 @@ table.deepCopyWithMetaTable = function(t)
     setmetatable(copy, getmetatable(t))
     return copy
 end
+
+math.clamp = function(num, lower, upper)
+    if num > upper then
+        return upper
+    end
+    if num < lower then
+        return lower
+    end
+    return num
+end

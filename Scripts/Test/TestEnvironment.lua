@@ -20,77 +20,139 @@ local rotateShader = love.graphics.newShader[[
 
 local Common = require("Scripts.Common")
 local Log = require("Scripts.Debug.Log")
+local SceneBackground = require("Scripts.Scenes.SceneBackground")
 
 local TestEnvironment = {
 
 	Load = function(self)
+		SceneBackground:Load()
 		love.graphics.setDefaultFilter("nearest", "nearest")
-		self.faceDownDrawable = love.graphics.newImage("Images/Cards/cardBack_03.png")
+		self.faceDownDrawable = love.graphics.newImage("Images/Cards/cardBack_03.png", {mipmaps = true})
 		self.canvas = love.graphics.newCanvas()
 		self.angle = 0
+		self.angleY = 0
 		self.maxDepth = 50
 		io.open("MagicGame.log","w"):close()
 		Log.outfile = "MagicGame.log"
+
+		love.graphics.setDefaultFilter("nearest", "nearest")
+
+		-- Mesh vertices setup (4 corners of a rectangle)
+		local w, h = self.faceDownDrawable:getWidth(), self.faceDownDrawable:getHeight()
+		self.vertices = {
+			{-w/2, -h/2, 0, 0}, -- Top-left (u=0, v=0)
+			{ w/2, -h/2, 1, 0}, -- Top-right (u=1, v=0)
+			{ w/2,  h/2, 1, 1}, -- Bottom-right (u=1, v=1)
+			{-w/2,  h/2, 0, 1}  -- Bottom-left (u=0, v=1)
+		}
+
+		-- Create the mesh with texture coordinates
+		self.mesh = love.graphics.newMesh(self.vertices, "fan")
+		self.mesh:setTexture(self.faceDownDrawable)
 	end,
 
 	Update = function(self, dt)
-		self.angle = self.angle + dt
-	end,
-
-	Draw = function(self)
 		local scale = 5
-		local w, h = self.faceDownDrawable:getWidth(), self.faceDownDrawable:getHeight()
+		local w, h = love.graphics.getWidth(), love.graphics.getHeight()
 		local ox, oy = -(w * 0.5), -(h * 0.5)
 		local cx, cy = love.graphics.getWidth()/2, love.graphics.getHeight()/2
 		local mx, my = love.mouse.getX(), love.mouse.getY() 
 		
-		local vec = { x =(mx - cx) /  (w*scale) * 2, y = (my - cy) / (h*scale) * 2 }
+		--local vec = { x =(mx - cx) /  (w*scale) * 2, y = (my - cy) / (h*scale) * 2 }
+		local vec = { x = (mx - cx) /  (w) * 2, y = (my - cy) / (h) * 2 }
 		--vec = Common:Normalize(vec)
-		Log.Med("Vec=", vec.x, ", ", vec.y)
 
-		vec.x = Common:Clamp(vec.x, -1, 1) * 5
-		vec.y = Common:Clamp(vec.y, -1, 1) * 5
+		self.angle = vec.x * 0.5
+		self.angleY = vec.y * 0.4
+		self.angle = math.clamp(self.angle, -1, 1)
+		self.angleY = math.clamp(self.angleY, -1, 1)
+		--self.angle = self.angle + dt
+
+		SceneBackground:FixedUpdate(dt)
+	end,
+
+	Draw = function(self)
+		--love.graphics.clear(0, 0, 0)
+		SceneBackground:Draw()
+		love.graphics.setBackgroundColor(0.128, 0.128, 0.136, 1)
+		love.graphics.push()
+		love.graphics.translate(love.graphics.getWidth()/2, love.graphics.getHeight()/2)
+		love.graphics.scale(5, 5)
+		love.graphics.rotate(-self.angle * 0.2)
+		local perspective = 500 -- Perspective depth
 		
-		-- Define distorted quad
-		local vertices = {
-			{
-				-- top-left corner (red-tinted)
-				0, 0, -- position of the vertex
-				0, 0, -- texture coordinate at the vertex position
-				1, 0, 0, -- color of the vertex
-			},
-			{
-				-- top-right corner (green-tinted)
-				w, 0,
-				1, 0, -- texture coordinates are in the range of [0, 1]
-				0, 1, 0
-			},
-			{
-				-- bottom-right corner (blue-tinted)
-				w, h,
-				1, 1,
-				0, 0, 1
-			},
-			{
-				-- bottom-left corner (yellow-tinted)
-				0, h,
-				0, 1,
-				1, 1, 0
-			},
-		}
+		--Update mesh vertices for 3D effect
+		for i = 1, #self.vertices do
+			local x, y, u, v = unpack(self.vertices[i])
+			local rotatedX = x * math.cos(self.angle)
+			local rotatedY = y * math.cos(self.angleY)
+			local depthX = perspective / (perspective - x * math.sin(self.angle))
+			local depthY = perspective / (perspective - y * math.sin(self.angleY))
+			self.mesh:setVertex(i, rotatedX * depthX, rotatedY * depthY, u, v) -- Correct update
+		end
 
-		vertices[1][1] = vertices[1][1] + ox
-		vertices[1][2] = vertices[1][2] + oy
-		vertices[2][1] = vertices[2][1] + ox
-		vertices[2][2] = vertices[2][2] + oy
-		vertices[3][1] = vertices[3][1] + ox
-		vertices[3][2] = vertices[3][2] + oy
-		vertices[4][1] = vertices[4][1] + ox
-		vertices[4][2] = vertices[4][2] + oy
+		love.graphics.translate(6, 6)
+		love.graphics.setColor(0, 0, 0, 0.2)
+		love.graphics.draw(self.mesh)
+		love.graphics.translate(-6, -6)
+		love.graphics.setColor(1, 1, 1, 1)
+		love.graphics.draw(self.mesh)
 
-		local mesh = love.graphics.newMesh(vertices, "fan")
-        mesh:setTexture(self.faceDownDrawable)
-		love.graphics.draw(mesh, cx, cy, 0, 5, 5, 0, 0)
+		love.graphics.pop()
+		
+		-- local scale = 5
+		-- local w, h = self.faceDownDrawable:getWidth(), self.faceDownDrawable:getHeight()
+		-- local ox, oy = -(w * 0.5), -(h * 0.5)
+		-- local cx, cy = love.graphics.getWidth()/2, love.graphics.getHeight()/2
+		-- local mx, my = love.mouse.getX(), love.mouse.getY() 
+		
+		-- local vec = { x =(mx - cx) /  (w*scale) * 2, y = (my - cy) / (h*scale) * 2 }
+		-- --vec = Common:Normalize(vec)
+		-- Log.Med("Vec=", vec.x, ", ", vec.y)
+
+		-- vec.x = Common:Clamp(vec.x, -1, 1) * 5
+		-- vec.y = Common:Clamp(vec.y, -1, 1) * 5
+		
+		-- -- Define distorted quad
+		-- local vertices = {
+		-- 	{
+		-- 		-- top-left corner (red-tinted)
+		-- 		0, 0, -- position of the vertex
+		-- 		0, 0, -- texture coordinate at the vertex position
+		-- 		1, 0, 0, -- color of the vertex
+		-- 	},
+		-- 	{
+		-- 		-- top-right corner (green-tinted)
+		-- 		w, 0,
+		-- 		1, 0, -- texture coordinates are in the range of [0, 1]
+		-- 		0, 1, 0
+		-- 	},
+		-- 	{
+		-- 		-- bottom-right corner (blue-tinted)
+		-- 		w, h,
+		-- 		1, 1,
+		-- 		0, 0, 1
+		-- 	},
+		-- 	{
+		-- 		-- bottom-left corner (yellow-tinted)
+		-- 		0, h,
+		-- 		0, 1,
+		-- 		1, 1, 0
+		-- 	},
+		-- }
+
+		-- vertices[1][1] = vertices[1][1] + ox
+		-- vertices[1][2] = vertices[1][2] + oy
+		-- vertices[2][1] = vertices[2][1] + ox
+		-- vertices[2][2] = vertices[2][2] + oy
+		-- vertices[3][1] = vertices[3][1] + ox
+		-- vertices[3][2] = vertices[3][2] + oy
+		-- vertices[4][1] = vertices[4][1] + ox
+		-- vertices[4][2] = vertices[4][2] + oy
+
+		-- local mesh = love.graphics.newMesh(vertices, "fan")
+        -- mesh:setTexture(self.faceDownDrawable)
+		-- love.graphics.draw(mesh, cx, cy, 0, 5, 5, 0, 0)
 	end,
 
 	DrawSetColor = function(self)

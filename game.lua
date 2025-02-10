@@ -26,6 +26,8 @@ local PerformScene = require("Scripts.Scenes.PerformScene")
 local MainMenu = require("Scripts.UI.MainMenu")
 local ShopScene = require("Scripts.Scenes.ShopScene")
 local RoutineBuilderScene = require("Scripts.Scenes.RoutineBuilderScene")
+local SceneBackground = require("Scripts.Scenes.SceneBackground")
+
 
 local game = {
 
@@ -33,7 +35,7 @@ local game = {
     -- #region [CORE]
     -- ===========================================================================================================
     Load = function(self)
-		self:ApplyWindowPreset(4)
+		self:ApplyWindowPreset(5)
         love.math.setRandomSeed(os.time())
         love.graphics.setDefaultFilter("nearest", "nearest")
 		love.mouse.setVisible(false)
@@ -52,6 +54,7 @@ local game = {
 		PerformScene:Load()
         RoutineBuilderScene:Load()
         ShopScene:Load()
+        SceneBackground:Load()
 
         self.gameScenes =
         {
@@ -61,18 +64,13 @@ local game = {
             [GameConstants.GameStates.Shop] = ShopScene,
         }
 
-        self:SetGameState(GameConstants.GameStates.Perform)
+        self:SetGameState(GameConstants.GameStates.Shop)
 
 		self.nextFixedUpdate = 0
 		self.lastFixedUpdate = 0
 		self.fixedUpdateStep = 1/60
 
         self.timerNotificationId = Timer:AddListener(self, "OnTimerFinished")
-
-        self.vignetteEffect = Moonshine(Moonshine.effects.vignette)
-        self.vignetteRadius = 0
-        self.vignetteOpacity = 1
-        self:FadeToScene(1)
 
 		Log.High("Load: Magic game loaded")
     end,
@@ -100,9 +98,6 @@ local game = {
 			self.lastFixedUpdate = currentTime
 			self.nextFixedUpdate = currentTime + self.fixedUpdateStep
 		end
-
-        self.vignetteEffect.vignette.radius = self.vignetteRadius
-        self.vignetteEffect.vignette.opacity = self.vignetteOpacity
     end,
 
 	FixedUpdate = function(self, dt)
@@ -110,15 +105,10 @@ local game = {
 		if gameScene.FixedUpdate then
 			gameScene:FixedUpdate(dt)
         end
+        SceneBackground:FixedUpdate(dt)
 	end,
 
     Draw = function(self)
-        love.graphics.setBackgroundColor(0.128, 0.128, 0.136, 1)
-        -- self.vignetteEffect(
-        --     function()
-        --         DrawSystem:DrawAll()
-        --     end
-        -- )
 		DrawSystem:DrawAll()
         SettingsMenu:Draw()
 		love.graphics.print("Current FPS: "..tostring(love.timer.getFPS( )), 10, 10)
@@ -135,21 +125,10 @@ local game = {
 		GameSettings.WindowResolutionScale = windowResolution.scale
 	end,
 
-    FadeToScene = function(self, fadeDuration)
-        Flux.to(self, fadeDuration, { vignetteRadius = 0.9 })
-        Flux.to(self, fadeDuration, { vignetteOpacity = 0.5 })
-    end,
-
-    FadeToBlack = function(self, fadeDuration)
-        Flux.to(self, fadeDuration, { vignetteRadius = 0 })
-        Flux.to(self, fadeDuration, { vignetteOpacity = 1 })
-    end,
-
     -- Game State
     OnTimerFinished = function(self, timerId)
         if timerId == "RequestGameStateChange" then
             self:SetGameState(self.nextState)
-            self:FadeToScene(1)
         end
 	end,
 
@@ -169,7 +148,6 @@ local game = {
         end
 
         self.gameScenes[newState]:OnStart()
-
         self.gameState = newState
     end,
 

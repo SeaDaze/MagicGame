@@ -27,6 +27,12 @@ local DrawSystem =
 				return pixel;  // Keep fully transparent pixels as they are
 			}
 		]]
+		
+		self.vignetteShader = love.graphics.newShader("Scripts/Shaders/vignette.glsl")
+
+        self.vignetteShader:send("resolution", {love.graphics.getWidth(), love.graphics.getHeight()})
+        self.vignetteShader:send("radius", 1.5)  -- Controls how far the vignette effect reaches
+        self.vignetteShader:send("softness", 1) -- Controls the smoothness of the vignette edges
     end,
 
 	Update = function(self, dt)
@@ -51,6 +57,7 @@ local DrawSystem =
 		-- 		end
 		-- 	end
 		-- )
+		love.graphics.setShader(self.vignetteShader)
 
 		self.debug_DrawCalls = 0
         for layerOrderedIndex, layerIndex in ipairs(self.orderedLayers) do
@@ -65,6 +72,7 @@ local DrawSystem =
                 end
             end
         end
+		love.graphics.setShader()
 
         if not GameSettings.Debug_Show then
             return
@@ -272,7 +280,7 @@ local DrawSystem =
 		love.graphics.setColor(1, 1, 1, 1)
 		love.graphics.setShader(self.shadowShader)
 		love.graphics.draw(self.shadowCanvas, 0, 0)
-		love.graphics.setShader()
+		love.graphics.setShader(self.vignetteShader)
 	end,
 
     -- ===========================================================================================================

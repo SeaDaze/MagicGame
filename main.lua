@@ -1,17 +1,23 @@
 local game = require("game")
 local testEnvironment = require("Scripts.Test.TestEnvironment")
+local testEnvironment2 = require("Scripts.Test.TestEnvironment2")
+
+local mode = 3
+
+local modes = {
+    game,
+    testEnvironment,
+    testEnvironment2,
+}
 
 function love.load()
-    --game:Load()
-	testEnvironment:Load()
+    modes[mode]:Load()
 end
 
 function love.update(dt)
-    --game:Update(dt)
-	testEnvironment:Update(dt)
+    modes[mode]:Update(dt)
 end
 
 function love.draw()
-    --game:Draw()
-	testEnvironment:Draw()
+    modes[mode]:Draw()
 end
