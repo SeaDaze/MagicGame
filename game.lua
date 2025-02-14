@@ -6,6 +6,7 @@ Input = require("Scripts.System.Input")
 Timer = require("Scripts.Timer")
 UniqueIds = require("Scripts.System.UniqueIds")
 Log = require("Scripts.Debug.Log")
+local EventIds = require("Scripts.System.EventIds")
 
 -- TODO: move to required scripts rather than globals
 LuaCommon = require("Scripts.System.LuaCommon")
@@ -35,7 +36,7 @@ local game = {
     -- #region [CORE]
     -- ===========================================================================================================
     Load = function(self)
-		self:ApplyWindowPreset(5)
+		self:ApplyWindowPreset(4)
         love.math.setRandomSeed(os.time())
         love.graphics.setDefaultFilter("nearest", "nearest")
 		love.mouse.setVisible(false)
@@ -64,14 +65,16 @@ local game = {
             [GameConstants.GameStates.Shop] = ShopScene,
         }
 
-        self:SetGameState(GameConstants.GameStates.Shop)
+        self:SetGameState(GameConstants.GameStates.Perform)
 
 		self.nextFixedUpdate = 0
 		self.lastFixedUpdate = 0
 		self.fixedUpdateStep = 1/60
 
-        self.timerNotificationId = Timer:AddListener(self, "OnTimerFinished")
+        EventSystem:ConnectToEvent(EventIds.CustomKeyboardInput, self, "OnCustomKeyboardInput")
+        EventSystem:ConnectToEvent(EventIds.SceneTransitionMiddle, self, "OnSceneTransitionMiddle")
 
+        DrawSystem:FadeToScene(1)
 		Log.High("Load: Magic game loaded")
     end,
 
@@ -121,15 +124,8 @@ local game = {
 
 	ApplyWindowPreset = function(self, preset)
 		local windowResolution = GameConstants.WindowResolution[preset]
-		love.window.setMode(windowResolution.x, windowResolution.y)
+		love.window.setMode(windowResolution.x, windowResolution.y, {vsync = 0})
 		GameSettings.WindowResolutionScale = windowResolution.scale
-	end,
-
-    -- Game State
-    OnTimerFinished = function(self, timerId)
-        if timerId == "RequestGameStateChange" then
-            self:SetGameState(self.nextState)
-        end
 	end,
 
     GetCurrentGameScene = function(self)
@@ -138,8 +134,7 @@ local game = {
 
     RequestGameStateChange = function(self, gameState)
         self.nextState = gameState
-        Timer:Start("RequestGameStateChange", 1)
-        self:FadeToBlack(1)
+        DrawSystem:StartSceneTransition()
     end,
 
     SetGameState = function(self, newState)
@@ -151,5 +146,14 @@ local game = {
         self.gameState = newState
     end,
 
+    OnCustomKeyboardInput = function(self, key, isDown)
+        if key == "return" and isDown then
+            self:RequestGameStateChange(GameConstants.GameStates.Shop)
+        end
+    end,
+
+    OnSceneTransitionMiddle = function(self)
+        self:SetGameState(self.nextState)
+    end,
 }
 return game

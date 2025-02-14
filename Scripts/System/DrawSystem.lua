@@ -1,4 +1,11 @@
+local LocalTimer = require "Scripts.Timer"
+local EventIds   = require "Scripts.System.EventIds"
 
+local Constants = 
+{
+	FadeTransitionDuration = 0.25,
+	DefaultVignetteRadius = 1.5,
+}
 
 local DrawSystem = 
 {
@@ -27,15 +34,20 @@ local DrawSystem =
 				return pixel;  // Keep fully transparent pixels as they are
 			}
 		]]
-		
-		self.vignetteShader = love.graphics.newShader("Scripts/Shaders/vignette.glsl")
 
-        self.vignetteShader:send("resolution", {love.graphics.getWidth(), love.graphics.getHeight()})
-        self.vignetteShader:send("radius", 1.5)  -- Controls how far the vignette effect reaches
+		self.timer = LocalTimer:New()
+		self.timerNotificationId = self.timer:AddListener(self, "OnTimerFinished")
+
+		self.transitioningScene = false
+		self.vignetteRadius = 0
+		self.vignetteShader = love.graphics.newShader("Scripts/Shaders/vignette.glsl")
+		self.vignetteShader:send("resolution", {love.graphics.getWidth(), love.graphics.getHeight()})
+        self.vignetteShader:send("radius", self.vignetteRadius)  -- Controls how far the vignette effect reaches
         self.vignetteShader:send("softness", 1) -- Controls the smoothness of the vignette edges
     end,
 
 	Update = function(self, dt)
+		self.timer:Update(dt)
 		for _, drawable in pairs(self.updateTable) do
 			if drawable.Update then
 				drawable:Update(dt)
@@ -43,6 +55,7 @@ local DrawSystem =
 				print("DrawSystem:Update() Error - Drawable class does not contain Update() function")
 			end
 		end
+		self.vignetteShader:send("radius", self.vignetteRadius)
 	end,
 
     DrawAll = function(self)
@@ -283,6 +296,17 @@ local DrawSystem =
 		love.graphics.setShader(self.vignetteShader)
 	end,
 
+	OnTimerFinished = function(self, timerId)
+        if timerId == "TransitionSceneFadeToBlack" then
+			self:FadeToScene(Constants.FadeTransitionDuration)
+			self.timer:Start("TransitionSceneFadeToScene", Constants.FadeTransitionDuration)
+			EventSystem:BroadcastEvent(EventIds.SceneTransitionMiddle)
+		elseif timerId == "TransitionSceneFadeToScene" then
+			self.transitioningScene = false
+			EventSystem:BroadcastEvent(EventIds.SceneTransitionEnd)
+		end
+	end,
+
     -- ===========================================================================================================
     -- #region [PUBLICHELPERS]
     -- ===========================================================================================================
@@ -340,6 +364,20 @@ local DrawSystem =
         end
         self.debug_DrawFunctions[drawIndex] = nil
     end,
+
+	FadeToBlack = function(self, duration)
+		Flux.to(self, duration, { vignetteRadius = 0 })
+	end,
+
+	FadeToScene = function(self, duration)
+		Flux.to(self, duration, { vignetteRadius = Constants.DefaultVignetteRadius })
+	end,
+
+	StartSceneTransition = function(self)
+		self.timer:Start("TransitionSceneFadeToBlack", Constants.FadeTransitionDuration)
+		self:FadeToBlack(Constants.FadeTransitionDuration)
+		EventSystem:BroadcastEvent(EventIds.SceneTransitionStart)
+	end,
 
     -- ===========================================================================================================
     -- #endregion

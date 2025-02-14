@@ -29,6 +29,11 @@ local Input =
 			[GameConstants.InputActions.Left] = EventIds.LeftAction,
 			[GameConstants.InputActions.Right] = EventIds.RightAction,
 		}
+
+		self.customQueries = {
+			"return",
+		}
+		self.customKeyboardInputDown = {}
 	end,
 
     Update = function(self)
@@ -42,6 +47,17 @@ local Input =
 			elseif not actionDown and self.actionDown[action] then
 				self.actionDown[action] = false
 				EventSystem:BroadcastEvent(self.inputActionToEventId[action], action, false)
+			end
+		end
+
+		for _, key in pairs(self.customQueries) do
+			local actionDown = love.keyboard.isDown(key)
+			if actionDown and not self.customKeyboardInputDown[key] then
+				self.customKeyboardInputDown[key] = true
+				EventSystem:BroadcastEvent(EventIds.CustomKeyboardInput, key, true)
+			elseif not actionDown and self.customKeyboardInputDown[key] then
+				self.customKeyboardInputDown[key] = false
+				EventSystem:BroadcastEvent(EventIds.CustomKeyboardInput, key, false)
 			end
 		end
     end,

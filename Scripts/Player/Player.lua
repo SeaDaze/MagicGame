@@ -116,6 +116,7 @@ local Player =
     OnStopPerform = function(self)
         self.leftHand:OnStopPerform()
         self.rightHand:OnStopPerform()
+		self.deck:OnStop()
     end,
 
     OnStartBuild = function(self)

@@ -20,12 +20,11 @@ local rotateShader = love.graphics.newShader[[
 
 local Common = require("Scripts.Common")
 local Log = require("Scripts.Debug.Log")
-local SceneBackground = require("Scripts.Scenes.SceneBackground")
 
 local TestEnvironment = {
 
 	Load = function(self)
-		SceneBackground:Load()
+
 		love.graphics.setDefaultFilter("nearest", "nearest")
 		self.faceDownDrawable = love.graphics.newImage("Images/Cards/cardBack_03.png", {mipmaps = true})
 		self.canvas = love.graphics.newCanvas()
@@ -68,12 +67,10 @@ local TestEnvironment = {
 		self.angleY = math.clamp(self.angleY, -1, 1)
 		--self.angle = self.angle + dt
 
-		SceneBackground:FixedUpdate(dt)
 	end,
 
 	Draw = function(self)
 		--love.graphics.clear(0, 0, 0)
-		SceneBackground:Draw()
 		love.graphics.setBackgroundColor(0.128, 0.128, 0.136, 1)
 		love.graphics.push()
 		love.graphics.translate(love.graphics.getWidth()/2, love.graphics.getHeight()/2)

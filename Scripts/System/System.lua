@@ -1,4 +1,9 @@
 
+local Constants = 
+{
+	OverrideFunctionPrefix = "Override_"
+}
+
 local System = {
 	CreateChainedInheritanceScript = function(self, ...)
 		local scripts = {...}
@@ -8,10 +13,17 @@ local System = {
 		for i = 1, #scripts do
 			for key, value in pairs(scripts[i]) do
 				if type(value) == "function" then
-					if not extractedFunctionLists[key] then
-						extractedFunctionLists[key] = {}
+					local functionName = key
+					if not extractedFunctionLists[functionName] then
+						extractedFunctionLists[functionName] = {}
 					end
-					table.insert(extractedFunctionLists[key], value)
+
+					if string.startsWith(functionName, Constants.OverrideFunctionPrefix) then
+						functionName = string.gsub(functionName, Constants.OverrideFunctionPrefix, "")
+						extractedFunctionLists[functionName] = { value }
+					else
+						table.insert(extractedFunctionLists[functionName], value)
+					end
 				else
 					createdScript[key] = value
 				end

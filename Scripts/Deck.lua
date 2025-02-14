@@ -65,6 +65,9 @@ local Deck = {
 	end,
 
 	OnStop = function(self)
+		for _, card in ipairs(self.cards) do
+			DrawSystem:RemoveDrawable(card.sprite)
+		end
 	end,
 
 	Update = function(self, dt)

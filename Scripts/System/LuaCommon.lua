@@ -76,3 +76,7 @@ math.clamp = function(num, lower, upper)
     end
     return num
 end
+
+string.startsWith = function(s, subString)
+    return string.sub(s, 1, s.len(subString)) == subString
+end
