@@ -36,7 +36,7 @@ local Projectile =
 		local min, max = 0.1, 1
 		local randomInRange = love.math.random() * (max - min) + min
 		instance.timer:Start("Projectile", randomInRange)
-
+		instance.popSFX = AudioSystem:GetAudioSourceClone("Audio/Generic/Sound_Pop_1.mp3")
 		return instance
 	end,
 
@@ -48,6 +48,7 @@ local Projectile =
 
 	OnStop = function(self)
 		self.sprite.scaleModifier = 0
+		AudioSystem:PlaySound(self.popSFX)
 	end,
 
 	-- ===========================================================================================================

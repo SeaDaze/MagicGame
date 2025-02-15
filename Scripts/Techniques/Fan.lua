@@ -20,9 +20,8 @@ local Fan = {
 			x = 0,
 			y = 0,
 		}
-
+		instance.spreadSFX = AudioSystem:CreateAudioSource("Audio/Cards/Sound_Fan_3.mp3")
 		instance.techniqueCard = TechniqueCard:New(instance.name, leftHand, rightHand)
-
         return instance
     end,
 
@@ -281,12 +280,18 @@ local Fan = {
 		table.insert(self.cardsInSpread, self.spreadingCards[1])
 		local removedCard = table.remove(self.spreadingCards, 1)
 		local lastCardAngle = removedCard:GetSprite():GetAngle()
-		local quality = self:EvaluateFanQuality()
+
+		-- local pitch = 1 + (self.pointIndex / 52)
+		-- removedCard.fanSuccessSFX:setPitch(pitch)
+		-- AudioSystem:PlaySound(removedCard.fanSuccessSFX)
+		-- AudioSystem:PlaySound(removedCard.fanSpreadSFX)
+
 		if lastCardAngle > 175 or table.isEmpty(self.spreadingCards) then
 			self.points = {}
 			self.pointIndex = 1
 			self:OnCompleteFanSpread()
 		end
+
 	end,
 
 	EvaluateFanQuality = function(self)

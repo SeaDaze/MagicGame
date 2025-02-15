@@ -7,7 +7,7 @@ local Audience =
 	-- #region [CORE]
 	-- ===========================================================================================================
 	Load = function(self)
-		self.audienceNumber = 200
+		self.audienceNumber = 10000
 
 		local characterSpritesheet = DrawSystem:LoadImage("Images/Faces/Character_Spritesheet.png")
 		self.characterSpriteBatch = Sprite:NewSpriteBatch(characterSpritesheet, self.audienceNumber, DrawLayers.Audience)
@@ -76,7 +76,7 @@ local Audience =
     end,
 
 	OnStart = function(self)
-		self:GenerateAudience(self.audienceNumber)
+		self:GenerateAudience()
 
 		DrawSystem:AddDebugDraw(
             function ()
@@ -182,11 +182,18 @@ local Audience =
 	-- #region [INTERNAL]
 	-- ===========================================================================================================
 
-	GenerateAudience = function(self, size)
+	GenerateAudience = function(self)
+		local size = self:EvaluateAudienceSize()
 		self.audience = {}
 		for spectatorIndex = 1, size do
 			self.audience[spectatorIndex] = self:GenerateRandomSpectator()
 		end
+	end,
+
+	EvaluateAudienceSize = function(self)
+		local playerLevel = Player:GetLevel()
+		local audienceSize = playerLevel * 3
+		return audienceSize
 	end,
 
 	GenerateRandomSpectator = function(self)

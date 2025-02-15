@@ -30,7 +30,7 @@ local Deck = {
 		instance.leftHand = leftHand
 		instance.rightHand = rightHand
 		instance.visible = true
-		instance.active = true
+		instance.active = false
 		instance.cards = {}
 		instance.lines = {}
         instance.lineIndex = 1
@@ -59,12 +59,14 @@ local Deck = {
 	end,
 
 	OnStart = function(self)
+		self.active = true
 		for _, card in ipairs(self.cards) do
 			DrawSystem:AddDrawable(card.sprite)
 		end
 	end,
 
 	OnStop = function(self)
+		self.active = false
 		for _, card in ipairs(self.cards) do
 			DrawSystem:RemoveDrawable(card.sprite)
 		end
@@ -76,10 +78,6 @@ local Deck = {
 		end
 		for _, card in ipairs(self.cards) do
 			card:Update(dt)
-			-- if not card:GetDropped() and (card:GetPosition().x < 0 or card:GetPosition().x > love.graphics.getWidth() or card:GetPosition().y < 0 or card:GetPosition().y > love.graphics.getHeight()) then
-			-- 	card:SetDropped(true)
-			-- 	self:OnCardDropped(card)
-			-- end
 		end
 	end,
 
@@ -87,9 +85,6 @@ local Deck = {
 		if not self.active then
 			return
 		end
-		-- if self.tableSpreading then
-		-- 	self:HandleTableSpreadLines()
-		-- end
 	end,
 
 	-- ===========================================================================================================
@@ -351,10 +346,6 @@ local Deck = {
 
 	SetActive = function(self, active)
 		self.active = active
-	end,
-
-	SetVisible = function(self, visible)
-		self.visible = visible
 	end,
 
 	-----------------------------------------------------------------------------------------------------------

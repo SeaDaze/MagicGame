@@ -33,8 +33,9 @@ local PerformScene =
 
 		self.blurEffect = Moonshine(Moonshine.effects.boxblur).chain(Moonshine.effects.pixelate)
 
+		self.quota = 300
 		self.quotaText = Text:New(
-            "Quota: 300",
+            "Quota: ".. tostring(self.quota),
             GameConstants.UI.Font,
             { x = 10, y = 170, z = 0 },
             0,
@@ -117,6 +118,9 @@ local PerformScene =
 		end
 
 		self.scoreText:SetText("Score: " .. tostring(math.floor(score)))
+		if score > self.quota then
+			EventSystem:BroadcastEvent(EventIds.OnQuotaReached)
+		end
 	end,
 }
 return PerformScene

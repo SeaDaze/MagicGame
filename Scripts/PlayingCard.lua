@@ -45,7 +45,8 @@ local PlayingCard = {
 		instance.suit = suit
 		instance.spinningSpeed = 500
 		instance.angularSpeed = 0.2
-
+		instance.fanSpreadSFX = AudioSystem:GetAudioSourceClone("Audio/Cards/Sound_Fan_2.mp3")
+		instance.fanSuccessSFX = AudioSystem:GetAudioSourceClone("Audio/Cards/Sound_Success_1.mp3")
 		return instance
 	end,
 

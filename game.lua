@@ -2,6 +2,8 @@
 GameSettings = require("Scripts.Config.GameSettings")
 EventSystem = require("Scripts.System.EventSystem")
 DrawSystem = require("Scripts.System.DrawSystem")
+AudioSystem = require("Scripts.System.AudioSystem")
+
 Input = require("Scripts.System.Input")
 Timer = require("Scripts.Timer")
 UniqueIds = require("Scripts.System.UniqueIds")
@@ -36,11 +38,12 @@ local game = {
     -- #region [CORE]
     -- ===========================================================================================================
     Load = function(self)
-		self:ApplyWindowPreset(4)
+		self:ApplyWindowPreset(5)
         love.math.setRandomSeed(os.time())
         love.graphics.setDefaultFilter("nearest", "nearest")
 		love.mouse.setVisible(false)
 
+		AudioSystem:Load()
         DrawSystem:Load()
 		EventSystem:Load()
 		io.open("MagicGame.log","w"):close()
@@ -65,7 +68,7 @@ local game = {
             [GameConstants.GameStates.Shop] = ShopScene,
         }
 
-        self:SetGameState(GameConstants.GameStates.Perform)
+        self:SetGameState(GameConstants.GameStates.Shop)
 
 		self.nextFixedUpdate = 0
 		self.lastFixedUpdate = 0
@@ -73,6 +76,7 @@ local game = {
 
         EventSystem:ConnectToEvent(EventIds.CustomKeyboardInput, self, "OnCustomKeyboardInput")
         EventSystem:ConnectToEvent(EventIds.SceneTransitionMiddle, self, "OnSceneTransitionMiddle")
+		EventSystem:ConnectToEvent(EventIds.OnQuotaReached, self, "OnQuotaReached")
 
         DrawSystem:FadeToScene(1)
 		Log.High("Load: Magic game loaded")
@@ -148,12 +152,22 @@ local game = {
 
     OnCustomKeyboardInput = function(self, key, isDown)
         if key == "return" and isDown then
-            self:RequestGameStateChange(GameConstants.GameStates.Shop)
+			self:EvaluateAndRequestNextScene()
         end
     end,
 
     OnSceneTransitionMiddle = function(self)
         self:SetGameState(self.nextState)
     end,
+
+	EvaluateAndRequestNextScene = function(self)
+		local nextGameState = self.gameState == GameConstants.GameStates.Shop and GameConstants.GameStates.Perform or GameConstants.GameStates.Shop
+		self:RequestGameStateChange(nextGameState)
+	end,
+
+	OnQuotaReached = function(self)
+		self:EvaluateAndRequestNextScene()
+	end,
+
 }
 return game

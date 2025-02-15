@@ -32,10 +32,11 @@ local Player =
 
         self.routine = {}
 		self.activeProjectiles = {}
-		self.techniqueCards = {}
-
         self.equippedRoutineIndex = 1
-		Log.High("Load: Player loaded")
+		self.stats = 
+		{
+			level = 1,
+		}
     end,
 
     OnStart = function(self)
@@ -96,6 +97,7 @@ local Player =
         self.leftHand:OnStartPerform()
         self.rightHand:OnStartPerform()
         self.deck:OnStart()
+
         self:EquipDeckInLeftHand()
 
         self:SetRoutineIndex(1, "Fan")
@@ -117,11 +119,12 @@ local Player =
         self.leftHand:OnStopPerform()
         self.rightHand:OnStopPerform()
 		self.deck:OnStop()
+		self:EquipRoutineIndex(-1)
+		self.routineIndex = -1
     end,
 
     OnStartBuild = function(self)
         self.deck:SetActive(false)
-        self.deck:SetVisible(false)
 
         self.leftHand:OnStartBuild()
         self.rightHand:OnStartBuild()
@@ -300,6 +303,9 @@ local Player =
         return Inventory
     end,
 
+	GetLevel = function(self)
+		return self.stats.level
+	end,
     -- ===========================================================================================================
     -- #endregion
 }

@@ -17,7 +17,7 @@ local ShopScene =
         BuyZone:Load()
         
         self.pickups = {
-            Relic:New("Apple", Player:GetLeftHand(), Player:GetRightHand()),
+            --Relic:New("Apple", Player:GetLeftHand(), Player:GetRightHand()),
         }
 
         for _, relic in pairs(self.pickups) do
@@ -64,6 +64,7 @@ local ShopScene =
 
     OnStop = function(self)
         Player:OnStopShop()
+		ShopKeeperAI:OnStopShop()
         BuyZone:OnStop()
 
         DrawSystem:RemoveDebugDraw(self.debug_DrawIndex)

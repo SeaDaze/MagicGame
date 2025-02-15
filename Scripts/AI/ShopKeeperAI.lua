@@ -18,7 +18,6 @@ local ShopKeeperAI =
         self.timerNotificationId = Timer:AddListener(self, "OnTimerFinished")
 
         self.deck:SetActive(false)
-        self.deck:SetVisible(false)
         self.rightHand:SetState(GameConstants.HandStates.PalmDownRelaxed)
         self.leftHand:SetState(GameConstants.HandStates.PalmDownRelaxed)
 

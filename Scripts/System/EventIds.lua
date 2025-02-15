@@ -16,5 +16,6 @@ local EventIds =
 	SceneTransitionStart = 14,
 	SceneTransitionMiddle = 15,
 	SceneTransitionEnd = 16,
+	OnQuotaReached = 17,
 }
 return EventIds
