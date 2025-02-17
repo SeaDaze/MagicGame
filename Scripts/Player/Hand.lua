@@ -17,7 +17,7 @@ local Hand =
 	end,
 
     OnStartPerform = function(self)
-        self:ConnectPickupFunctions()
+        --self:ConnectPickupFunctions()
         DrawSystem:AddDrawable(self.sprite)
         if self.lateSprite then
             DrawSystem:AddDrawable(self.lateSprite)
@@ -25,7 +25,7 @@ local Hand =
 	end,
 
 	OnStopPerform = function(self)
-		self:DisconnectPickupFunctions()
+		--self:DisconnectPickupFunctions()
         DrawSystem:RemoveDrawable(self.sprite)
         if self.lateSprite then
             DrawSystem:RemoveDrawable(self.lateSprite)
@@ -108,8 +108,8 @@ local Hand =
 
     SetState = function(self, newState)
         self.sprite:SetDrawable(self.drawables[newState])
-        if self.sprite.lateDrawables then
-            if self.sprite.lateDrawables[newState] then
+        if self.lateDrawables then
+            if self.lateDrawables[newState] then
                 self.lateSprite:SetDrawable(self.drawables[newState])
                 self.lateSprite:SetVisible(true)
             else

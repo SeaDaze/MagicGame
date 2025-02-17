@@ -21,6 +21,7 @@ local RightHand = setmetatable({
 			[GameConstants.HandStates.PalmDownRelaxedIndexPressed] = DrawSystem:LoadImage("Images/Hands/right_palmDown_RelaxedIndexOutPressed.png"),
 			[GameConstants.HandStates.MechanicsGrip] = nil,
 			[GameConstants.HandStates.Fan] = nil,
+			[GameConstants.HandStates.DuckChangeSqueeze] = DrawSystem:LoadImage("Images/Hands/right_DuckChange_Squeeze.png"),
 		}
 
 		-- instance.spritePalmDown = DrawSystem:LoadImage("Images/Hands/right_palmDown_ThumbIn.png")

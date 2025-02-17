@@ -268,26 +268,6 @@ local Deck = {
 	-- SECTION Techniques
 	-----------------------------------------------------------------------------------------------------------
 
-	-- OnStartTableSpread = function(self)
-	-- 	self.tableSpreading = true
-	-- end,
-
-	-- OnStopTableSpread = function(self)
-	-- 	self:BroadcastToListeners("OnStopTableSpread", { quality = self:EvaluateTableSpreadQuality() })
-	-- end,
-
-	-- TableSpread = function(self)
-	-- 	for _, card in ipairs(self.cards) do
-	-- 		card:SetState(GameConstants.CardStates.InRightHandTableSpread)
-	-- 	end
-	-- 	self.tableSpreading = true
-	-- 	self.spreadingCards = {}
-	-- 	self.cardsInSpread = {}
-	-- 	for index, card in ipairs(self.cards) do
-	-- 		self.spreadingCards[index] = card
-	-- 	end
-	-- end,
-
 	SingleLift = function(self)
 		self.cards[52]:Flip()
 	end,
@@ -302,29 +282,6 @@ local Deck = {
 	CardiniChange = function(self)
 		self.cards[52]:SetFacingUp(false)
 		self:MoveToPosition(52, 1)
-	end,
-
-	-- StartSpin = function(self)
-	-- 	self.cards[52]:SetState(GameConstants.CardStates.SpinningOut)
-	-- end,
-
-	-- CatchCard = function(self)
-	-- 	if Common:DistanceSquared(self.cards[52].position.x, self.cards[52].position.y, self.rightHand.position.x, self.rightHand.position.y) < 3000 then
-	-- 		self.cards[52]:SetState(GameConstants.CardStates.InRightHandPinchPalmDown)
-	-- 		self:BroadcastToListeners("CatchCard")
-	-- 	end
-	-- end,
-
-	-- ResetSpinCard = function(self)
-	-- 	self.cards[26].inRightHand = false
-	-- 	self.cards[26].spinning = false
-	-- 	self.cards[26].out = false
-	-- 	self.cards[26].angle = 0
-	-- 	self.cards[26].targetAngle = 0
-	-- end,
-
-	OnCardDropped = function(self, card)
-		--self:BroadcastToListeners("OnCardDropped")
 	end,
 
 	-----------------------------------------------------------------------------------------------------------

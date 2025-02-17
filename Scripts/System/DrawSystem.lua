@@ -59,17 +59,6 @@ local DrawSystem =
 	end,
 
     DrawAll = function(self)
-		-- self.blurEffect(
-		-- 	function()
-		-- 		for layerOrderedIndex, layerIndex in ipairs(self.orderedLayers) do
-		-- 			for drawableIndex, drawableData in pairs(self.layers[layerIndex]) do
-		-- 				if drawableData.blur then
-		-- 					self:EvaluateDrawableType(drawableData)
-		-- 				end
-		-- 			end
-		-- 		end
-		-- 	end
-		-- )
 		love.graphics.setShader(self.vignetteShader)
 
 		self.debug_DrawCalls = 0

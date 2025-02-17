@@ -3,6 +3,7 @@ local Pickup = require "Scripts.Items.Pickup.Pickup"
 local TechniqueCardSprites = 
 {
     Fan = "Images/Cards/TechniqueCards/technique_Fan.png",
+	DuckChange = "Images/Cards/TechniqueCards/technique_Fan.png",
     FalseCut = "Images/Cards/TechniqueCards/technique_FalseCut.png",
 }
 

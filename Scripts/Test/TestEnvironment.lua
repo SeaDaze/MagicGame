@@ -38,15 +38,55 @@ local TestEnvironment = {
 
 		-- Mesh vertices setup (4 corners of a rectangle)
 		local w, h = self.faceDownDrawable:getWidth(), self.faceDownDrawable:getHeight()
-		self.vertices = {
-			{-w/2, -h/2, 0, 0}, -- Top-left (u=0, v=0)
-			{ w/2, -h/2, 1, 0}, -- Top-right (u=1, v=0)
-			{ w/2,  h/2, 1, 1}, -- Bottom-right (u=1, v=1)
-			{-w/2,  h/2, 0, 1}  -- Bottom-left (u=0, v=1)
-		}
+		-- self.vertices = {
+		-- 	{-w/2, -h/2, 0, 0}, -- Top-left (u=0, v=0)
+		-- 	{ w/2, -h/2, 1, 0}, -- Top-right (u=1, v=0)
+		-- 	{ w/2,  h/2, 1, 1}, -- Bottom-right (u=1, v=1)
+		-- 	{-w/2,  h/2, 0, 1}  -- Bottom-left (u=0, v=1)
+		-- }
 
+		local cols = 10  -- Number of horizontal segments
+		local rows = 5   -- Number of vertical segments
+
+		-- Generate vertices
+		self.vertices = {}
+		for i = 0, rows do
+			for j = 0, cols do
+				local x = j / cols * w
+				local y = i / rows * h
+
+				local curveOffset = math.sin((i / rows) * math.pi) * 10
+
+				table.insert(self.vertices, {
+					x + curveOffset, y,
+					x / w, y / h
+				})
+			end
+		end
+
+		local triangles = {}
+		for i = 0, rows - 1 do
+			for j = 0, cols - 1 do
+				local i1 = i * (cols + 1) + j + 1
+				local i2 = i1 + 1
+				local i3 = i1 + cols + 1
+				local i4 = i3 + 1
+
+				-- First triangle
+				table.insert(triangles, self.vertices[i1])
+				table.insert(triangles, self.vertices[i2])
+				table.insert(triangles, self.vertices[i3])
+
+				-- Second triangle
+				table.insert(triangles, self.vertices[i3])
+				table.insert(triangles, self.vertices[i2])
+				table.insert(triangles, self.vertices[i4])
+			end
+		end
+
+		
 		-- Create the mesh with texture coordinates
-		self.mesh = love.graphics.newMesh(self.vertices, "fan")
+		self.mesh = love.graphics.newMesh(triangles, "triangles")
 		self.mesh:setTexture(self.faceDownDrawable)
 	end,
 
@@ -79,14 +119,14 @@ local TestEnvironment = {
 		local perspective = 500 -- Perspective depth
 		
 		--Update mesh vertices for 3D effect
-		for i = 1, #self.vertices do
-			local x, y, u, v = unpack(self.vertices[i])
-			local rotatedX = x * math.cos(self.angle)
-			local rotatedY = y * math.cos(self.angleY)
-			local depthX = perspective / (perspective - x * math.sin(self.angle))
-			local depthY = perspective / (perspective - y * math.sin(self.angleY))
-			self.mesh:setVertex(i, rotatedX * depthX, rotatedY * depthY, u, v) -- Correct update
-		end
+		-- for i = 1, #self.vertices do
+		-- 	local x, y, u, v = unpack(self.vertices[i])
+		-- 	local rotatedX = x * math.cos(self.angle)
+		-- 	local rotatedY = y * math.cos(self.angleY)
+		-- 	local depthX = perspective / (perspective - x * math.sin(self.angle))
+		-- 	local depthY = perspective / (perspective - y * math.sin(self.angleY))
+		-- 	self.mesh:setVertex(i, rotatedX * depthX, rotatedY * depthY, u, v) -- Correct update
+		-- end
 
 		love.graphics.translate(6, 6)
 		love.graphics.setColor(0, 0, 0, 0.2)

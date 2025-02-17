@@ -1,29 +1,24 @@
 local Technique = require("Scripts.Techniques.Technique")
 local EventIds  = require("Scripts.System.EventIds")
-local TechniqueCard = require("Scripts.Items.Pickup.Cards.TechniqueCard")
+local System = require("Scripts.System.System")
+local BaseScript = require("Scripts.System.BaseScript")
 
 local Fan = {
-    New = function(self, deck, leftHand, rightHand)
-        local instance = setmetatable({}, self)
-
-        instance.deck = deck
-		instance.leftHand = leftHand
-        instance.rightHand = rightHand
-
-		instance.name = "Fan"
-		instance.points = {}
-		instance.pointIndex = 1
-		instance.cardSelection = false
-		instance.lastRotationAngle = 0
-		instance.newPoint = 
+	Load = function(self, deck, leftHand, rightHand)
+        self.deck = deck
+		self.leftHand = leftHand
+        self.rightHand = rightHand
+		self.points = {}
+		self.pointIndex = 1
+		self.cardSelection = false
+		self.lastRotationAngle = 0
+		self.newPoint = 
 		{
 			x = 0,
 			y = 0,
 		}
-		instance.spreadSFX = AudioSystem:CreateAudioSource("Audio/Cards/Sound_Fan_3.mp3")
-		instance.techniqueCard = TechniqueCard:New(instance.name, leftHand, rightHand)
-        return instance
-    end,
+		self.spreadSFX = AudioSystem:GetAudioSourceClone("Audio/Cards/Sound_Fan_3.mp3")
+	end,
 
     OnStart = function(self)
 		Log.Med("OnStart: Fan Technique")
@@ -139,14 +134,11 @@ local Fan = {
 		Timer:RemoveListener(self.timerNotificationId)
     end,
 
-	Update = function(self, dt)
+	FixedUpdate = function(self, dt)
 		if self.fanSpreading then
 			self:HandleFanRotation()
 			self:EvaluateRightHandState()
 		end
-	end,
-
-	FixedUpdate = function(self, dt)
 	end,
 
 	OnCompleteFanSpread = function(self)
@@ -347,10 +339,6 @@ local Fan = {
 		local bottom = topCardSprite:GetSocket("BottomLeft")
 		local indexFingerPosition = self.rightHand:GetIndexFingerPosition()
 
-		love.graphics.line(top.x, top.y, bottom.x, bottom.y)
-		love.graphics.line(indexFingerPosition.x, indexFingerPosition.y, bottom.x, bottom.y)
-		love.graphics.line(top.x, top.y, indexFingerPosition.x, indexFingerPosition.y)
-
 		local a = topCardSprite:GetHeight() * GameSettings.WindowResolutionScale
 		local b = Common:Distance(bottom.x, bottom.y, indexFingerPosition.x, indexFingerPosition.y)
 		local c = Common:Distance(indexFingerPosition.x, indexFingerPosition.y, top.x, top.y)
@@ -369,19 +357,18 @@ local Fan = {
 
 	EvaluateRightHandState = function(self)
 		local touchingEdge = self:EvaluateTouchingEdge()
-
-		if not touchingEdge and self.leftHand:GetState() ~= GameConstants.HandStates.PalmDownRelaxed then
+		if not touchingEdge and self.rightHand:GetState() ~= GameConstants.HandStates.PalmDownRelaxed then
 			self.rightHand:SetState(GameConstants.HandStates.PalmDownRelaxed)
 		else
 			if not touchingEdge then
 				return
 			end
 			if self.rightActionPressed then
-				if self.leftHand:GetState() ~= GameConstants.HandStates.PalmDownRelaxedIndexPressed then
+				if self.rightHand:GetState() ~= GameConstants.HandStates.PalmDownRelaxedIndexPressed then
 					self.rightHand:SetState(GameConstants.HandStates.PalmDownRelaxedIndexPressed)
 				end
 			else
-				if self.leftHand:GetState() ~= GameConstants.HandStates.PalmDownIndexOut then
+				if self.rightHand:GetState() ~= GameConstants.HandStates.PalmDownIndexOut then
 					self.rightHand:SetState(GameConstants.HandStates.PalmDownRelaxedIndexOut)
 				end
 			end
@@ -389,7 +376,8 @@ local Fan = {
 		end
 	end,
 }
-
-Fan.__index = Fan
-setmetatable(Fan, Technique)
-return Fan
+return System:CreateChainedInheritanceScript(
+	BaseScript,
+	Technique,
+	Fan
+)

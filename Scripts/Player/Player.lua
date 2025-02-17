@@ -5,16 +5,8 @@ local CreditCard = require("Scripts.Items.Pickup.CreditCard")
 local Inventory = require("Scripts.Player.Inventory")
 local Projectile = require("Scripts.Player.Projectile")
 local EventIds = require("Scripts.System.EventIds")
-
-local Techniques = 
-{
-    CardShootCatch = require ("Scripts.Tricks.CardShootCatch"),
-    DoubleLift = require("Scripts.Techniques.DoubleLift"),
-    CardiniChange = require("Scripts.Tricks.CardiniChange"),
-    TableSpread   = require("Scripts.Techniques.TableSpread"),
-    Fan = require("Scripts.Techniques.Fan"),
-    FalseCut = require("Scripts.Techniques.FalseCut"),
-}
+local Techniques = require("Scripts.Techniques.Techniques")
+local TechniqueCard = require("Scripts.Items.Pickup.Cards.TechniqueCard")
 
 local Player = 
 {
@@ -30,7 +22,15 @@ local Player =
 		Projectile:Load()
         Inventory:Load()
 
-        self.routine = {}
+		for typeId, technique in pairs(Techniques) do
+			if technique.Load then
+				technique:Load(self.deck, self.leftHand, self.rightHand)
+			end
+		end
+
+		self.routineTechniqueCards = {}
+        self.routineTypeIds = {}
+		self.currentTechnique = nil
 		self.activeProjectiles = {}
         self.equippedRoutineIndex = 1
 		self.stats = 
@@ -52,9 +52,9 @@ local Player =
         self.creditCard:Update(dt)
         Inventory:Update(dt)
 
-        if self.routineIndex and self.routine[self.routineIndex] then
-            if self.routine[self.routineIndex].Update then
-                self.routine[self.routineIndex]:Update(dt)
+        if self.currentTechnique then
+            if self.currentTechnique.Update then
+                self.currentTechnique:Update(dt)
             end
         end
 
@@ -65,9 +65,9 @@ local Player =
         self.leftHand:FixedUpdate(dt)
         self.rightHand:FixedUpdate(dt)
 
-        if self.routineIndex and self.routine[self.routineIndex] then
-            if self.routine[self.routineIndex].FixedUpdate then
-                self.routine[self.routineIndex]:FixedUpdate(dt)
+        if self.currentTechnique then
+            if self.currentTechnique.FixedUpdate then
+                self.currentTechnique:FixedUpdate(dt)
             end
         end
 
@@ -100,17 +100,17 @@ local Player =
 
         self:EquipDeckInLeftHand()
 
-        self:SetRoutineIndex(1, "Fan")
-		self:SetRoutineIndex(2, "Fan")
-		self:SetRoutineIndex(3, "Fan")
+        self:SetRoutineIndex(1, "DuckChange")
+		-- self:SetRoutineIndex(2, "Fan")
+		-- self:SetRoutineIndex(3, "Fan")
         self:EquipRoutineIndex(self.equippedRoutineIndex)
 
 		self.scoreNotificationId = EventSystem:ConnectToEvent(EventIds.TechniqueEvaluated, self, "OnTechniqueEvaluated")
 		self.projectileNotificationId = EventSystem:ConnectToEvent(EventIds.ProjectileHit, self, "OnProjectileHit")
 		self.techniqueFinishedNotificationId = EventSystem:ConnectToEvent(EventIds.PlayerTechniqueFinished, self, "OnTechniqueFinished")
 
-		for index, technique in pairs(self.routine) do
-			technique:Technique_GetTechniqueCard():OnStart()
+		for index, techniqueCard in pairs(self.routineTechniqueCards) do
+			techniqueCard:OnStart()
 		end
 		self:UpdateTechniqueCardPositions()
     end,
@@ -161,25 +161,26 @@ local Player =
 			return
 		end
 
-		if self.routineIndex and self.routine[self.routineIndex] then
-			self.routine[self.routineIndex]:OnStop()
+		if self.currentTechnique then
+			self.currentTechnique:OnStop()
 			Log.Med("EquipRoutineIndex: Completed=", self.routineIndex)
 		end
 
-        if self.routine[index] == nil then
+        if self.routineTypeIds[index] == nil then
             Log.Med("EquipRoutineIndex: No technique initialised at routineIndex=", index)
 			return
 		end
 
         Log.Med("EquipRoutineIndex: Equipping index=", index)
 		self.routineIndex = index
-		self.routine[self.routineIndex]:OnStart()
+		local typeId = self.routineTypeIds[self.routineIndex]
+		self.currentTechnique = Techniques[typeId]
+		self.currentTechnique:OnStart()
 	end,
 
 	UpdateTechniqueCardPositions = function(self)
-		for index, technique in pairs(self.routine) do
+		for index, techniqueCard in pairs(self.routineTechniqueCards) do
 			local targetPosition = ((index - self.routineIndex) * 150) + (love.graphics.getWidth() / 2)
-			local techniqueCard = technique:Technique_GetTechniqueCard()
 			local techniqueCardSprite = techniqueCard:GetSprite()
 			if index - self.routineIndex == 0 then
 				techniqueCardSprite:SetColorOverride({1.0, 1.0, 1.0, 1.0})
@@ -275,24 +276,15 @@ local Player =
 
     SetRoutineIndex = function(self, index, typeId)
         if typeId then
-			local techniqueInstance
 			if Techniques[typeId] then
-				techniqueInstance = Techniques[typeId]:New(self.deck, self.leftHand, self.rightHand)
-				self.routine[index] = techniqueInstance
+				self.routineTypeIds[index] = typeId
+				self.routineTechniqueCards[index] = TechniqueCard:New(typeId, self.leftHand, self.rightHand)
 			else
 				Log.Error("SetRoutineIndex: No technique found with typeId=", typeId)
 			end
         else
-            self.routine[index] = nil
+            self.routineTypeIds[index] = nil
         end
-    end,
-
-    SetRoutine = function(self, routine)
-        self.routine = routine
-    end,
-
-    GetRoutine = function(self)
-        return self.routine
     end,
 
     GetCreditCard = function(self)

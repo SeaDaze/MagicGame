@@ -68,7 +68,7 @@ local game = {
             [GameConstants.GameStates.Shop] = ShopScene,
         }
 
-        self:SetGameState(GameConstants.GameStates.Shop)
+        self:SetGameState(GameConstants.GameStates.Perform)
 
 		self.nextFixedUpdate = 0
 		self.lastFixedUpdate = 0
@@ -166,7 +166,7 @@ local game = {
 	end,
 
 	OnQuotaReached = function(self)
-		self:EvaluateAndRequestNextScene()
+		--self:EvaluateAndRequestNextScene()
 	end,
 
 }

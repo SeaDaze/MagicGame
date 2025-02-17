@@ -40,7 +40,12 @@ local System = {
 	CreateChainedFunction = function(self, functionList)
 		return function(...)
 			for index, func in ipairs(functionList) do
-				func(...)
+				-- We can only return the value of the last function in the list
+				if index == table.count(functionList) then
+					return func(...)
+				else
+					func(...)
+				end
 			end
 		end
 	end,

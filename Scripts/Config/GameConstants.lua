@@ -91,6 +91,7 @@ local GameConstants =
         MechanicsGrip = 12,
         Fan = 13,
 		PalmDownRelaxedIndexPressed = 14,
+		DuckChangeSqueeze = 15,
 	},
 
 	CardSuits = 
