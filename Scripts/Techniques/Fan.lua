@@ -368,7 +368,7 @@ local Fan = {
 					self.rightHand:SetState(GameConstants.HandStates.PalmDownRelaxedIndexPressed)
 				end
 			else
-				if self.rightHand:GetState() ~= GameConstants.HandStates.PalmDownIndexOut then
+				if self.rightHand:GetState() ~= GameConstants.HandStates.PalmDownRelaxedIndexOut then
 					self.rightHand:SetState(GameConstants.HandStates.PalmDownRelaxedIndexOut)
 				end
 			end

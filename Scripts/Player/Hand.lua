@@ -110,13 +110,14 @@ local Hand =
         self.sprite:SetDrawable(self.drawables[newState])
         if self.lateDrawables then
             if self.lateDrawables[newState] then
-                self.lateSprite:SetDrawable(self.drawables[newState])
+                self.lateSprite:SetDrawable(self.lateDrawables[newState])
                 self.lateSprite:SetVisible(true)
             else
                 self.lateSprite:SetVisible(false)
             end
         end
 		self.state = newState
+		Log.Med("SetState: newState=", table.findKey(GameConstants.HandStates, newState))
 	end,
 
 	SetPosition = function(self, newPosition)

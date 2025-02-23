@@ -33,9 +33,7 @@ local LeftHand = setmetatable({
 		instance.moveSpeed = 500
 		instance.active = true
 		instance.nearbyPickups = {}
-
 		instance.actionListenTarget = EventIds.LeftAction
-
 		instance.scaleModifier = 2
 
 		instance.sprite = Sprite:New(

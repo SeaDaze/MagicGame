@@ -17,25 +17,9 @@ local PerformScene =
 		Mat:Load()
 		SpectatorPanel:Load()
 
-		self.backgroundVFX = 
-		{
-			ParticleSystem:New(
-				DrawSystem:LoadImage("Images/Cards/spade_01.png"),
-				{ x = love.graphics.getWidth() / 2, y = love.graphics.getHeight() / 2 },
-				0
-			),
-			ParticleSystem:New(
-				DrawSystem:LoadImage("Images/Cards/heart_01.png"),
-				{ x = love.graphics.getWidth() / 2, y = love.graphics.getHeight() / 2 },
-				0
-			),
-		}
-
-		self.blurEffect = Moonshine(Moonshine.effects.boxblur).chain(Moonshine.effects.pixelate)
-
 		self.quota = 300
 		self.quotaText = Text:New(
-            "Quota: ".. tostring(self.quota),
+            "Quota: ".. tostring(0),
             GameConstants.UI.Font,
             { x = 10, y = 170, z = 0 },
             0,
@@ -77,10 +61,10 @@ local PerformScene =
 		DrawSystem:AddDrawable(self.scoreText)
 		DrawSystem:AddDrawable(self.tricksText)
 		DrawSystem:AddDrawable(self.tutorialText)
-		for _, vfx in pairs(self.backgroundVFX) do
-			DrawSystem:AddDrawable(vfx)
-		end
 		self.scoreNotificationId = EventSystem:ConnectToEvent(EventIds.SpectatorScoreUpdated, self, "OnSpectatorScoreUpdated")
+		self.quota = Player:EvaluateQuota()
+		self.quotaText:SetText("Quota: ".. tostring(self.quota))
+		self.quotaReached = false
 	end,
 
 	OnStop = function(self)
@@ -90,9 +74,6 @@ local PerformScene =
 		DrawSystem:RemoveDrawable(self.scoreText)
 		DrawSystem:RemoveDrawable(self.tricksText)
 		DrawSystem:RemoveDrawable(self.tutorialText)
-		for _, vfx in pairs(self.backgroundVFX) do
-			DrawSystem:RemoveDrawable(vfx)
-		end
 		EventSystem:DisconnectFromEvent(self.scoreNotificationId)
 		Audience:OnStop()
 		self.scoreNotificationId = nil
@@ -111,15 +92,19 @@ local PerformScene =
     -- #region [INTERNAL]
     -- ===========================================================================================================
 
-	OnSpectatorScoreUpdated = function(self, score)
+	OnSpectatorScoreUpdated = function(self, spectatorScore)
 		local score = 0
 		for _, spectator in pairs(Audience:GetAllSpectators()) do
 			score = score + spectator:GetScore()
 		end
 
 		self.scoreText:SetText("Score: " .. tostring(math.floor(score)))
+		if self.quotaReached then
+			return
+		end
 		if score > self.quota then
 			EventSystem:BroadcastEvent(EventIds.OnQuotaReached)
+			self.quotaReached = true
 		end
 	end,
 }

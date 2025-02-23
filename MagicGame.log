@@ -1,0 +1,190 @@
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Background/settingsbackground.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Hands/left_palmDown_Natural.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Hands/left_palmDown_GrabOpen.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Hands/left_palmDown_GrabClose.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Hands/left_palmDown_Relaxed.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Hands/left_palmDown_RelaxedIndexOut.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Hands/left_dealerGrip.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Hands/left_fan_NoThumb.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Hands/left_fan_ThumbOnly.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Hands/right_palmDown_ThumbIn.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Hands/right_palmDown_PinchNoThumb.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Hands/right_palmDown_IndexOut.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Hands/right_palmUp_ThumbIn.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Hands/right_palmUp_NoThumb.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Hands/right_palmDown_TableSpread.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Hands/right_palmDown_Natural.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Hands/right_palmDown_GrabOpen.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Hands/right_palmDown_GrabClose.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Hands/right_palmDown_Relaxed.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Hands/right_palmDown_RelaxedIndexOut.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Hands/right_palmDown_RelaxedIndexOutPressed.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Hands/right_DuckChange_Squeeze.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/cardBack_03.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Spades/Ace.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Spades/Two.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Spades/Three.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Spades/Four.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Spades/Five.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Spades/Six.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Spades/Seven.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Spades/Eight.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Spades/Nine.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Spades/Ten.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Spades/Jack.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Spades/Queen.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Spades/King.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Hearts/Ace.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Hearts/Two.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Hearts/Three.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Hearts/Four.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Hearts/Five.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Hearts/Six.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Hearts/Seven.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Hearts/Eight.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Hearts/Nine.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Hearts/Ten.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Hearts/Jack.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Hearts/Queen.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Hearts/King.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Diamonds/Ace.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Diamonds/Two.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Diamonds/Three.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Diamonds/Four.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Diamonds/Five.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Diamonds/Six.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Diamonds/Seven.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Diamonds/Eight.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Diamonds/Nine.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Diamonds/Ten.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Diamonds/Jack.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Diamonds/Queen.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Diamonds/King.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Clubs/Ace.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Clubs/Two.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Clubs/Three.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Clubs/Four.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Clubs/Five.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Clubs/Six.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Clubs/Seven.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Clubs/Eight.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Clubs/Nine.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Clubs/Ten.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Clubs/Jack.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Clubs/Queen.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Clubs/King.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Items/CreditCard.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Projectiles/Projectile_01.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/UI/Buttons/Basic/BasicButton_Default.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/UI/Buttons/Basic/BasicButton_Hovered.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/UI/Buttons/Basic/BasicButton_Selected.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/UI/Buttons/Basic/BasicButton_Default.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/UI/Buttons/Basic/BasicButton_Hovered.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/UI/Buttons/Basic/BasicButton_Selected.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Faces/Character_Spritesheet.png
+[MED   02/23/25 16:18:44] Scripts/System/Sprite.lua:118: NewSpriteBatch: New sprite batch with image= Image: 0x01fc8eeafda0 , maxSprites= 10000 , layerIndex= 10
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:164: ExtractSpritesheetQuadByRow: Extracted  2  quads
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:164: ExtractSpritesheetQuadByRow: Extracted  7  quads
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:164: ExtractSpritesheetQuadByRow: Extracted  7  quads
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Background/mat.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Background/SpectatorPanel.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Hands/AI/ai_left_palmDown_Relaxed.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Hands/AI/ai_left_palmDown_RelaxedIndexOut.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Hands/AI/ai_left_fan_NoThumb.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Hands/AI/ai_right_palmDown_Relaxed.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Hands/AI/ai_right_palmDown_RelaxedIndexOut.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Hands/AI/ai_right_dealerGrip.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/cardBack_03.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Spades/Ace.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Spades/Two.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Spades/Three.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Spades/Four.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Spades/Five.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Spades/Six.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Spades/Seven.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Spades/Eight.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Spades/Nine.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Spades/Ten.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Spades/Jack.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Spades/Queen.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Spades/King.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Hearts/Ace.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Hearts/Two.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Hearts/Three.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Hearts/Four.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Hearts/Five.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Hearts/Six.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Hearts/Seven.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Hearts/Eight.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Hearts/Nine.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Hearts/Ten.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Hearts/Jack.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Hearts/Queen.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Hearts/King.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Diamonds/Ace.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Diamonds/Two.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Diamonds/Three.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Diamonds/Four.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Diamonds/Five.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Diamonds/Six.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Diamonds/Seven.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Diamonds/Eight.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Diamonds/Nine.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Diamonds/Ten.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Diamonds/Jack.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Diamonds/Queen.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Diamonds/King.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Clubs/Ace.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Clubs/Two.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Clubs/Three.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Clubs/Four.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Clubs/Five.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Clubs/Six.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Clubs/Seven.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Clubs/Eight.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Clubs/Nine.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Clubs/Ten.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Clubs/Jack.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Clubs/Queen.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/Clubs/King.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Items/ShopKeeper/CardReader.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Items/ShopKeeper/CardReaderGreen.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Background/mat.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/UI/BuyZone.png
+[MED   02/23/25 16:18:44] Scripts/Player/Hand.lua:120: SetState: newState= MechanicsGrip
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:120: LoadImage: Loaded new image with path:  Images/Cards/TechniqueCards/technique_Fan.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:122: LoadImage: Found cached image with path:  Images/Cards/TechniqueCards/technique_Fan.png
+[MED   02/23/25 16:18:44] Scripts/System/DrawSystem.lua:122: LoadImage: Found cached image with path:  Images/Cards/TechniqueCards/technique_Fan.png
+[MED   02/23/25 16:18:44] Scripts/Player/Player.lua:184: EquipRoutineIndex: Equipping index= 1
+[MED   02/23/25 16:18:44] Scripts/System/BaseScript.lua:9: OnStart: BaseScript
+[MED   02/23/25 16:18:44] Scripts/Techniques/Fan.lua:24: OnStart: Fan Technique
+[MED   02/23/25 16:18:44] Scripts/Player/Hand.lua:120: SetState: newState= Fan
+[MED   02/23/25 16:18:44] Scripts/Player/Player.lua:282: EvaluateQuota: quota= 300
+[HIGH  02/23/25 16:18:44] game.lua:84: Load: Magic game loaded
+[MED   02/23/25 16:18:46] Scripts/Player/Hand.lua:120: SetState: newState= PalmDownRelaxedIndexOut
+[MED   02/23/25 16:18:46] Scripts/Player/Hand.lua:120: SetState: newState= PalmDownRelaxedIndexPressed
+[MED   02/23/25 16:18:46] Scripts/Player/Hand.lua:120: SetState: newState= PalmDownRelaxed
+[MED   02/23/25 16:18:47] Scripts/Player/Hand.lua:120: SetState: newState= PalmDownRelaxedIndexOut
+[MED   02/23/25 16:18:47] Scripts/Player/Hand.lua:120: SetState: newState= PalmDownRelaxedIndexPressed
+[MED   02/23/25 16:18:47] Scripts/Player/Hand.lua:120: SetState: newState= PalmDownRelaxed
+[MED   02/23/25 16:18:48] Scripts/Player/Hand.lua:120: SetState: newState= PalmDownRelaxedIndexOut
+[MED   02/23/25 16:18:48] Scripts/Player/Hand.lua:120: SetState: newState= PalmDownRelaxedIndexPressed
+[MED   02/23/25 16:18:50] Scripts/Player/Hand.lua:120: SetState: newState= PalmDownGrabOpen
+[MED   02/23/25 16:18:50] Scripts/System/Sprite.lua:118: NewSpriteBatch: New sprite batch with image= Image: 0x01fc8eeb0220 , maxSprites= 3 , layerIndex= 103
+[MED   02/23/25 16:18:50] Scripts/Player/Player.lua:243: CreateProjectile: active projectile count= 1
+[MED   02/23/25 16:18:50] Scripts/Player/Player.lua:243: CreateProjectile: active projectile count= 2
+[MED   02/23/25 16:18:50] Scripts/Player/Player.lua:243: CreateProjectile: active projectile count= 3
+[MED   02/23/25 16:18:50] Scripts/Player/Player.lua:216: OnTechniqueEvaluated: Create spectator count= 3
+[MED   02/23/25 16:18:50] Scripts/Player/Hand.lua:120: SetState: newState= PalmDownRelaxedIndexPressed
+[MED   02/23/25 16:18:52] Scripts/Player/Player.lua:247: DestroyProjectile: 1
+[MED   02/23/25 16:18:52] Scripts/Player/Player.lua:247: DestroyProjectile: 1
+[MED   02/23/25 16:18:53] Scripts/Player/Player.lua:247: DestroyProjectile: 1
+[MED   02/23/25 16:18:53] Scripts/Player/Player.lua:266: DestroyProjectile: 2
+[MED   02/23/25 16:18:53] Scripts/Player/Player.lua:220: OnTechniqueFinished: self.routineIndex= 1
+[MED   02/23/25 16:18:53] Scripts/Techniques/Fan.lua:133: OnStop: Fan Technique
+[MED   02/23/25 16:18:53] Scripts/Player/Player.lua:176: EquipRoutineIndex: Completed= 1
+[MED   02/23/25 16:18:53] Scripts/Player/Player.lua:184: EquipRoutineIndex: Equipping index= 2
+[MED   02/23/25 16:18:53] Scripts/System/BaseScript.lua:9: OnStart: BaseScript
+[MED   02/23/25 16:18:53] Scripts/Techniques/Fan.lua:24: OnStart: Fan Technique
+[MED   02/23/25 16:18:53] Scripts/Player/Hand.lua:120: SetState: newState= Fan
+[MED   02/23/25 16:18:53] Scripts/Player/Hand.lua:120: SetState: newState= PalmDownRelaxed

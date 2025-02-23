@@ -79,6 +79,8 @@ local game = {
 		EventSystem:ConnectToEvent(EventIds.OnQuotaReached, self, "OnQuotaReached")
 
         DrawSystem:FadeToScene(1)
+
+		Player:OnStart()
 		Log.High("Load: Magic game loaded")
     end,
 

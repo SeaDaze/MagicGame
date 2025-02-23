@@ -2,7 +2,7 @@ local game = require("game")
 local testEnvironment = require("Scripts.Test.TestEnvironment")
 local testEnvironment2 = require("Scripts.Test.TestEnvironment2")
 
-local mode = 2
+local mode = 1
 
 local modes = {
     game,

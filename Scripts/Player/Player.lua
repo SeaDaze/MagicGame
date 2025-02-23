@@ -40,9 +40,11 @@ local Player =
     end,
 
     OnStart = function(self)
+		self.quotaReachedNotificationId = EventSystem:ConnectToEvent(EventIds.OnQuotaReached, self, "OnQuotaReached")
 	end,
 
 	OnStop = function(self)
+		EventSystem:DisconnectFromEvent(self.quotaReachedNotificationId)
 	end,
 
     Update = function(self, dt)
@@ -100,9 +102,9 @@ local Player =
 
         self:EquipDeckInLeftHand()
 
-        self:SetRoutineIndex(1, "DuckChange")
-		-- self:SetRoutineIndex(2, "Fan")
-		-- self:SetRoutineIndex(3, "Fan")
+        self:SetRoutineIndex(1, "Fan")
+		self:SetRoutineIndex(2, "Fan")
+		self:SetRoutineIndex(3, "Fan")
         self:EquipRoutineIndex(self.equippedRoutineIndex)
 
 		self.scoreNotificationId = EventSystem:ConnectToEvent(EventIds.TechniqueEvaluated, self, "OnTechniqueEvaluated")
@@ -116,11 +118,19 @@ local Player =
     end,
 
     OnStopPerform = function(self)
+		for index, techniqueCard in pairs(self.routineTechniqueCards) do
+			techniqueCard:OnStop()
+		end
+		self.routineTechniqueCards = {}
         self.leftHand:OnStopPerform()
         self.rightHand:OnStopPerform()
 		self.deck:OnStop()
 		self:EquipRoutineIndex(-1)
 		self.routineIndex = -1
+
+		EventSystem:DisconnectFromEvent(self.scoreNotificationId)
+		EventSystem:DisconnectFromEvent(self.projectileNotificationId)
+		EventSystem:DisconnectFromEvent(self.techniqueFinishedNotificationId)
     end,
 
     OnStartBuild = function(self)
@@ -230,9 +240,11 @@ local Player =
 			projectileSprite.width * projectileSprite.originOffsetRatio.x,
 			projectileSprite.height * projectileSprite.originOffsetRatio.y
 		)
+		Log.Med("CreateProjectile: active projectile count=", table.count(self.activeProjectiles))
 	end,
 
 	DestroyProjectile = function(self, projectile)
+		Log.Med("DestroyProjectile: 1")
 		projectile:OnStop()
 		local projectileSprite = projectile:GetSprite()
 		self.projectileSpriteBatch.spriteBatch:set(
@@ -251,12 +263,24 @@ local Player =
 			self.projectileSpriteBatch.spriteBatch:clear()
 			DrawSystem:RemoveDrawable(self.projectileSpriteBatch)
 			self.projectileSpriteBatch = nil
+			Log.Med("DestroyProjectile: 2")
 		end
 	end,
 
 	OnProjectileHit = function(self, projectile, target, score)
 		self:DestroyProjectile(projectile)
 		target:AddScore(score)
+	end,
+
+	OnQuotaReached = function(self)
+		self.stats.level = self.stats.level + 1
+		Log.Med("OnQuotaReached: level increased to=", self.stats.level)
+	end,
+
+	EvaluateQuota = function(self)
+		local quota = self.stats.level * self.stats.level * 300
+		Log.Med("EvaluateQuota: quota=", quota)
+		return quota
 	end,
 
     -- ===========================================================================================================

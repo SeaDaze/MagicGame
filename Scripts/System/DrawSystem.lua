@@ -17,14 +17,13 @@ local DrawSystem =
         self.layers = {}
         self.orderedLayers = {}
 		self.updateTable = {}
+		self.cachedImages = {}
         self.debug_DrawFunctions = {}
         self.debug_DrawIndex = 0
 		self.debug_DrawCalls = 0
 
 		self.blurEffect = Moonshine(Moonshine.effects.boxblur).chain(Moonshine.effects.pixelate)
-		
 		self.shadowCanvas = love.graphics.newCanvas(love.graphics.getWidth(), love.graphics.getHeight())
-		
 		self.shadowShader = love.graphics.newShader [[
 			vec4 effect(vec4 color, Image texture, vec2 texCoords, vec2 screenCoords) {
 				vec4 pixel = Texel(texture, texCoords);  // Get pixel from texture
@@ -111,9 +110,18 @@ local DrawSystem =
     -- #region [EXTERNAL]
     -- ===========================================================================================================
 
-	LoadImage = function(self, imagePath)
-		Log.Low("LoadImage: Loaded image with path: ", imagePath)
-		return love.graphics.newImage(imagePath)
+	LoadImage = function(self, imagePath, cacheImage)
+		local image = self.cachedImages[imagePath]
+		if not image then
+			image = love.graphics.newImage(imagePath)
+			if cacheImage then
+				self.cachedImages[imagePath] = image
+			end
+			Log.Med("LoadImage: Loaded new image with path: ", imagePath)
+		else
+			Log.Med("LoadImage: Found cached image with path: ", imagePath)
+		end
+		return image
 	end,
 
 	---@param self any

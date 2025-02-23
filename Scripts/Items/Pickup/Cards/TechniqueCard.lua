@@ -13,7 +13,7 @@ local TechniqueCard = setmetatable(
 		local instance = setmetatable({}, self)
         instance.typeId = typeId
         instance.sprite =  Sprite:New(
-			DrawSystem:LoadImage(TechniqueCardSprites[typeId]),
+			DrawSystem:LoadImage(TechniqueCardSprites[typeId], true),
 			{ x = love.graphics.getWidth() / 2, y = love.graphics.getHeight() * 0.9, z = 0 },
 			0,
 			1,

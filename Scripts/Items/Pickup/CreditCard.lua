@@ -8,7 +8,7 @@ local CreditCard = setmetatable(
 
         instance.sprite = Sprite:New(
 			instance.drawable,
-			{ x = love.graphics.getWidth() / 2, y = love.graphics.getHeight() / 2, z = 3 },
+			{ x = 100, y = love.graphics.getHeight() / 2, z = 3 },
 			0,
 			1,
 			DrawLayers.PickupDefault,

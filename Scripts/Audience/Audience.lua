@@ -78,20 +78,6 @@ local Audience =
 	OnStart = function(self)
 		self:GenerateAudience()
 
-		DrawSystem:AddDebugDraw(
-            function ()
-				local indexFingerPosition = Player:GetRightHand():GetRelaxedFingerPosition()
-				love.graphics.ellipse(
-					"fill",
-					indexFingerPosition.x,
-					indexFingerPosition.y,
-					3,
-					3,
-					6
-				)
-			end
-		)
-
         for _, spectator in pairs(self.audience) do
 			local sprite = spectator.sprite
 			spectator.headSpriteBatchId = self.characterSpriteBatch.spriteBatch:add(
