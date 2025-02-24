@@ -238,6 +238,10 @@ local DrawSystem =
     end,
 
     DrawText = function(self, textData)
+		if textData.color then
+			love.graphics.setColor(textData.color)
+		end
+
         love.graphics.printf(
             textData.text,
             textData.font,
@@ -246,6 +250,7 @@ local DrawSystem =
             textData.limit,
             textData.alignment
         )
+		love.graphics.setColor(1, 1, 1, 1)
     end,
 
 	DrawParticleSystem = function(self, particleSystemData)

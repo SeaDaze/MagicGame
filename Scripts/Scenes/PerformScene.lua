@@ -62,6 +62,7 @@ local PerformScene =
 		DrawSystem:AddDrawable(self.tricksText)
 		DrawSystem:AddDrawable(self.tutorialText)
 		self.scoreNotificationId = EventSystem:ConnectToEvent(EventIds.SpectatorScoreUpdated, self, "OnSpectatorScoreUpdated")
+		self.scoreText:SetText("Score: " .. tostring(math.floor(0)))
 		self.quota = Player:EvaluateQuota()
 		self.quotaText:SetText("Quota: ".. tostring(self.quota))
 		self.quotaReached = false

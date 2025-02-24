@@ -7,6 +7,7 @@ local Projectile = require("Scripts.Player.Projectile")
 local EventIds = require("Scripts.System.EventIds")
 local Techniques = require("Scripts.Techniques.Techniques")
 local TechniqueCard = require("Scripts.Items.Pickup.Cards.TechniqueCard")
+local ScoreText = require("Scripts.UI.ScoreText")
 
 local Player = 
 {
@@ -37,10 +38,12 @@ local Player =
 		{
 			level = 1,
 		}
+		self.scoreTexts = {}
     end,
 
     OnStart = function(self)
 		self.quotaReachedNotificationId = EventSystem:ConnectToEvent(EventIds.OnQuotaReached, self, "OnQuotaReached")
+		self.scoreTextNotificationId = EventSystem:ConnectToEvent(EventIds.OnFinishScoreTextLifetime, self, "OnFinishScoreTextLifetime")
 	end,
 
 	OnStop = function(self)
@@ -60,6 +63,9 @@ local Player =
             end
         end
 
+		for id, scoreText in pairs(self.scoreTexts) do
+			scoreText:Update(dt)
+		end
     end,
 
     FixedUpdate = function(self, dt)
@@ -204,6 +210,9 @@ local Player =
 	end,
 
 	OnTechniqueEvaluated = function(self, techniqueName, score)
+		local scoreText = ScoreText:New(math.floor(score))
+		self.scoreTexts[scoreText.id] = scoreText
+
 		local spectatorCount = table.count(self.spectators)
 		local projectileImage = Projectile:GetImage()
 		self.projectileSpriteBatch = Sprite:NewSpriteBatch(projectileImage, spectatorCount, DrawLayers.Projectiles)
@@ -265,6 +274,10 @@ local Player =
 			self.projectileSpriteBatch = nil
 			Log.Med("DestroyProjectile: 2")
 		end
+	end,
+
+	OnFinishScoreTextLifetime = function(self, scoreTextId)
+		self.scoreTexts[scoreTextId] = nil
 	end,
 
 	OnProjectileHit = function(self, projectile, target, score)

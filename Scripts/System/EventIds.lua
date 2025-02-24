@@ -17,5 +17,6 @@ local EventIds =
 	SceneTransitionMiddle = 15,
 	SceneTransitionEnd = 16,
 	OnQuotaReached = 17,
+	OnFinishScoreTextLifetime = 18,
 }
 return EventIds
